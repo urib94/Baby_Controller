@@ -1,29 +1,69 @@
 package com.baby_controller.src;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-public class User {
-    String _userName;
-    String _password;
-    List<Child> _children;
+public abstract class User {
+    private UserType userType;
+    private Institution institution;
+    private String _userName;
+    private String _password;
 
-    public User(String userName, String password){
-        _children = new ArrayList<>();
+
+    public User(String userName, String password, UserType userType){
+
         this._userName = userName;
         this._password = password;
+        this.userType = userType;
     }
 
     public void changPassword(String newPassword){
         _password = newPassword;
     }
 
-    public void addNewChild(String name, int day, int month, int year, double wight){
-        Child newChild = new Child(wight);
-        Date dateOfBirth = new Date(year,month,day);
-        Date today = new Date(System.currentTimeMillis());
-        newChild.set_ageInMonths((int)((today.getTime() - dateOfBirth.getTime()) / (1000 * 60 +24 * 30)));
-       _children.add(newChild);
+
+
+    public Institution getInstitution() {
+        return institution;
+    }
+
+    public void setInstitution(Institution institution) {
+        this.institution = institution;
+    }
+
+    public UserType getUserType() {
+        return userType;
+    }
+
+    public void setUserType(UserType userType) {
+        this.userType = userType;
+    }
+
+    public String get_userName() {
+        return _userName;
+    }
+
+    public void set_userName(String _userName) {
+        this._userName = _userName;
+    }
+
+    public abstract List<Child> getChildren();
+
+    public abstract Child getChild(String name, int id);
+
+    public String get_password() {
+        return _password;
+    }
+
+    public void set_password(String _password) {
+        this._password = _password;
+    }
+
+
+
+    public enum UserType{
+        MANAGER,
+        PARENT,
+        ADMINISTRATOR
     }
 }

@@ -1,43 +1,42 @@
 package com.baby_controller.src;
 
-import com.baby_controller.src.FeedingHistory;
-
 import java.sql.Time;
 import java.util.Date;
 
 public class Child {
-    private String _name;
-    private FeedingHistory _history;
-    private int _ageInMonths;
+    private String name;
+    private int id;
+    private FeedingHistory history;
+    private int ageInMonths;
 
 
     private  double _weight;
-    private int _recommendedAmountOfMeals;
-    private int _recommendedAmountPerMeal;
+    private int recommendedAmountOfMeals;
+    private int recommendedAmountPerMeal;
 
 public Child(){};
 
 public Child(double weight){
     _weight = weight;
     setRecommendedAmountPerMeal(weight);
-    _history = new FeedingHistory(this);
-    _history.addNextDay(this);
+    history = new FeedingHistory(this);
+    history.addNextDay(this);
 }
 
 public Child(String name,double weight){
     this._weight = weight;
-    this._name = name;
+    this.name = name;
     setRecommendedAmountPerMeal(weight);
-    _history = new FeedingHistory(this);
-    _history.addNextDay(this);
+    history = new FeedingHistory(this);
+    history.addNextDay(this);
 }
 
 public Child(double weight, int ageInMonths){
     this._weight = weight;
-    this._ageInMonths = ageInMonths;
+    this.ageInMonths = ageInMonths;
     setRecommendedAmountPerMeal(weight);
-    _history = new FeedingHistory(this);
-    _history.addNextDay(this);
+    history = new FeedingHistory(this);
+    history.addNextDay(this);
 }
 
     // TODO: 10/12/2021 add a method that parses the feeding history end returns the avg hour of the chile first meal of the day
@@ -47,19 +46,27 @@ public double  getChildWeight(){
 }
 public void set_recommendedAmountOfMeals(int ageInMonths){
     if(ageInMonths <= 1){
-        _recommendedAmountOfMeals = 12;
+        recommendedAmountOfMeals = 12;
     }else if(ageInMonths <= 6) {
-        _recommendedAmountOfMeals = 15;
+        recommendedAmountOfMeals = 15;
     } else if(ageInMonths <= 9){
-        _recommendedAmountOfMeals = 5;
+        recommendedAmountOfMeals = 5;
     }
-    _recommendedAmountOfMeals = 4;
+    recommendedAmountOfMeals = 4;
 }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public void eatingNextMeal(int amount){
         int dayNum = new Date(System.currentTimeMillis()).getDay();
-        Day currDay = _history.getLast();
-        if(currDay.get_meals().getAmountOfMeals() > _recommendedAmountOfMeals){
+        Day currDay = history.getLast();
+        if(currDay.get_meals().getAmountOfMeals() > recommendedAmountOfMeals){
             // TODO: 10/12/2021 send a message to the user indicating that the child hase exceeded the daily
            //  recommended amount of meals, ask him if he wold like to give home another meal?
         }
@@ -70,7 +77,7 @@ public void set_recommendedAmountOfMeals(int ageInMonths){
             foodEaten += tmp.get_receivedAmount();
         }
 
-        if(foodEaten >= _recommendedAmountOfMeals * _recommendedAmountPerMeal)
+        if(foodEaten >= recommendedAmountOfMeals * recommendedAmountPerMeal)
         {
             // TODO: 10/12/2021 send a message to the user indicating that the child hase exceeded the daily
             //  recommended amount of food, ask him if he wold like to give home another meal?
@@ -83,31 +90,71 @@ public void set_recommendedAmountOfMeals(int ageInMonths){
         currDay.addNewMeal();
         currDay.get_meals().get_curr().setEaten(1);
         currDay.get_meals().get_curr().set_whenEaten(new Time(System.currentTimeMillis()));
-        currDay.get_meals().add(_recommendedAmountPerMeal);
+        currDay.get_meals().add(recommendedAmountPerMeal);
         currDay.updateFeedingTimes();
 
         Date day = new java.sql.Date(currDay.get_meals().getLast().get_timeToEat().getTime());
 
         if(day.after(currDay.get_currDate())){
             // adding the new meal to the new day & eras it from yesterday.
-            _history.addNextDay(this);
-            _history.getLast().get_meals().addMeal(_history.getLast().get_prev().getLastMeal());
-            _history.getLast().get_meals().getLast().get_prev().set_next(null);
+            history.addNextDay(this);
+            history.getLast().get_meals().addMeal(history.getLast().get_prev().getLastMeal());
+            history.getLast().get_meals().getLast().get_prev().set_next(null);
         }
 
     }
 
     public void setRecommendedAmountPerMeal(double weight) {
-        this._recommendedAmountPerMeal =  (int) ((double)(weight * 150 / 8));;
+        this.recommendedAmountPerMeal =  (int) ((double)(weight * 150 / 8));;
     }
 
     public int getRecommendedAmountPerMeal(){
-        return _recommendedAmountPerMeal;
+        return recommendedAmountPerMeal;
     }
 
 
-    public void set_ageInMonths(int _ageInMonths) {
-        this._ageInMonths = _ageInMonths;
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public FeedingHistory getHistory() {
+        return history;
+    }
+
+    public void setHistory(FeedingHistory history) {
+        this.history = history;
+    }
+
+    public int getAgeInMonths() {
+        return ageInMonths;
+    }
+
+    public double get_weight() {
+        return _weight;
+    }
+
+    public void set_weight(double _weight) {
+        this._weight = _weight;
+    }
+
+    public int get_recommendedAmountOfMeals() {
+        return recommendedAmountOfMeals;
+    }
+
+    public int get_recommendedAmountPerMeal() {
+        return recommendedAmountPerMeal;
+    }
+
+    public void set_recommendedAmountPerMeal(int _recommendedAmountPerMeal) {
+        this.recommendedAmountPerMeal = _recommendedAmountPerMeal;
+    }
+
+    public void setAgeInMonths(int ageInMonths) {
+        this.ageInMonths = ageInMonths;
     }
 
 }
