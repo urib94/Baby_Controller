@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Baby_controller</string>
     <string name="enter">Enter</string>
+    <string name="enter_the_chaild_wight_in_kg">Enter the chaild wight in KG</string>
 </resources>

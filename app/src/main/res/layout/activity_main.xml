@@ -1,57 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout android:textColorHint="#757575" xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <Button
         android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="58dp"
-        android:layout_marginTop="2dp"
+        android:layout_marginTop="36dp"
         android:layout_marginEnd="259dp"
+        android:onClick="test"
         android:text="@string/enter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextNumberDecimal" />
 
-    <EditText
-        android:id="@+id/editTextNumberDecimal"
-        style="@style/Widget.AppCompat.EditText"
-        android:layout_width="309dp"
-        android:layout_height="41dp"
-        android:layout_marginStart="61dp"
-        android:layout_marginTop="48dp"
-        android:layout_marginEnd="41dp"
-        android:ems="10"
-        android:hapticFeedbackEnabled="true"
-        android:hint="Enter the chaild wight in KG"
-        android:inputType="numberDecimal"
-        android:onClick="test"
-        android:keyboardNavigationCluster="true"
 
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+
+    Source: https://www.holadevs.com/pregunta/110228/error-attribute-androidhinttextcolor-not-found
+        <EditText
+            android:id="@+id/editTextNumberDecimal"
+            style="@style/Widget.AppCompat.EditText"
+            android:layout_width="305dp"
+            android:layout_height="64dp"
+            android:layout_marginStart="61dp"
+            android:layout_marginTop="72dp"
+            android:layout_marginEnd="41dp"
+            android:ems="10"
+            android:hapticFeedbackEnabled="true"
+            android:hint="@string/enter_the_chaild_wight_in_kg"
+
+            android:inputType="numberDecimal"
+            android:keyboardNavigationCluster="true"
+
+            android:onClick="test"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="311dp"
         android:layout_height="101dp"
+        android:layout_marginTop="116dp"
+        android:layout_marginEnd="48dp"
         android:text="TextView"
-        tools:layout_editor_absoluteX="48dp"
-        tools:layout_editor_absoluteY="220dp" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
