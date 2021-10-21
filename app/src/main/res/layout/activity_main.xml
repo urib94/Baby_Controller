@@ -10,50 +10,10 @@
         android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="58dp"
-        android:layout_marginTop="36dp"
-        android:layout_marginEnd="259dp"
-        android:onClick="test"
-        android:text="@string/enter"
+        android:layout_marginTop="304dp"
+        android:text="Button"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextNumberDecimal" />
-
-
-
-    Source: https://www.holadevs.com/pregunta/110228/error-attribute-androidhinttextcolor-not-found
-        <EditText
-            android:id="@+id/editTextNumberDecimal"
-            style="@style/Widget.AppCompat.EditText"
-            android:layout_width="305dp"
-            android:layout_height="64dp"
-            android:layout_marginStart="61dp"
-            android:layout_marginTop="72dp"
-            android:layout_marginEnd="41dp"
-            android:ems="10"
-            android:hapticFeedbackEnabled="true"
-            android:hint="@string/enter_the_chaild_wight_in_kg"
-
-            android:inputType="numberDecimal"
-            android:keyboardNavigationCluster="true"
-
-            android:onClick="test"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="311dp"
-        android:layout_height="101dp"
-        android:layout_marginTop="116dp"
-        android:layout_marginEnd="48dp"
-        android:text="TextView"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button"/>
-
-
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

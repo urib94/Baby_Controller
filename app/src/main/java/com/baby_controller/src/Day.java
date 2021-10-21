@@ -1,5 +1,7 @@
 package com.baby_controller.src;
 
+import androidx.annotation.NonNull;
+
 import java.sql.Time;
 import java.util.Date;
 
@@ -9,10 +11,15 @@ public class Day  {
     boolean _firstMealIsEaten = false;
     private Date _carrDate;
     private int _recommendedAmountPerMeal;
-    private Child _child;
+    private Child  _child;
     private Day _next;
     private Day _prev;
 
+    public Day(Date date){
+        this._carrDate = date;
+        this._child = new Child();
+
+    }
     public Day(Child child) {
         this._child = child;
         for (int i = 0; i <= 13; i++) {
@@ -37,6 +44,18 @@ public class Day  {
         return tmp;
     }
 
+    public Meal addNewMeal(Meal meal){
+        if(_meals.getAmountOfMeals() >= 1) {
+            meal.setTimeToEat(_meals.get_curr());
+        }else {
+            meal.setTimeToEat(Config.DEAFULT_BREAKFAST_TIME);
+        }
+        meal.setEaten(-1);
+        _meals.get_curr().set_next(meal);
+        return meal;
+    }
+
+
     public Meal getLastMeal(){
         Meal tmp = _meals.get_head();
         return _meals.getLast();
@@ -49,6 +68,18 @@ public class Day  {
     public boolean is_firstMealIsEaten() {
 
         return _firstMealIsEaten;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return  "meals=" + _meals +
+                "\nfirstMealIsEaten=" + _firstMealIsEaten +
+                "\ncarrDate=" + _carrDate.getDate() +
+                "\nrecommendedAmountPerMeal=" + _recommendedAmountPerMeal +
+                "\nchild=" + _child +
+                "\nnext=" + _next +
+                "\nprev=" + _prev;
     }
 
     public void set_carrDate(Date _carrDate) {
@@ -123,7 +154,5 @@ public class Day  {
     public Day get_prev() {
         return _prev;
     }
-
-
 
 }

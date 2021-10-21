@@ -28,6 +28,9 @@ public class FeedingHistory {
     }
 
     public Day getLast(){
+        if(_head == null){
+            _head = new Day(new Date(System.currentTimeMillis()));
+        }
         Day tmp = _head;
         while (tmp.get_next() != null){
             tmp = tmp.get_next();
@@ -37,6 +40,18 @@ public class FeedingHistory {
 
 
     }
+
+    @Override
+    public String toString() {
+        StringBuilder str = new StringBuilder();
+        Day tmp = _head;
+        while (tmp.get_next() != null){
+            str.append(tmp.toString());
+            tmp = tmp.get_next();
+        }
+        return str.toString();
+    }
+
     public Day get_curr() {
         return _curr;
     }

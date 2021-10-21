@@ -1,6 +1,5 @@
 package com.baby_controller.src;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public abstract class User {
@@ -9,6 +8,10 @@ public abstract class User {
     private String _userName;
     private String _password;
 
+    public User(){
+        _userName = "test";
+        _password = "888";
+    };
 
     public User(String userName, String password, UserType userType){
 
@@ -50,6 +53,14 @@ public abstract class User {
     public abstract List<Child> getChildren();
 
     public abstract Child getChild(String name, int id);
+
+    @Override
+    public String toString() {
+        return  "\nuserType=" + userType +
+                "\ninstitution=" + institution +
+                "\n_userName='" + _userName + '\'' +
+                "\n_password='" + _password ;
+    }
 
     public String get_password() {
         return _password;

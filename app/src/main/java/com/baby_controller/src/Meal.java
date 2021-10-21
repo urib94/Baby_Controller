@@ -85,6 +85,18 @@ public class Meal {
         this._recommendedAmount = _recommendedAmount;
     }
 
+    @Override
+    public String toString() {
+        return  "recommendedAmount=" + _recommendedAmount +
+                "\nreceivedAmount=" + _receivedAmount +
+                "\nwhenEaten=" + _whenEaten +
+                "\ntimeToEat=" + _timeToEat +
+                "\nchild=" + child +
+                "\neaten=" + _eaten +
+                "\nnext=" + _next +
+                "\nprev=" + _prev;
+    }
+
     public void set_receivedAmount(int _receivedAmount) {
         this._receivedAmount = _receivedAmount;
     }

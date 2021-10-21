@@ -1,5 +1,7 @@
 package com.baby_controller.src;
 
+import com.baby_controller.src.util.DatabaseManager;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -28,6 +30,16 @@ public class Parent extends User{
         Date today = new Date(System.currentTimeMillis());
         newChild.setAgeInMonths((int)((today.getTime() - dateOfBirth.getTime()) / (1000 * 60 +24 * 30)));
         _children.add(newChild);
+        DatabaseManager.addNewChild(this,newChild);
+    }
+    public void addNewChild(Child child){
+        _children.add(child);
+        DatabaseManager.addNewChild(this,child);
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + "\n_children=" + _children;
     }
 
     public List<Child> get_children() {

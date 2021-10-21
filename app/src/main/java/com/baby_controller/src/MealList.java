@@ -43,7 +43,16 @@ public class MealList {
         this._head = _head;
     }
 
-
+    @Override
+    public String toString() {
+        StringBuilder str = new StringBuilder();
+        Meal tmp = _head;
+        while (tmp.get_next() != null){
+            str.append(tmp.toString());
+            tmp = tmp.get_next();
+        }
+        return str.toString();
+    }
 
     public Meal get_head() {
         return _head;

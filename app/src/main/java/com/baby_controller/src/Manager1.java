@@ -2,14 +2,14 @@ package com.baby_controller.src;
 
 import java.util.List;
 
-public class Manager extends User{
+public class Manager1 {
     //    List<Parent> parents = new ArrayList<>();
     Parent parents;
     String userName;
     String password;
     User.UserType userType = User.UserType.MANAGER;
 
-    public Manager(String userName, String password) {
+    public Manager1(String userName, String password) {
         this.userName = userName;
         this.password = password;
     }
@@ -30,7 +30,7 @@ public class Manager extends User{
         this.userName = userName;
     }
 
-    @Override
+
     public List<Child> getChildren() {
         return null;
     }
