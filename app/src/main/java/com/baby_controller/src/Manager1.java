@@ -1,5 +1,8 @@
 package com.baby_controller.src;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.util.List;
 
 public class Manager1 {
@@ -8,6 +11,7 @@ public class Manager1 {
     String userName;
     String password;
     User.UserType userType = User.UserType.MANAGER;
+
 
     public Manager1(String userName, String password) {
         this.userName = userName;
@@ -31,7 +35,7 @@ public class Manager1 {
     }
 
 
-    public List<Child> getChildren() {
+    public List<Baby> getChildren() {
         return null;
     }
 
@@ -52,7 +56,16 @@ public class Manager1 {
         this.userType = userType;
     }
 
+    /*
+       uses the User uploadToDb, start working in the "UserType" child
+       returns the reference to the manger's username child
+        */
 
+//    public synchronized DatabaseReference uploadToDb() {
+//        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference().child(get);
+//        dbRef.setValue(this);
+//        return dbRef;
+//    }
 
 
     @Override
@@ -61,7 +74,7 @@ public class Manager1 {
     }
 
 
-    public Child getChild(String name, int id) {
+    public Baby getChild(String name, int id) {
         return null;
     }
 }

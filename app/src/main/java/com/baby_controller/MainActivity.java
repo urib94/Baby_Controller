@@ -7,6 +7,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.baby_controller.src.Baby;
 import com.baby_controller.src.Child;
 import com.baby_controller.src.Day;
 import com.baby_controller.src.FeedingHistory;
@@ -18,6 +19,9 @@ import com.baby_controller.src.User;
 import com.baby_controller.src.util.DatabaseManager;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
         FirebaseApp.initializeApp(getApplicationContext());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        DatabaseManager.dbRef.child("asdasdasd");
 
         configureNextButton();
     }
@@ -46,19 +51,33 @@ public class MainActivity extends AppCompatActivity {
     private void configureNextButton() {
         Button nextButton = (Button) findViewById(R.id.button);
         nextButton.setOnClickListener(new View.OnClickListener() {
-            @Override
             public void onClick(View view) {
+
                 Manager1 man = new Manager1("manager1","mager1password");
                 Institution inst = new Institution(man,"institute1");
                 inst.addManager(new Manager1("manager2","manager2Password"));
 //                inst.addManager(man);
                 Parent parent1 = new Parent("parent1", "password 1", User.UserType.PARENT);
                 Child child = new Child("first baby",2.5);
+                parent1.setInstitution(inst);
+//                parent1.addNewChild(child);
+                //parent1.uploadToDb();
+//                child.uploadToDb();
+//                child.setParent(parent1);
+//                child.upload();
+//                FirebaseDatabase.getInstance().getReference().child(inst.getName()).child(User.UserType.PARENT.toString())
+//                        .child(parent1.getUserName()).child("children").child(child.getName()).setValue(child);
+
+                Baby baby = new Baby("mother fucker");
+                FirebaseDatabase.getInstance().getReference().child(inst.getName()).setValue(baby);
+
 //                man.addParent(parent1);
 //                man.getParents().get(0).addNewChild(child);
 //                man.getParents().get(0).getChildren().get(0).eatingNextMeal(60);
-//
-//
+//                DatabaseManager.addNewInstitution(inst);
+//                DatabaseManager.addNewManager(inst,man);
+//                DatabaseManager.addNewParent(inst,man,parent1);
+////
 //
 //
 //
@@ -82,13 +101,13 @@ public class MainActivity extends AppCompatActivity {
 //                meal.setEaten(1);
 //                meal.set_whenEaten(new Time(System.currentTimeMillis()));
 
-                DatabaseManager databaseManager = new DatabaseManager();
-                Manager1 many = new Manager1("meny1","meny1pas");
-//                DatabaseManager.addNewManager(inst,man);
-                DatabaseManager.addNewInstitution(new Institution(man,"first insi"));
-                DatabaseManager.addNewParent(inst,man ,parent1);
-//                DatabaseManager.addNewChild(parent1,child);
-//                DatabaseManager.addNewMeal(child,new Meal());
+//                DatabaseManager databaseManager = new DatabaseManager();
+//                Manager1 many = new Manager1("meny1","meny1pas");
+////                DatabaseManager.addNewManager(inst,man);
+//                DatabaseManager.addNewInstitution(new Institution(man,"first insi"));
+//                DatabaseManager.addNewParent(inst,man ,parent1);
+////                DatabaseManager.addNewChild(parent1,child);
+////                DatabaseManager.addNewMeal(child,new Meal());
 
             }
         });

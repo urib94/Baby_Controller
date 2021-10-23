@@ -1,10 +1,13 @@
 package com.baby_controller.src;
 
+import com.google.firebase.database.DatabaseReference;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Institution {
     private String name;
+    private DatabaseReference reference;
     List<Manager1> management = new ArrayList<>();
 //    public Institution(){
 //        name = "test";
@@ -54,5 +57,13 @@ public class Institution {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public DatabaseReference getReference() {
+        return reference;
+    }
+
+    public void setReference(DatabaseReference reference) {
+        this.reference = reference;
     }
 }

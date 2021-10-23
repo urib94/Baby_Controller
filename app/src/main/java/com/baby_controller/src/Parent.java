@@ -1,6 +1,7 @@
 package com.baby_controller.src;
 
 import com.baby_controller.src.util.DatabaseManager;
+import com.google.firebase.database.DatabaseReference;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -33,9 +34,24 @@ public class Parent extends User{
         DatabaseManager.addNewChild(this,newChild);
     }
     public void addNewChild(Child child){
+        child.setParent(this);
         _children.add(child);
-        DatabaseManager.addNewChild(this,child);
+
+        //DatabaseManager.addNewChild(this,child);
     }
+    public synchronized DatabaseReference uploadToDb(){
+        DatabaseReference dbRef = super.uploadToDb().child(getUserName());
+        DatabaseReference tmpRef =dbRef;
+        reference = tmpRef;
+
+        for(int i = 0; i < _children.size(); i++){
+            tmpRef.child(_children.get(i).getName());
+            tmpRef.setValue(_children.get(i).uploadToDb());
+            tmpRef = dbRef;
+        }
+        return reference;
+    }
+
 
     @Override
     public String toString() {

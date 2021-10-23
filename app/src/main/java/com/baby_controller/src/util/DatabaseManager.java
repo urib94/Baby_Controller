@@ -53,7 +53,7 @@ public class DatabaseManager {
 
     public static void addNewParent(Institution institution, Manager1 manager, Parent parent){
         dbRef.getRoot().child(institution.getName()).child(User.UserType.PARENT.toString())
-        .child(parent.get_userName()).setValue(parent);
+        .child(parent.getUserName()).setValue(parent);
     }
 
     public static DatabaseReference addNewChild(Parent parent, Child child){
@@ -63,13 +63,13 @@ public class DatabaseManager {
         return ref;
     }
 
-    public static DatabaseReference addNewMeal(Child child, Meal meal){
-        DatabaseReference ref = dbRef.getRoot().child(child.getName()).child(child.getName()).
-                child(String.valueOf(child.getHistory().get_curr().get_currDate().getDate()));
-        ref.child(String.valueOf(child.getHistory().get_curr().get_currDate().getDay())).child(String.valueOf(meal.get_whenEaten()) + String.valueOf(child.getHistory().get_curr().get_meals().getAmountOfMeals()))
-        .push().setValue(meal);
-        return ref;
-    }
+//    public static DatabaseReference addNewMeal(Child child, Meal meal){
+//        DatabaseReference ref = dbRef.getRoot().child(child.getName()).child(child.getName()).
+//                child(String.valueOf(child.getHistory().get_curr().get_currDate().getDate()));
+//        ref.child(String.valueOf(child.getHistory().get_curr().get_currDate().getDay())).child(String.valueOf(meal.get_whenEaten()) + String.valueOf(child.getHistory().get_curr().get_meals().getAmountOfMeals()))
+//        .push().setValue(meal);
+//        return ref;
+//    }
 
 //    public static DatabaseReference
 

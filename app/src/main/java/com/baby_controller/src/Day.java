@@ -11,17 +11,17 @@ public class Day  {
     boolean _firstMealIsEaten = false;
     private Date _carrDate;
     private int _recommendedAmountPerMeal;
-    private Child  _child;
+//    private Child  _child;
     private Day _next;
     private Day _prev;
 
     public Day(Date date){
         this._carrDate = date;
-        this._child = new Child();
+//        this._child = new Child();
 
     }
     public Day(Child child) {
-        this._child = child;
+//        this._child = child;
         for (int i = 0; i <= 13; i++) {
             _meals.add(child.getRecommendedAmountPerMeal());
             _meals.get_curr().setEaten(-1);
@@ -32,17 +32,17 @@ public class Day  {
         }
     }
 
-    public Meal addNewMeal(){
-        Meal tmp = new Meal(_child.getRecommendedAmountPerMeal());
-        if(_meals.getAmountOfMeals() >= 1) {
-            tmp.setTimeToEat(_meals.get_curr());
-        }else {
-            tmp.setTimeToEat(Config.DEAFULT_BREAKFAST_TIME);
-        }
-        tmp.setEaten(-1);
-        _meals.get_curr().set_next(tmp);
-        return tmp;
-    }
+//    public Meal addNewMeal(){
+////        Meal tmp = new Meal(_child.getRecommendedAmountPerMeal());
+//        if(_meals.getAmountOfMeals() >= 1) {
+////            tmp.setTimeToEat(_meals.get_curr());
+//        }else {
+////            tmp.setTimeToEat(Config.DEAFULT_BREAKFAST_TIME);
+//        }
+//        tmp.setEaten(-1);
+//        _meals.get_curr().set_next(tmp);
+//        return tmp;
+//    }
 
     public Meal addNewMeal(Meal meal){
         if(_meals.getAmountOfMeals() >= 1) {
@@ -77,7 +77,7 @@ public class Day  {
                 "\nfirstMealIsEaten=" + _firstMealIsEaten +
                 "\ncarrDate=" + _carrDate.getDate() +
                 "\nrecommendedAmountPerMeal=" + _recommendedAmountPerMeal +
-                "\nchild=" + _child +
+//                "\nchild=" + _child +
                 "\nnext=" + _next +
                 "\nprev=" + _prev;
     }
@@ -131,9 +131,9 @@ public class Day  {
         this._recommendedAmountPerMeal = _recommendedAmountPerMeal;
     }
 
-    public void set_child(Child _child) {
-        this._child = _child;
-    }
+//    public void set_child(Child _child) {
+//        this._child = _child;
+//    }
 
     public void set_next(Day _next) {
         this._next = _next;

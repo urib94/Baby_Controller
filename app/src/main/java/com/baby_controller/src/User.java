@@ -1,30 +1,37 @@
 package com.baby_controller.src;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.util.List;
 
 public abstract class User {
+    protected DatabaseReference reference;
     private UserType userType;
     private Institution institution;
-    private String _userName;
-    private String _password;
+    private String userName;
+    private String password;
 
     public User(){
-        _userName = "test";
-        _password = "888";
+        userName = "test";
+        password = "888";
     };
 
     public User(String userName, String password, UserType userType){
 
-        this._userName = userName;
-        this._password = password;
+        this.userName = userName;
+        this.password = password;
         this.userType = userType;
     }
 
     public void changPassword(String newPassword){
-        _password = newPassword;
+        password = newPassword;
     }
 
+    public DatabaseReference uploadToDb(){
 
+        return  reference = FirebaseDatabase.getInstance().getReference().child(getInstitution().getName()).child(userType.toString());
+    }
 
     public Institution getInstitution() {
         return institution;
@@ -42,32 +49,40 @@ public abstract class User {
         this.userType = userType;
     }
 
-    public String get_userName() {
-        return _userName;
+    public String getUserName() {
+        return userName;
     }
 
-    public void set_userName(String _userName) {
-        this._userName = _userName;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public abstract List<Child> getChildren();
 
     public abstract Child getChild(String name, int id);
 
+    public DatabaseReference getReference() {
+        return reference;
+    }
+
+    public void setReference(DatabaseReference reference) {
+        this.reference = reference;
+    }
+
     @Override
     public String toString() {
         return  "\nuserType=" + userType +
                 "\ninstitution=" + institution +
-                "\n_userName='" + _userName + '\'' +
-                "\n_password='" + _password ;
+                "\n_userName='" + userName + '\'' +
+                "\n_password='" + password;
     }
 
     public String get_password() {
-        return _password;
+        return password;
     }
 
-    public void set_password(String _password) {
-        this._password = _password;
+    public void set_password(String password) {
+        this.password = password;
     }
 
 

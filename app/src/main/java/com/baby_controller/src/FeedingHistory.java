@@ -11,8 +11,15 @@ public class FeedingHistory {
         _head.set_carrDate(new Date(System.currentTimeMillis()));
         _curr = _head;
     }
-    public void addNextDay(Child child){
-        Day newDay = new Day(child);
+
+
+    public FeedingHistory(Baby child){
+        _head = new Day(child);
+        _head.set_carrDate(new Date(System.currentTimeMillis()));
+        _curr = _head;
+    }
+    public void addNextDay(Baby baby){
+        Day newDay = new Day(baby);
     }
 
     public void set_head(Day _head) {

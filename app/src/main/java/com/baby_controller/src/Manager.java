@@ -22,11 +22,11 @@ public class Manager extends User{
         this.parents = parents;
     }
 
-    public String get_userName() {
+    public String getUserName() {
         return userName;
     }
 
-    public void set_userName(String userName) {
+    public void setUserName(String userName) {
         this.userName = userName;
     }
 
