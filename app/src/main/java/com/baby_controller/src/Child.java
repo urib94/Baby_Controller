@@ -89,7 +89,7 @@
 //        Meal tmp = currDay.get_meals().get_head();
 //
 //        while (tmp.get_next() != null) {
-//            foodEaten += tmp.get_receivedAmount();
+//            foodEaten += tmp.getReceivedAmount();
 //        }
 //
 //        if (foodEaten >= recommendedAmountOfMeals * recommendedAmountPerMeal) {
@@ -99,15 +99,15 @@
 //        // TODO: 10/12/2021  continue only if the user sed so
 //
 //        Meal newMealNode = new Meal(this.recommendedAmountOfMeals);
-//        newMealNode.set_whenEaten(new Time(System.currentTimeMillis()));
+//        newMealNode.setWhenEaten(new Time(System.currentTimeMillis()));
 //        newMealNode.mealWasEaten(amount);
 ////        currDay.addNewMeal();
 //        currDay.get_meals().get_curr().setEaten(1);
-//        currDay.get_meals().get_curr().set_whenEaten(new Time(System.currentTimeMillis()));
+//        currDay.get_meals().get_curr().setWhenEaten(new Time(System.currentTimeMillis()));
 //        currDay.get_meals().add(recommendedAmountPerMeal);
 //        currDay.updateFeedingTimes();
 //
-//        Date day = new java.sql.Date(currDay.get_meals().getLast().get_timeToEat().getTime());
+//        Date day = new java.sql.Date(currDay.get_meals().getLast().getTimeToEat().getTime());
 //
 //        if (day.after(currDay.get_currDate())) {
 //            // adding the new meal to the new day & eras it from yesterday.
@@ -119,14 +119,14 @@
 //    }
 //
 //    public synchronized DatabaseReference uploadToDb(){
-//        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child(parent.getInstitution().getName()).
+//        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child(parent.getInstitutionName().getName()).
 //                child(User.UserType.PARENT.toString()).child("Children").child(getName());
 //        ref.setValue(this);
 //        return ref;
 //    }
 //
 //    public void upload(){
-//        FirebaseDatabase.getInstance().getReference().child(parent.getInstitution().getName()).
+//        FirebaseDatabase.getInstance().getReference().child(parent.getInstitutionName().getName()).
 //                child(User.UserType.PARENT.toString()).child("Children").child(getName()).setValue(this);
 //    }
 //

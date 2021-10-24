@@ -1,9 +1,8 @@
 package com.baby_controller.src.util;
 
-import com.baby_controller.src.Child;
+import com.baby_controller.src.Baby;
 import com.baby_controller.src.Institution;
 import com.baby_controller.src.Manager1;
-import com.baby_controller.src.Meal;
 import com.baby_controller.src.Parent;
 import com.baby_controller.src.User;
 import com.google.firebase.database.DataSnapshot;
@@ -56,9 +55,9 @@ public class DatabaseManager {
         .child(parent.getUserName()).setValue(parent);
     }
 
-    public static DatabaseReference addNewChild(Parent parent, Child child){
-        DatabaseReference ref = dbRef.getRoot().child(parent.getInstitution().getName());
-//                child(parent.getInstitution().getManger()).child(parent.get_userName());
+    public static DatabaseReference addNewChild(Parent parent, Baby baby){
+        DatabaseReference ref = dbRef.getRoot().child(parent.getInstitutionName());
+//                child(parent.getInstitutionName().getManger()).child(parent.get_userName());
 //        ref.child(child.getName()).push().setValue(child);;
         return ref;
     }
@@ -66,7 +65,7 @@ public class DatabaseManager {
 //    public static DatabaseReference addNewMeal(Child child, Meal meal){
 //        DatabaseReference ref = dbRef.getRoot().child(child.getName()).child(child.getName()).
 //                child(String.valueOf(child.getHistory().get_curr().get_currDate().getDate()));
-//        ref.child(String.valueOf(child.getHistory().get_curr().get_currDate().getDay())).child(String.valueOf(meal.get_whenEaten()) + String.valueOf(child.getHistory().get_curr().get_meals().getAmountOfMeals()))
+//        ref.child(String.valueOf(child.getHistory().get_curr().get_currDate().getDay())).child(String.valueOf(meal.getWhenEaten()) + String.valueOf(child.getHistory().get_curr().get_meals().getAmountOfMeals()))
 //        .push().setValue(meal);
 //        return ref;
 //    }

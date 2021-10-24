@@ -18,7 +18,7 @@ public class Institution {
 
     public Institution (Manager1 manager, String name){
         this.name = name;
-//        manager.setInstitution(this);
+//        manager.setInstitutionName(this);
         this.management.add(manager);
     }
 

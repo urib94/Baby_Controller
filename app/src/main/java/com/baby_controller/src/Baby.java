@@ -4,15 +4,12 @@ package com.baby_controller.src;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.sql.Time;
-import java.util.Date;
-
 public  class Baby {
     protected DatabaseReference reference;
     private Parent parent;
     private String name = "";
     private int id = 0;
-    private FeedingHistory history;
+    MealList history;
     private int ageInMonths = 0;
 //    private Parent[] parents = new Parent[2];
 
@@ -24,13 +21,20 @@ public  class Baby {
 
     public Baby(String name) {
         this.name = name;
+        //history = new MealList();
+    }
+
+    public Baby(String name, double weight){
+        this._weight = weight;
+        this.name = name;
+        calcRecommendedAmountPerMeal(weight);
+        history = new MealList(recommendedAmountPerMeal);
     }
 
     public Baby(double weight){
         _weight = weight;
         calcRecommendedAmountPerMeal(weight);
-        history = new FeedingHistory(this);
-        history.addNextDay(this);
+        history = new MealList(recommendedAmountPerMeal);
     }
 
     public void calcRecommendedAmountPerMeal(double weight) {
@@ -50,63 +54,64 @@ public  class Baby {
     }
 
     public void eatingNextMeal(int amount) {
-        int dayNum = new Date(System.currentTimeMillis()).getDay();
-        Day currDay = history.getLast();
-        if (currDay == null){
-            System.out.println("fuck");
-            currDay = new Day(this);
-        }
-        if (currDay.get_meals().getAmountOfMeals() > recommendedAmountOfMeals) {
-            // TODO: 10/12/2021 send a message to the user indicating that the child hase exceeded the daily
-            //  recommended amount of meals, ask him if he wold like to give home another meal?
-        }
-        int foodEaten = 0;
-        Meal tmp = currDay.get_meals().get_head();
+        history.add(amount);
+        // TODO: 10/23/2021 redo this function
 
-        while (tmp.get_next() != null) {
-            foodEaten += tmp.get_receivedAmount();
-        }
 
-        if (foodEaten >= recommendedAmountOfMeals * recommendedAmountPerMeal) {
-            // TODO: 10/12/2021 send a message to the user indicating that the child hase exceeded the daily
-            //  recommended amount of food, ask him if he wold like to give home another meal?
-        }
-        // TODO: 10/12/2021  continue only if the user sed so
 
-        Meal newMealNode = new Meal(this.recommendedAmountOfMeals);
-        newMealNode.set_whenEaten(new Time(System.currentTimeMillis()));
-        newMealNode.mealWasEaten(amount);
-//        currDay.addNewMeal();
-        currDay.get_meals().get_curr().setEaten(1);
-        currDay.get_meals().get_curr().set_whenEaten(new Time(System.currentTimeMillis()));
-        currDay.get_meals().add(recommendedAmountPerMeal);
-        currDay.updateFeedingTimes();
 
-        Date day = new java.sql.Date(currDay.get_meals().getLast().get_timeToEat().getTime());
 
-        if (day.after(currDay.get_currDate())) {
-            // adding the new meal to the new day & eras it from yesterday.
-//            history.addNextDay(this);
-            history.getLast().get_meals().addMeal(history.getLast().get_prev().getLastMeal());
-            history.getLast().get_meals().getLast().get_prev().set_next(null);
-        }
+//        int dayNum = new Date(System.currentTimeMillis()).getDay();
+//        Day currDay = history.getLast();
+//        if (currDay == null){
+//            System.out.println("fuck");
+//            currDay = new Day(recommendedAmountOfMeals);
+//        }
+//        if (currDay.get_meals().getAmountOfMeals() > recommendedAmountOfMeals) {
+//            // TODO: 10/12/2021 send a message to the user indicating that the child hase exceeded the daily
+//            //  recommended amount of meals, ask him if he wold like to give home another meal?
+//        }
+//        int foodEaten = 0;
+//        Meal tmp = currDay.get_meals().get_head();
+//
+//        while (tmp.get_next() != null) {
+//            foodEaten += tmp.getReceivedAmount();
+//        }
+//
+//        if (foodEaten >= recommendedAmountOfMeals * recommendedAmountPerMeal) {
+//            // TODO: 10/12/2021 send a message to the user indicating that the child hase exceeded the daily
+//            //  recommended amount of food, ask him if he wold like to give home another meal?
+//        }
+//        // TODO: 10/12/2021  continue only if the user sed so
+//
+//        Meal newMealNode = new Meal(this.recommendedAmountOfMeals);
+//        newMealNode.setWhenEaten(new Time(System.currentTimeMillis()));
+//        newMealNode.mealWasEaten(amount);
+////        currDay.addNewMeal();
+//        currDay.get_meals().get_curr().setEaten(1);
+//        currDay.get_meals().get_curr().setWhenEaten(new Time(System.currentTimeMillis()));
+//        currDay.get_meals().add(recommendedAmountPerMeal);
+//        currDay.updateFeedingTimes();
+//
+//        Date day = new java.sql.Date(currDay.get_meals().getLast().getTimeToEat().getTime());
+//
+//        if (day.after(currDay.get_currDate())) {
+//            // adding the new meal to the new day & eras it from yesterday.
+////            history.addNextDay(this);
+//            history.getLast().get_meals().addMeal(history.getLast().get_prev().getLastMeal());
+//            history.getLast().get_meals().getLast().get_prev().set_next(null);
+//        }
 //        DatabaseManager.addNewMeal(this,newMealNode);
 
 
 
     }
 
-    public synchronized DatabaseReference uploadToDb(){
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child(parent.getInstitution().getName()).
-                child(User.UserType.PARENT.toString()).child("Children").child(getName());
-        ref.setValue(this);
-        return ref;
-    }
+    public void uploadToDb(){
+        FirebaseDatabase.getInstance().getReference().child(parent.getInstitutionName())
+                .child(User.UserType.PARENT.toString()).child(getParent().getUserName())
+                .child("Children").child(getName()).setValue(this);
 
-
-    public void upload(){
-        FirebaseDatabase.getInstance().getReference().child(parent.getInstitution().getName()).
-                child(User.UserType.PARENT.toString()).child("Children").child(getName()).setValue(this);
     }
 
 
@@ -154,11 +159,11 @@ public  class Baby {
         this.id = id;
     }
 
-    public FeedingHistory getHistory() {
+    public MealList getHistory() {
         return history;
     }
 
-    public void setHistory(FeedingHistory history) {
+    public void setHistory(MealList history) {
         this.history = history;
     }
 

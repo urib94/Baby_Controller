@@ -8,7 +8,7 @@ import java.util.List;
 public abstract class User {
     protected DatabaseReference reference;
     private UserType userType;
-    private Institution institution;
+    private String institutionName;
     private String userName;
     private String password;
 
@@ -30,15 +30,15 @@ public abstract class User {
 
     public DatabaseReference uploadToDb(){
 
-        return  reference = FirebaseDatabase.getInstance().getReference().child(getInstitution().getName()).child(userType.toString());
+        return  reference = FirebaseDatabase.getInstance().getReference().child(getInstitutionName().getName()).child(userType.toString());
     }
 
-    public Institution getInstitution() {
-        return institution;
+    public String getInstitutionName() {
+        return institutionName;
     }
 
-    public void setInstitution(Institution institution) {
-        this.institution = institution;
+    public void setInstitutionName(String institutionName) {
+        this.institutionName = institutionName;
     }
 
     public UserType getUserType() {
@@ -57,9 +57,9 @@ public abstract class User {
         this.userName = userName;
     }
 
-    public abstract List<Child> getChildren();
+    public abstract List<Baby> getChildren();
 
-    public abstract Child getChild(String name, int id);
+    public abstract Baby getChild(String name, int id);
 
     public DatabaseReference getReference() {
         return reference;
@@ -72,7 +72,7 @@ public abstract class User {
     @Override
     public String toString() {
         return  "\nuserType=" + userType +
-                "\ninstitution=" + institution +
+                "\ninstitutionName=" + institutionName +
                 "\n_userName='" + userName + '\'' +
                 "\n_password='" + password;
     }

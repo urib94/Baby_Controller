@@ -20,24 +20,24 @@ public class Day  {
 //        this._child = new Child();
 
     }
-    public Day(Child child) {
+    public Day(int recamount) {
 //        this._child = child;
         for (int i = 0; i <= 13; i++) {
-            _meals.add(child.getRecommendedAmountPerMeal());
+            _meals.add(recamount);
             _meals.get_curr().setEaten(-1);
             if (i != 0) {
                 _meals.get_curr().setEaten(-1);
-                _meals.get_curr().setTimeToEat(_meals.getLast().get_prev());
-            } else _meals.get_curr().setTimeToEat((Meal) null);
+                _meals.get_curr().calcTimeToEat(_meals.getLast().get_prev());
+            } else _meals.get_curr().calcTimeToEat((Meal) null);
         }
     }
 
 //    public Meal addNewMeal(){
 ////        Meal tmp = new Meal(_child.getRecommendedAmountPerMeal());
 //        if(_meals.getAmountOfMeals() >= 1) {
-////            tmp.setTimeToEat(_meals.get_curr());
+////            tmp.calcTimeToEat(_meals.get_curr());
 //        }else {
-////            tmp.setTimeToEat(Config.DEAFULT_BREAKFAST_TIME);
+////            tmp.calcTimeToEat(Config.DEAFULT_BREAKFAST_TIME);
 //        }
 //        tmp.setEaten(-1);
 //        _meals.get_curr().set_next(tmp);
@@ -46,7 +46,7 @@ public class Day  {
 
     public Meal addNewMeal(Meal meal){
         if(_meals.getAmountOfMeals() >= 1) {
-            meal.setTimeToEat(_meals.get_curr());
+            meal.calcTimeToEat(_meals.get_curr());
         }else {
             meal.setTimeToEat(Config.DEAFULT_BREAKFAST_TIME);
         }
@@ -102,13 +102,13 @@ public class Day  {
      */
     public void updateFeedingTimes(){
         if (_firstMealIsEaten){
-            long firstMealTime = _meals.get_head().get_whenEaten().getTime();
+            long firstMealTime = _meals.get_head().getWhenEaten().getTime();
             Meal tmp = _meals.get_head();
             while (tmp.get_next() != null){
                 if(tmp.isEaten() == -1){
                     continue;
                 }
-                tmp.setTimeToEat(tmp.get_prev());
+                tmp.calcTimeToEat(tmp.get_prev());
                 tmp = tmp.get_next();
             }
         }
@@ -141,10 +141,6 @@ public class Day  {
 
     public void set_prev(Day _prev) {
         this._prev = _prev;
-    }
-
-    public Child get_child() {
-        return _child;
     }
 
     public Day get_next() {

@@ -8,7 +8,6 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.baby_controller.src.Baby;
-import com.baby_controller.src.Child;
 import com.baby_controller.src.Day;
 import com.baby_controller.src.FeedingHistory;
 import com.baby_controller.src.Institution;
@@ -19,9 +18,6 @@ import com.baby_controller.src.User;
 import com.baby_controller.src.util.DatabaseManager;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.database.FirebaseDatabase;
-
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,8 +26,8 @@ public class MainActivity extends AppCompatActivity {
         TextView textView = (TextView) view;
         TextView display = findViewById(R.id.button);
         String weight = textView.getText().toString();
-        Child child = new Child("newBorn",new Double(weight).doubleValue());
-        double rec = child.getRecommendedAmountPerMeal();
+        Baby baby = new Baby("newBorn",new Double(weight).doubleValue());
+        double rec = baby.getRecommendedAmountPerMeal();
         Snackbar.make(view,textView.getText(),10).show();
         System.out.println("the recommended amount for that baby is " + rec);
         display.setText("the recommended amount of food is" + rec);
@@ -58,8 +54,8 @@ public class MainActivity extends AppCompatActivity {
                 inst.addManager(new Manager1("manager2","manager2Password"));
 //                inst.addManager(man);
                 Parent parent1 = new Parent("parent1", "password 1", User.UserType.PARENT);
-                Child child = new Child("first baby",2.5);
-                parent1.setInstitution(inst);
+                Baby baby2 = new Baby("first baby2",2.5);
+                parent1.setInstitutionName(inst.getName());
 //                parent1.addNewChild(child);
                 //parent1.uploadToDb();
 //                child.uploadToDb();
@@ -68,8 +64,11 @@ public class MainActivity extends AppCompatActivity {
 //                FirebaseDatabase.getInstance().getReference().child(inst.getName()).child(User.UserType.PARENT.toString())
 //                        .child(parent1.getUserName()).child("children").child(child.getName()).setValue(child);
 
-                Baby baby = new Baby("mother fucker");
-                FirebaseDatabase.getInstance().getReference().child(inst.getName()).setValue(baby);
+                Baby baby1 = new Baby("mother fucker");
+                baby1.setParent(parent1);
+                parent1.uploadToDb();
+                baby1.uploadToDb();
+//                FirebaseDatabase.getInstance().getReference().child(inst.getName()).child(parent1.getUserName()).setValue(baby1);
 
 //                man.addParent(parent1);
 //                man.getParents().get(0).addNewChild(child);
@@ -83,23 +82,23 @@ public class MainActivity extends AppCompatActivity {
 //
 //
 //
-                Day day = new Day(child);
+                Day day = new Day(baby2.getRecommendedAmountPerMeal());
                 Meal meal = new Meal();
                 FeedingHistory feedingHistory = new FeedingHistory();
 
-//                parent1.setInstitution(new Institution());
-//                parent1.getInstitution().setName("test");
+//                parent1.setInstitutionName(new Institution());
+//                parent1.getInstitutionName().setName("test");
 //                Parent[] perentsOfChild = {parent1};
-//                man.setInstitution(inst);
+//                man.setInstitutionName(inst);
 //
 //                day.set_carrDate(new Date(System.currentTimeMillis()));
 //                feedingHistory.set_curr(day);
 //                child.setHistory(feedingHistory);
 //                child.eatingNextMeal(60);
-//                meal.set_receivedAmount(30);
-//                meal.set_receivedAmount(35);
+//                meal.setReceivedAmount(30);
+//                meal.setReceivedAmount(35);
 //                meal.setEaten(1);
-//                meal.set_whenEaten(new Time(System.currentTimeMillis()));
+//                meal.setWhenEaten(new Time(System.currentTimeMillis()));
 
 //                DatabaseManager databaseManager = new DatabaseManager();
 //                Manager1 many = new Manager1("meny1","meny1pas");

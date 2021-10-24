@@ -31,7 +31,7 @@ public class Manager extends User{
     }
 
     @Override
-    public List<Child> getChildren() {
+    public List<Baby> getChildren() {
         return null;
     }
 
@@ -61,7 +61,7 @@ public class Manager extends User{
     }
 
 
-    public Child getChild(String name, int id) {
+    public Baby getChild(String name, int id) {
         return null;
     }
 }

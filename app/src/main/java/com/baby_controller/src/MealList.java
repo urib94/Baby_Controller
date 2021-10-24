@@ -4,9 +4,15 @@ public class MealList {
     private Meal _head = null;
     private Meal _curr = null;
     private int count = 0;
+    private int recommendedAmount = 0;
+
     public MealList(){
         _head = new Meal();
         _curr = _head;
+    }
+
+    public MealList(int recommendedAmountPerMeal) {
+        this.recommendedAmount = recommendedAmountPerMeal;
     }
 
     public void add(int recommendedAmount){

@@ -6,20 +6,14 @@ public class FeedingHistory {
     private Day _head;
     private Day _curr;
 
-    public FeedingHistory(Child child){
-        _head = new Day(child);
+    public FeedingHistory(Baby baby){
+        _head = new Day(baby.getRecommendedAmountPerMeal());
         _head.set_carrDate(new Date(System.currentTimeMillis()));
         _curr = _head;
     }
 
-
-    public FeedingHistory(Baby child){
-        _head = new Day(child);
-        _head.set_carrDate(new Date(System.currentTimeMillis()));
-        _curr = _head;
-    }
     public void addNextDay(Baby baby){
-        Day newDay = new Day(baby);
+        Day newDay = new Day(baby.getRecommendedAmountPerMeal());
     }
 
     public void set_head(Day _head) {

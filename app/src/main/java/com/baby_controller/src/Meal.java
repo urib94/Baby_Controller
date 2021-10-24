@@ -3,13 +3,14 @@ package com.baby_controller.src;
 
 
 import java.sql.Time;
+import java.util.Date;
 
 public class Meal {
-    private int _recommendedAmount;
-    private int _receivedAmount = 0;
-    private Time _whenEaten = new Time(0);
-    private Time _timeToEat = new Time(0);
-    private Child child;
+    private int recommendedAmount;
+    private int receivedAmount = 0;
+    private Time whenEaten = new Time(0);
+    private Time timeToEat = new Time(0);
+    private Date currDate = new Date(System.currentTimeMillis());
     /*
      * -1 for un eaten meals, 1 for fully eaten meals, 0 for partially eaten
      */
@@ -21,23 +22,23 @@ public class Meal {
     public Meal(){}
 
     public Meal(int recommendedAmount){
-        this._recommendedAmount = recommendedAmount;
+        this.recommendedAmount = recommendedAmount;
     }
 
     public void setTimeToEat(Time time){
-        _timeToEat.setTime(time.getTime());
+        timeToEat.setTime(time.getTime());
     }
 
-    public void setTimeToEat(Meal prevMealNode){
+    public void calcTimeToEat(Meal prevMealNode){
         if(prevMealNode == null) {
-            this._timeToEat = Config.DEAFULT_BREAKFAST_TIME;
+            this.timeToEat = Config.DEAFULT_BREAKFAST_TIME;
             return;
         }
         if(this.isEaten() != 1){
             if(prevMealNode.isEaten() == 1) {
-                this._timeToEat.setTime(prevMealNode._whenEaten.getTime() + Config.TIME_BETWEEN_MEALS);
+                this.timeToEat.setTime(prevMealNode.whenEaten.getTime() + Config.TIME_BETWEEN_MEALS);
             }
-            else this._timeToEat.setTime(prevMealNode._timeToEat.getTime() + Config.TIME_BETWEEN_MEALS);
+            else this.timeToEat.setTime(prevMealNode.timeToEat.getTime() + Config.TIME_BETWEEN_MEALS);
         }
     }
 
@@ -49,85 +50,80 @@ public class Meal {
     }
 
     public void mealWasEaten(int amount){
-        if(amount >= get_recommendedAmount()) {
+        if(amount >= getRecommendedAmount()) {
             setEaten(1);
         }else if(amount == 0){
             setEaten(-1);
         }else setEaten(0);
-        _receivedAmount = amount;
+        receivedAmount = amount;
     }
 
     public void setMealRecommendedAmount(int amount) {
-        this._recommendedAmount = amount;
+        this.recommendedAmount = amount;
     }
 
     public int isEaten(){
-        if(_receivedAmount == 0){
+        if(receivedAmount == 0){
             return -1;
         }
-        if(_recommendedAmount - _receivedAmount <= 0) {
+        if(recommendedAmount - receivedAmount <= 0) {
             return  1;
         }
         // if the child have eaten, but not enough
         return 0;
     }
 
-
-    public int get_receivedAmount() {
-        return _receivedAmount;
+    public Date getCurrDate() {
+        return currDate;
     }
 
-    public int get_recommendedAmount() {
-        return _recommendedAmount;
+    public void setCurrDate(Date currDate) {
+        this.currDate = currDate;
     }
 
-    public void set_recommendedAmount(int _recommendedAmount) {
-        this._recommendedAmount = _recommendedAmount;
+    public int getReceivedAmount() {
+        return receivedAmount;
+    }
+
+    public int getRecommendedAmount() {
+        return recommendedAmount;
+    }
+
+    public void setRecommendedAmount(int recommendedAmount) {
+        this.recommendedAmount = recommendedAmount;
     }
 
     @Override
     public String toString() {
-        return  "recommendedAmount=" + _recommendedAmount +
-                "\nreceivedAmount=" + _receivedAmount +
-                "\nwhenEaten=" + _whenEaten +
-                "\ntimeToEat=" + _timeToEat +
-                "\nchild=" + child +
+        return  "recommendedAmount=" + recommendedAmount +
+                "\nreceivedAmount=" + receivedAmount +
+                "\nwhenEaten=" + whenEaten +
+                "\ntimeToEat=" + timeToEat +
                 "\neaten=" + _eaten +
                 "\nnext=" + _next +
                 "\nprev=" + _prev;
     }
 
-    public void set_receivedAmount(int _receivedAmount) {
-        this._receivedAmount = _receivedAmount;
+    public void setReceivedAmount(int receivedAmount) {
+        this.receivedAmount = receivedAmount;
     }
 
-    public void set_whenEaten(Time _whenEaten) {
-        this._whenEaten = _whenEaten;
-    }
-
-    public void set_timeToEat(Time _timeToEat) {
-        this._timeToEat = _timeToEat;
-    }
-
-    public void setChild(Child child) {
-        this.child = child;
+    public void setWhenEaten(Time whenEaten) {
+        this.whenEaten = whenEaten;
     }
 
     public void set_eaten(int _eaten) {
         this._eaten = _eaten;
     }
 
-    public Time get_whenEaten() {
-        return _whenEaten;
+    public Time getWhenEaten() {
+        return whenEaten;
     }
 
-    public Time get_timeToEat() {
-        return _timeToEat;
+    public Time getTimeToEat() {
+        return timeToEat;
     }
 
-    public Child getChild() {
-        return child;
-    }
 
     public int get_eaten() {
         return _eaten;

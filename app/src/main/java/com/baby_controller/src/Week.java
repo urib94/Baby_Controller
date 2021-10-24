@@ -5,14 +5,14 @@ import java.util.Date;
 public class Week {
     Day[] _daysOfTheWeek = new Day[7];
     Date startDate = new Date(System.currentTimeMillis());
-    protected Child _child ;
+    protected Baby baby ;
 
-    public Week(Child child){
+    public Week(Baby baby){
         int i = 0;
-        this._child = child;
+        this.baby = baby;
 
         for(Day day:_daysOfTheWeek){
-            day = new Day(_child);
+            day = new Day(baby.getRecommendedAmountPerMeal());
             day.set_carrDate(new Date(System.currentTimeMillis() + (1000 * 60 * 24) * i++));
         }
     };
@@ -35,8 +35,8 @@ public class Week {
         return startDate;
     }
 
-    public Child get_child() {
-        return _child;
+    public Baby get_child() {
+        return baby;
     }
 }
 
