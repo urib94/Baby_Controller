@@ -8,4 +8,5 @@ public class Config {
 
     public static final Time DEAFULT_BREAKFAST_TIME = new Time(8,0,0);
 
+    public static final long TEN_MIN = 600000;
 }

@@ -15,8 +15,8 @@ import java.util.List;
 public class Institution {
     private String name;
     private DatabaseReference reference;
-    List<Manager1> management = new LinkedList<>();
-    List<Parent> parents = new LinkedList<>();
+    LinkedList<Manager1> management = new LinkedList<>();
+    LinkedList<Parent> parents = new LinkedList<>();
 
     public Institution(){
     }
@@ -92,6 +92,18 @@ public class Institution {
         return management;
     }
 
+    public void setManagement(LinkedList<Manager1> management) {
+        this.management = management;
+    }
+
+    public LinkedList<Parent> getParents() {
+        return parents;
+    }
+
+    public void setParents(LinkedList<Parent> parents) {
+        this.parents = parents;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -136,5 +148,15 @@ public class Institution {
 
 
         return reference;
+    }
+
+    public Baby needToFeed(){
+        for (Parent parent : getParents()){
+            Baby baby = parent.babyNeedToFeed();
+            if(baby != null){
+                return baby;
+            }
+        }
+        return null;
     }
 }

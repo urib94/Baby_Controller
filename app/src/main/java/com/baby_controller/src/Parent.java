@@ -7,6 +7,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -89,7 +90,20 @@ public class Parent extends User{
     }
 
 
+    public void notifyParent(){
+        // TODO: 10/26/2021  writ this function
+    }
 
+    public Baby babyNeedToFeed(){
+        for (Baby baby: children){
+            Meal last = baby.history.get(baby.history.size() -1);
+            Time now = new Time(System.currentTimeMillis());
+            if (now.after(last.getTimeToEat())){
+                return baby;
+            }
+        }
+        return null;
+    }
 
     public void setChildren(List<Baby> children) {
         this.children = children;

@@ -6,9 +6,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.LinkedList;
 import java.util.List;
 
-public class Manager1 extends User {
+public class Manager1 extends User implements Runnable {
     //    List<Parent> parents = new ArrayList<>();
     DatabaseReference reference;
     User.UserType userType = User.UserType.MANAGER;
@@ -91,5 +92,45 @@ public class Manager1 extends User {
             }
         };
         return reference;
+    }
+
+
+    public void feedBaby(int amount, Baby babyToFeed){
+        LinkedList<Parent> parents = getInstitution().getParents();
+        Baby tmp = null;
+        for(Parent parent :parents){
+            for (Baby baby: parent.getChildren()){
+                if(tmp == null){
+                    if (baby.equals(babyToFeed)){
+                        tmp = baby;
+                        break;
+                    }
+                    if(tmp != null){
+                        tmp.eatingNextMeal(amount);
+                        tmp.uploadToDb();
+                        parent.notifyParent();
+                        break;
+                    }
+                }
+            }
+        }
+
+    }
+    public void notifyBabyNeedToEat(Baby baby){
+
+    }
+
+
+    @Override
+    public void run() {
+        int i = 0;
+        while (i != 1){
+            if((System.currentTimeMillis() % Config.TEN_MIN) == 0) {
+                Baby baby = getInstitution().needToFeed();
+                if (baby != null) {
+                    notifyBabyNeedToEat(baby);
+                }
+            }
+        }
     }
 }
