@@ -1,16 +1,25 @@
 package com.baby_controller.src;
 
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.sql.Time;
+import java.util.Date;
+import java.util.LinkedList;
 
 public  class Baby {
     protected DatabaseReference reference;
     private Parent parent;
     private String name = "";
     private int id = 0;
-    MealList history;
+    //MealList history;
+    LinkedList<Meal> history = new LinkedList<Meal>();
     private int ageInMonths = 0;
+    Meal meal = new Meal(60);
 //    private Parent[] parents = new Parent[2];
 
     private double _weight = 0;
@@ -18,6 +27,18 @@ public  class Baby {
     private int recommendedAmountPerMeal = 0;
 
     public Baby(){}
+
+    public Baby copyForParent(){
+        Baby tmp = new Baby();
+        tmp.recommendedAmountPerMeal = this.recommendedAmountPerMeal;
+        tmp.recommendedAmountOfMeals = this.recommendedAmountOfMeals;
+        tmp._weight= this._weight;
+        tmp.ageInMonths = ageInMonths;
+        tmp.history = this.history;
+        tmp.parent = parent;
+        tmp.name = this.name;
+        return tmp;
+    }
 
     public Baby(String name) {
         this.name = name;
@@ -28,13 +49,13 @@ public  class Baby {
         this._weight = weight;
         this.name = name;
         calcRecommendedAmountPerMeal(weight);
-        history = new MealList(recommendedAmountPerMeal);
+       // history = new MealList(recommendedAmountPerMeal);
     }
 
     public Baby(double weight){
         _weight = weight;
         calcRecommendedAmountPerMeal(weight);
-        history = new MealList(recommendedAmountPerMeal);
+        //history = new MealList(recommendedAmountPerMeal);
     }
 
     public void calcRecommendedAmountPerMeal(double weight) {
@@ -54,63 +75,81 @@ public  class Baby {
     }
 
     public void eatingNextMeal(int amount) {
-        history.add(amount);
-        // TODO: 10/23/2021 redo this function
+        createNextMeal(amount);
+        if(reference == null){
+            if(parent.getReference() != null){
+                reference = parent.getReference().child("children").child(name);
+            } else {
+                reference = FirebaseDatabase.getInstance().getReference().child(parent.getInstitution()
+                        .getName()).child("parents").child(parent.getUserName()).child("children").child(name);
+            }
+        }
 
-
-
-
-
-//        int dayNum = new Date(System.currentTimeMillis()).getDay();
-//        Day currDay = history.getLast();
-//        if (currDay == null){
-//            System.out.println("fuck");
-//            currDay = new Day(recommendedAmountOfMeals);
-//        }
-//        if (currDay.get_meals().getAmountOfMeals() > recommendedAmountOfMeals) {
-//            // TODO: 10/12/2021 send a message to the user indicating that the child hase exceeded the daily
-//            //  recommended amount of meals, ask him if he wold like to give home another meal?
-//        }
-//        int foodEaten = 0;
-//        Meal tmp = currDay.get_meals().get_head();
-//
-//        while (tmp.get_next() != null) {
-//            foodEaten += tmp.getReceivedAmount();
-//        }
-//
-//        if (foodEaten >= recommendedAmountOfMeals * recommendedAmountPerMeal) {
-//            // TODO: 10/12/2021 send a message to the user indicating that the child hase exceeded the daily
-//            //  recommended amount of food, ask him if he wold like to give home another meal?
-//        }
-//        // TODO: 10/12/2021  continue only if the user sed so
-//
-//        Meal newMealNode = new Meal(this.recommendedAmountOfMeals);
-//        newMealNode.setWhenEaten(new Time(System.currentTimeMillis()));
-//        newMealNode.mealWasEaten(amount);
-////        currDay.addNewMeal();
-//        currDay.get_meals().get_curr().setEaten(1);
-//        currDay.get_meals().get_curr().setWhenEaten(new Time(System.currentTimeMillis()));
-//        currDay.get_meals().add(recommendedAmountPerMeal);
-//        currDay.updateFeedingTimes();
-//
-//        Date day = new java.sql.Date(currDay.get_meals().getLast().getTimeToEat().getTime());
-//
-//        if (day.after(currDay.get_currDate())) {
-//            // adding the new meal to the new day & eras it from yesterday.
-////            history.addNextDay(this);
-//            history.getLast().get_meals().addMeal(history.getLast().get_prev().getLastMeal());
-//            history.getLast().get_meals().getLast().get_prev().set_next(null);
-//        }
-//        DatabaseManager.addNewMeal(this,newMealNode);
-
-
-
+        for (int i = 0; i < history.size(); i++){
+            history.get(i).uploadToDb(reference,i + 1);
+        }
+        // TODO: 10/25/2021 notify parents
     }
 
+    private void createNextMeal(int amount) {
+        if(history.size() == 0){
+            history.add(new Meal(amount));
+        }
+        history.get(history.size() - 1).setReceivedAmount(amount);
+        history.get(history.size() - 1).setEaten(1);
+        history.get(history.size() - 1).setWhenEaten(new Time(System.currentTimeMillis()));
+        history.get(history.size() - 1).setEaten(1);
+
+        history.add(new Meal(recommendedAmountPerMeal));
+        history.get(history.size() - 1).setEaten(-1);
+        history.get(history.size() - 1).calcTimeToEat(history.get(history.size() - 2));
+    }
+
+
     public void uploadToDb(){
-        FirebaseDatabase.getInstance().getReference().child(parent.getInstitutionName())
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child(parent.getInstitution().getName())
                 .child(User.UserType.PARENT.toString()).child(getParent().getUserName())
-                .child("Children").child(getName()).setValue(this);
+                .child("children").child(getName());
+        ref.child("weight").setValue(this._weight);
+        ref.child("age in months").setValue(this.ageInMonths);
+        ref.child("id").setValue(this.id);
+        ref.child("name").setValue(this.name);
+        ref.child("recommended amount of meals").setValue(this.recommendedAmountOfMeals);
+        ref.child("parent user name").setValue(this.parent.getUserName());
+        ref.child("recommended amount per meal").setValue(this.recommendedAmountPerMeal);
+//        if(reference != null) {
+//            ref.child("reference");//.setValue(this.reference);
+//        }
+        if(history.size() != 0) {
+            if(ref.child("Meals") != null) {
+                for (int i = 0; i < history.size(); i++){
+                    history.get(i).uploadToDb(ref.child("Meals").getRef(),i + 1);
+                }
+            }
+        }
+
+        ValueEventListener postListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Get Post object and use the values to update the UI
+                Baby tmp = dataSnapshot.getValue(Baby.class);
+                _weight = tmp._weight;
+                ageInMonths = tmp.ageInMonths;
+                id = tmp.id;
+                name = tmp.name;
+                recommendedAmountOfMeals = tmp.recommendedAmountOfMeals;
+                parent = tmp.parent;
+                recommendedAmountPerMeal = tmp.recommendedAmountPerMeal;
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Getting Post failed, log a message
+
+            }
+        };
+        reference.addValueEventListener(postListener);
 
     }
 
@@ -141,6 +180,8 @@ public  class Baby {
 
     public void setParent(Parent parent) {
         this.parent = parent;
+        parent.getChildren().add(copyForParent());
+
     }
 
     public String getName() {
@@ -159,13 +200,13 @@ public  class Baby {
         this.id = id;
     }
 
-    public MealList getHistory() {
-        return history;
-    }
+    //public MealList getHistory() {
+//        return history;
+//    }
 
-    public void setHistory(MealList history) {
-        this.history = history;
-    }
+//    public void setHistory(MealList history) {
+//        this.history = history;
+//    }
 
     public int getAgeInMonths() {
         return ageInMonths;

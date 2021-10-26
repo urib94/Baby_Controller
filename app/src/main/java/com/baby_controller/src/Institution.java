@@ -1,18 +1,25 @@
 package com.baby_controller.src;
 
+import androidx.annotation.NonNull;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Institution {
     private String name;
     private DatabaseReference reference;
-    List<Manager1> management = new ArrayList<>();
-//    public Institution(){
-//        name = "test";
-//        management.add((Manager) new Manager());
-//    }
+    List<Manager1> management = new LinkedList<>();
+    List<Parent> parents = new LinkedList<>();
+
+    public Institution(){
+    }
 
 
 
@@ -26,7 +33,7 @@ public class Institution {
 
     public Manager1 getManger(String userName){
         for(int i = 0; i < management.size(); i++){
-            if(management.get(i).get_userName().equals(userName)){
+            if(management.get(i).getUserName().equals(userName)){
                 if(management.get(i).getUserType() == User.UserType.PARENT) {
                     return (Manager1) management.get(i);
                 }
@@ -35,17 +42,47 @@ public class Institution {
         return null;
     }
 
+    public Parent getParent(String userName){
+        for(int i = 0; i < parents.size(); i++){
+            if(parents.get(i).getUserName().equals(userName)){
+                if(parents.get(i).getUserType() == User.UserType.PARENT) {
+                    return (Parent) parents.get(i);
+                }
+            }
+        }
+        return null;
+    }
+
 
     public boolean addManager(Manager1 manager){
-        if(getManger(manager.get_userName()) == null){
+        if (management.size() == 0){
+            manager.setInstitution(this);
+            management.add(manager);
+            manager.uploadToDb();
+        }
+        if(getManger(manager.getUserName()) == null){
+            manager.setInstitution(this);
             this.management.add(manager);
-//            DatabaseManager.
-   //         DatabaseManager.addNewManager(this,manager);
+            manager.uploadToDb();
             return true;
         }
         return  false;
     }
 
+    public boolean addParent(Parent parent){
+        if(getParent(parent.getUserName()) == null){
+            this.parents.add(parent);
+//
+            //         DatabaseManager.addNewManager(this,manager);
+            return true;
+        }
+        return  false;
+    }
+    public void getValueFromDb(Institution institution){
+        this.parents = institution.parents;
+        this.name = institution.name;
+        this.management = institution.management;
+    }
 
     public String getName() {
         return name;
@@ -65,5 +102,39 @@ public class Institution {
 
     public void setReference(DatabaseReference reference) {
         this.reference = reference;
+    }
+
+    public DatabaseReference uploadToDb() {
+        reference = FirebaseDatabase.getInstance().getReference().child(name);
+        for(Parent parent: parents){
+            parent.setInstitution(this);
+            parent.uploadToDb();
+        }
+        for (Manager1 man: management){
+            man.setInstitution(this);
+            man.uploadToDb();
+        }
+
+        ValueEventListener postListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Get Post object and use the values to update the UI
+               //Object tmp = dataSnapshot.getValue(Institution.class);
+//               name = tmp.name;
+//               parents = tmp.parents;
+//               management = tmp.management;
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Getting Post failed, log a message
+
+            }
+        };
+        reference.addValueEventListener(postListener);
+
+
+        return reference;
     }
 }

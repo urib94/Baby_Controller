@@ -1,37 +1,26 @@
 package com.baby_controller.src;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
-public class Manager1 {
+public class Manager1 extends User {
     //    List<Parent> parents = new ArrayList<>();
-    Parent parents;
-    String userName;
-    String password;
+    DatabaseReference reference;
     User.UserType userType = User.UserType.MANAGER;
 
+    public Manager1(){}
 
     public Manager1(String userName, String password) {
-        this.userName = userName;
-        this.password = password;
+        super(userName,password,UserType.MANAGER);
     }
 
-    public Parent getParents() {
-        return parents;
-    }
-
-    public void setParents(Parent parents) {
-        this.parents = parents;
-    }
-
-    public String get_userName() {
-        return userName;
-    }
-
-    public void set_userName(String userName) {
-        this.userName = userName;
+    public Manager1(String name,String userName, String password) {
+        super(name, userName,password,UserType.MANAGER);
     }
 
 
@@ -39,14 +28,6 @@ public class Manager1 {
         return null;
     }
 
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
 
     public User.UserType getUserType() {
         return userType;
@@ -68,13 +49,47 @@ public class Manager1 {
 //    }
 
 
-    @Override
-    public String toString() {
-        return super.toString() + "\nparents=" + parents;
-    }
-
-
     public Baby getChild(String name, int id) {
         return null;
+    }
+
+    public DatabaseReference uploadToDb() {
+        if(name != null) {
+            reference = FirebaseDatabase.getInstance().getReference().child(getInstitution().getName())
+                    .child("management").child(name);
+            reference.child("name").setValue(name);
+        }else {
+            FirebaseDatabase.getInstance().getReference().child(getInstitution().getName())
+                    .child("management").child(userName);
+        }
+
+
+        reference.child("user name").setValue(userName);
+        reference.child("password").setValue(password);
+        reference = FirebaseDatabase.getInstance().getReference().child(getInstitution().getName())
+                .child("management").child(name);
+
+
+        ValueEventListener postListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Get Post object and use the values to update the UI
+                Manager1 tmp = dataSnapshot.getValue(Manager1.class);
+                userType = tmp.userType;
+                userName = tmp.userName;
+                name = tmp.name;
+                password = tmp.password;userName = tmp.userName;
+                name = tmp.name;
+                password = tmp.password;
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Getting Post failed, log a message
+
+            }
+        };
+        return reference;
     }
 }

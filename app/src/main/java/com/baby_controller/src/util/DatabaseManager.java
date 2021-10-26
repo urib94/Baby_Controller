@@ -44,7 +44,7 @@ public class DatabaseManager {
 
     public static DatabaseReference addNewManager(Institution institution, Manager1 manager){
         DatabaseReference reference = dbRef.getRoot().child(institution.getName()).
-                child(User.UserType.MANAGER.toString()).child(manager.get_userName());
+                child(User.UserType.MANAGER.toString()).child(manager.getUserName());
         reference.setValue(manager);
         return reference;
     }

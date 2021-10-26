@@ -21,15 +21,15 @@ public class Day  {
 
     }
     public Day(int recamount) {
-//        this._child = child;
-        for (int i = 0; i <= 13; i++) {
-            _meals.add(recamount);
-            _meals.get_curr().setEaten(-1);
-            if (i != 0) {
-                _meals.get_curr().setEaten(-1);
-                _meals.get_curr().calcTimeToEat(_meals.getLast().get_prev());
-            } else _meals.get_curr().calcTimeToEat((Meal) null);
-        }
+////        this._child = child;
+//        for (int i = 0; i <= 13; i++) {
+//            _meals.add(recamount);
+//            _meals.get_curr().setEaten(-1);
+//            if (i != 0) {
+//                _meals.get_curr().setEaten(-1);
+//                _meals.get_curr().calcTimeToEat(_meals.getLast().getPrev());
+//            } else _meals.get_curr().calcTimeToEat((Meal) null);
+//        }
     }
 
 //    public Meal addNewMeal(){
@@ -40,18 +40,18 @@ public class Day  {
 ////            tmp.calcTimeToEat(Config.DEAFULT_BREAKFAST_TIME);
 //        }
 //        tmp.setEaten(-1);
-//        _meals.get_curr().set_next(tmp);
+//        _meals.get_curr().setNext(tmp);
 //        return tmp;
 //    }
 
     public Meal addNewMeal(Meal meal){
-        if(_meals.getAmountOfMeals() >= 1) {
-            meal.calcTimeToEat(_meals.get_curr());
-        }else {
-            meal.setTimeToEat(Config.DEAFULT_BREAKFAST_TIME);
-        }
-        meal.setEaten(-1);
-        _meals.get_curr().set_next(meal);
+//        if(_meals.getAmountOfMeals() >= 1) {
+//            meal.calcTimeToEat(_meals.get_curr());
+//        }else {
+//            meal.setTimeToEat(Config.DEAFULT_BREAKFAST_TIME);
+//        }
+//        meal.setEaten(-1);
+//        _meals.get_curr().setNext(meal);
         return meal;
     }
 
@@ -101,17 +101,17 @@ public class Day  {
      * if the current meal wasn't on time.
      */
     public void updateFeedingTimes(){
-        if (_firstMealIsEaten){
-            long firstMealTime = _meals.get_head().getWhenEaten().getTime();
-            Meal tmp = _meals.get_head();
-            while (tmp.get_next() != null){
-                if(tmp.isEaten() == -1){
-                    continue;
-                }
-                tmp.calcTimeToEat(tmp.get_prev());
-                tmp = tmp.get_next();
-            }
-        }
+//        if (_firstMealIsEaten){
+//            long firstMealTime = _meals.get_head().getWhenEaten().getTime();
+//            Meal tmp = _meals.get_head();
+//            while (tmp.getNext() != null){
+//                if(tmp.isEaten() == -1){
+//                    continue;
+//                }
+//                tmp.calcTimeToEat(tmp.getPrev());
+//                tmp = tmp.getNext();
+//            }
+//        }
     }
 
 

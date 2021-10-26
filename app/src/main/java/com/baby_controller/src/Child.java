@@ -88,7 +88,7 @@
 //        int foodEaten = 0;
 //        Meal tmp = currDay.get_meals().get_head();
 //
-//        while (tmp.get_next() != null) {
+//        while (tmp.getNext() != null) {
 //            foodEaten += tmp.getReceivedAmount();
 //        }
 //
@@ -112,8 +112,8 @@
 //        if (day.after(currDay.get_currDate())) {
 //            // adding the new meal to the new day & eras it from yesterday.
 ////            history.addNextDay(this);
-//            history.getLast().get_meals().addMeal(history.getLast().get_prev().getLastMeal());
-//            history.getLast().get_meals().getLast().get_prev().set_next(null);
+//            history.getLast().get_meals().addMeal(history.getLast().getPrev().getLastMeal());
+//            history.getLast().get_meals().getLast().getPrev().setNext(null);
 //        }
 ////        DatabaseManager.addNewMeal(this,newMealNode);
 //    }

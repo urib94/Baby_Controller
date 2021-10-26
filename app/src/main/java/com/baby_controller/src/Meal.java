@@ -2,10 +2,18 @@ package com.baby_controller.src;
 
 
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.sql.Time;
 import java.util.Date;
 
 public class Meal {
+
+    private DatabaseReference reference;
     private int recommendedAmount;
     private int receivedAmount = 0;
     private Time whenEaten = new Time(0);
@@ -14,10 +22,12 @@ public class Meal {
     /*
      * -1 for un eaten meals, 1 for fully eaten meals, 0 for partially eaten
      */
-    private int _eaten;
+    private int eaten;
 
-    private Meal _next = null;
-    private Meal _prev = null;
+    public int getEaten() {
+        return eaten;
+    }
+
 
     public Meal(){}
 
@@ -42,12 +52,14 @@ public class Meal {
         }
     }
 
+    public void calcTimeToEat(){
+        this.timeToEat = Config.DEAFULT_BREAKFAST_TIME;
+        }
+
     /*
     *  -1 for un eaten meals, 1 for fully eaten meals, 0 for partially eaten
     */
-    public void setEaten(int eaten){
-        _eaten = eaten;
-    }
+
 
     public void mealWasEaten(int amount){
         if(amount >= getRecommendedAmount()) {
@@ -73,6 +85,40 @@ public class Meal {
         return 0;
     }
 
+    public void uploadToDb(DatabaseReference mealsRef,int count) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(getCurrDate().getDate());
+        stringBuilder.append("\\");
+        stringBuilder.append(getCurrDate().getMonth());
+
+        reference = mealsRef.child(stringBuilder.toString()).getRef();
+
+        reference.child(String.valueOf(count)).child("recommended amount").setValue(recommendedAmount);
+        reference.child(String.valueOf(count)).child("received amount").setValue(receivedAmount);
+        reference.child(String.valueOf(count)).child("when eaten").setValue(whenEaten.getTime());
+        reference.child(String.valueOf(count)).child("time to eat").setValue(timeToEat.getTime());
+        reference.child(String.valueOf(count)).child("curr date").setValue(currDate.getTime());
+
+        ValueEventListener postListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Get Post object and use the values to update the UI
+                Meal tmp = dataSnapshot.getValue(Meal.class);
+               currDate = tmp.currDate;
+               eaten = tmp.eaten;
+               receivedAmount = tmp.receivedAmount;
+               timeToEat = tmp.timeToEat;
+               whenEaten = tmp.whenEaten;
+
+
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Getting Post failed, log a message
+
+            }
+        };
+    }
     public Date getCurrDate() {
         return currDate;
     }
@@ -99,10 +145,12 @@ public class Meal {
                 "\nreceivedAmount=" + receivedAmount +
                 "\nwhenEaten=" + whenEaten +
                 "\ntimeToEat=" + timeToEat +
-                "\neaten=" + _eaten +
-                "\nnext=" + _next +
-                "\nprev=" + _prev;
+                "\neaten=" + eaten ;
+
     }
+
+
+
 
     public void setReceivedAmount(int receivedAmount) {
         this.receivedAmount = receivedAmount;
@@ -112,8 +160,8 @@ public class Meal {
         this.whenEaten = whenEaten;
     }
 
-    public void set_eaten(int _eaten) {
-        this._eaten = _eaten;
+    public void setEaten(int eaten) {
+        this.eaten = eaten;
     }
 
     public Time getWhenEaten() {
@@ -124,24 +172,29 @@ public class Meal {
         return timeToEat;
     }
 
+//    public void setNext(Meal next) {
+//        this.next = next;
+//    }
 
-    public int get_eaten() {
-        return _eaten;
-    }
-    public void set_next(Meal _next) {
-        this._next = _next;
+//    public void setPrev(Meal prev) {
+//        this.prev = prev;
+//    }
+
+//    public Meal getNext() {
+//        return next;
+//    }
+
+//    public Meal getPrev() {
+//        return prev;
+//    }
+
+
+    public DatabaseReference getReference() {
+        return reference;
     }
 
-    public void set_prev(Meal _prev) {
-        this._prev = _prev;
-    }
-
-    public Meal get_next() {
-        return _next;
-    }
-
-    public Meal get_prev() {
-        return _prev;
+    public void setReference(DatabaseReference reference) {
+        this.reference = reference;
     }
 }
 

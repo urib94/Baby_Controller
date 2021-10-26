@@ -1,24 +1,40 @@
 package com.baby_controller.src;
 
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
 public abstract class User {
     protected DatabaseReference reference;
-    private UserType userType;
-    private String institutionName;
-    private String userName;
-    private String password;
+    protected Institution institute;
+    protected UserType userType;
+    protected String institutionName;
+    protected String userName;
+    protected String password;
+    protected String name;
 
-    public User(){
-        userName = "test";
-        password = "888";
-    };
+    public User(){};
 
     public User(String userName, String password, UserType userType){
 
+        this.userName = userName;
+        this.password = password;
+        this.userType = userType;
+        name = "";
+    }
+
+    public User(String name1, String userName, String password, UserType userType){
+        name = name1;
         this.userName = userName;
         this.password = password;
         this.userType = userType;
@@ -30,15 +46,20 @@ public abstract class User {
 
     public DatabaseReference uploadToDb(){
 
-        return  reference = FirebaseDatabase.getInstance().getReference().child(getInstitutionName().getName()).child(userType.toString());
+        return  reference = FirebaseDatabase.getInstance().getReference().child(getInstitutionName()).child(userType.toString());
     }
 
     public String getInstitutionName() {
         return institutionName;
     }
 
-    public void setInstitutionName(String institutionName) {
-        this.institutionName = institutionName;
+    public void setInstitutionName(Institution institution) {
+        this.institute = institution;
+        this.institutionName = institution.getName();
+    }
+
+    public Institution getInstitution(){
+       return institute;
     }
 
     public UserType getUserType() {
@@ -85,7 +106,34 @@ public abstract class User {
         this.password = password;
     }
 
+    public void setInstitution(Institution institution){
+        this.institute = institution;
+    }
 
+    public Institution getInstitute() {
+        return institute;
+    }
+
+    public void setInstitute(Institution institute) {
+        this.institute = institute;
+    }
+
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public enum UserType{
         MANAGER,
