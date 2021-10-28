@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "536246770722",
+    "firebase_url": "https://feedingmanager-default-rtdb.firebaseio.com",
+    "project_id": "feedingmanager",
+    "storage_bucket": "feedingmanager.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:536246770722:android:56fe4d083faf5510033e7b",
+        "android_client_info": {
+          "package_name": "com.baby_controller"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "536246770722-mvgn5m3p76c34i85mfppdse0cq4k5kn9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAE36Q4qX84XsMwf8-5g7tY1_WWxWwncT8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "536246770722-mvgn5m3p76c34i85mfppdse0cq4k5kn9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

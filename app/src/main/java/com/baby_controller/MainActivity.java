@@ -8,18 +8,13 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.baby_controller.src.Baby;
-import com.baby_controller.src.Day;
-import com.baby_controller.src.FeedingHistory;
 import com.baby_controller.src.Institution;
-import com.baby_controller.src.InstitutionHandler;
 import com.baby_controller.src.Manager1;
-import com.baby_controller.src.Meal;
 import com.baby_controller.src.Parent;
 import com.baby_controller.src.User;
 import com.baby_controller.src.util.DatabaseManager;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity {
 
