@@ -16,14 +16,23 @@ public class FeedingActivity extends AppCompatActivity {
         this.user = user;
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         FirebaseApp.initializeApp(getApplicationContext());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         recyclerView = new RecyclerView(this);
-        recyclerView.setOn
-
+        
     }
+
+    //conect to bluetooth device named "example"
+    public void connectToBluetoothDevice(){
+                //connect to bluetooth device named "example"
+                    
+    }
+
+    
+
 
 }

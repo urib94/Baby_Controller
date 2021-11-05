@@ -1,20 +1,14 @@
 package com.baby_controller.src;
 
-import android.util.Log;
-
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.List;
+import java.io.Serializable;
 
-public abstract class User {
+public class User implements Serializable {
     protected DatabaseReference reference;
     protected Institution institute;
     protected UserType userType;
@@ -22,12 +16,13 @@ public abstract class User {
     protected String userName;
     protected String password;
     protected String name;
+    protected String uid;
 
     public User(){};
 
-    public User(String userName, String password, UserType userType){
+    public User(String email, String password, UserType userType){
 
-        this.userName = userName;
+        this.userName = email;
         this.password = password;
         this.userType = userType;
         name = "";
@@ -78,10 +73,6 @@ public abstract class User {
         this.userName = userName;
     }
 
-    public abstract List<Baby> getChildren();
-
-    public abstract Baby getChild(String name, int id);
-
     public DatabaseReference getReference() {
         return reference;
     }
@@ -97,6 +88,33 @@ public abstract class User {
                 "\n_userName='" + userName + '\'' +
                 "\n_password='" + password;
     }
+
+
+    public User getUserFromDb(String userName){
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("users");
+        User result = null;
+        //get the user from the db
+        ValueEventListener postListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Get Post object and use the values to update the UI
+                User tmp = dataSnapshot.getValue(User.class);
+
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Getting Post failed, log a message
+
+            }
+        };
+        reference.addValueEventListener(postListener);
+        return reference.child(userName).get().getResult().getValue(User.class);
+    }
+
+
+
 
     public String get_password() {
         return password;

@@ -1,6 +1,7 @@
 package com.baby_controller.src;
 
 import com.baby_controller.src.util.DatabaseManager;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -10,6 +11,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Parent extends User{
@@ -24,13 +26,18 @@ public class Parent extends User{
         super(name,userName, password, userType);
     }
 
-    @Override
+
     public List<Baby> getChildren() {
         return children;
     }
 
-    @Override
+
     public Baby getChild(String name, int id) {
+        for (Baby child : children) {
+            if (child.getName().equals(name) && child.getId() == id) {
+                return child;
+            }
+        }
         return null;
     }
 
@@ -89,8 +96,12 @@ public class Parent extends User{
         return super.toString() + "\nchildren=" + children;
     }
 
-
+    //notify the parent that the child is hungry with firebase cloud messaging
     public void notifyParent(){
+        //get app instance id from firebase
+        FirebaseApp.getInstance().getOptions().getApplicationId()
+        ;
+
         // TODO: 10/26/2021  writ this function
     }
 
@@ -107,5 +118,18 @@ public class Parent extends User{
 
     public void setChildren(List<Baby> children) {
         this.children = children;
+    }
+
+    //get all the Babies that need to be fed
+    public LinkedList<Baby> getBabiesNeedToFeed() {
+        LinkedList<Baby> babiesNeedToFeed = new LinkedList<>();
+        for(Baby baby: children){
+            Meal last = baby.history.get(baby.history.size() -1);
+            Time now = new Time(System.currentTimeMillis());
+            if (now.after(last.getTimeToEat())){
+                babiesNeedToFeed.add(baby);
+            }
+        }
+        return babiesNeedToFeed;
     }
 }

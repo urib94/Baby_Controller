@@ -4,99 +4,91 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/constraint2"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"><![CDATA[>
+    android:layout_height="match_parent">
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-    ]]>
 
     <EditText
-        android:id="@+id/name"
+        android:id="@+id/reg_name"
         android:layout_width="350dp"
         android:layout_height="77dp"
         android:ems="10"
-        android:hint="Name"
+        android:hint="@string/name"
         android:inputType="textEmailAddress"
-        app:layout_constraintBottom_toTopOf="@+id/password2"
+        app:layout_constraintBottom_toTopOf="@+id/reg_password"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:importantForAutofill="no" />
 
     <EditText
-        android:id="@+id/password2"
+        android:id="@+id/reg_password"
         android:layout_width="355dp"
         android:layout_height="66dp"
         android:ems="10"
-        android:hint="Password"
+        android:hint="@string/password"
         android:inputType="textPassword"
-        app:layout_constraintBottom_toTopOf="@+id/email_adresse2"
+        app:layout_constraintBottom_toTopOf="@+id/reg_email_address"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.829" />
+        app:layout_constraintVertical_bias="0.829"
+        android:importantForAutofill="no" />
 
     <EditText
-        android:id="@+id/email_adresse2"
+        android:id="@+id/reg_email_address"
         android:layout_width="350dp"
         android:layout_height="77dp"
         android:ems="10"
-        android:hint="Username"
+        android:hint="@string/email"
         android:inputType="textEmailAddress"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.471"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.42" />
+        app:layout_constraintVertical_bias="0.42"
+        android:importantForAutofill="no" />
 
     <EditText
-        android:id="@+id/email_adresse4"
+        android:id="@+id/reg_institution"
         android:layout_width="350dp"
         android:layout_height="77dp"
         android:ems="10"
-        android:hint="Username"
+        android:hint="@string/username"
         android:inputType="textEmailAddress"
-        android:text="Insitution"
+        android:text="@string/institution"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.471"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.583" />
+        app:layout_constraintVertical_bias="0.583"
+        android:importantForAutofill="no" />
 
     <Switch
-        android:id="@+id/switch1"
+        android:id="@+id/is_parent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="44dp"
         android:checked="true"
         android:minHeight="48dp"
-        android:text="Parent"
-        android:textOff="Manger"
-        android:textOn="Parent"
+        android:text="@string/parent"
+        android:textOff="@string/manger"
+        android:textOn="@string/parent"
         app:layout_constraintBottom_toTopOf="@+id/confirm_register"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.524"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
 
     <Button
         android:id="@+id/confirm_register"
         android:layout_width="270dp"
         android:layout_height="61dp"
         android:layout_marginBottom="88dp"
-        android:text="Register"
+        android:text="@string/register"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"

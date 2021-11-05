@@ -1,16 +1,12 @@
 package com.baby_controller.src;
 
-import androidx.annotation.NonNull;
-
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 
 public class Institution {
     private String name;
@@ -78,17 +74,12 @@ public class Institution {
         }
         return  false;
     }
-    public void getValueFromDb(Institution institution){
-        this.parents = institution.parents;
-        this.name = institution.name;
-        this.management = institution.management;
-    }
-
+    
     public String getName() {
         return name;
     }
 
-    public List<Manager1> getManagement() {
+    public LinkedList<Manager1> getManagement() {
         return management;
     }
 
@@ -127,25 +118,6 @@ public class Institution {
             man.uploadToDb();
         }
 
-        ValueEventListener postListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // Get Post object and use the values to update the UI
-               //Object tmp = dataSnapshot.getValue(Institution.class);
-//               name = tmp.name;
-//               parents = tmp.parents;
-//               management = tmp.management;
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Getting Post failed, log a message
-
-            }
-        };
-        reference.addValueEventListener(postListener);
-
 
         return reference;
     }
@@ -159,4 +131,72 @@ public class Institution {
         }
         return null;
     }
+
+    // get the list of all the babies that need to be fed
+    public LinkedList<Baby> getBabiesNeedToFeed(){
+        LinkedList<Baby> babies = new LinkedList<>();
+        for (Parent parent : getParents()){
+            babies.addAll(parent.getBabiesNeedToFeed());
+        }
+        return babies;
+    }
+
+
+    //get this from firebase
+    public void getInstitutionFromDb(DatabaseReference dbReference) {
+        ValueEventListener postListener = new ValueEventListener() {
+            Institution tmp;
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Get Post object and use the values to update the UI
+                tmp = dataSnapshot.getValue(Institution.class);
+                //update this Institution with the dataSnapshot
+                if (tmp != null) {
+                    setManagement(tmp.getManagement());
+                    setParents(tmp.getParents());
+                    setName(tmp.getName());
+                }
+            }
+
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // TODO: 11/5/2021  writ action option for the different error possibilities
+                // Getting Post failed, log a message
+            }
+        };
+        dbReference.addValueEventListener(postListener);
+    }
+public static Institution findInstitution(String name){
+        Institution newOne = new Institution();
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("Institutions").child(name);
+        ValueEventListener postListener = new ValueEventListener() {
+
+            Institution tmp;
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Get Post object and use the values to update the UI
+                tmp = dataSnapshot.getValue(Institution.class);
+                //update this Institution with the dataSnapshot
+                if (tmp != null) {
+                    newOne.setManagement(tmp.getManagement());
+                    newOne.setParents(tmp.getParents());
+                    newOne.setName(tmp.getName());
+                }
+            }
+
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // TODO: 11/5/2021  writ action option for the different error possibilities
+                // Getting Post failed, log a message
+            }
+        };
+            ref.addValueEventListener(postListener);
+            return newOne;
+        }
+
+
 }

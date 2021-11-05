@@ -13,7 +13,7 @@
         android:layout_marginEnd="31dp"
         android:layout_marginBottom="30dp"
         android:ems="10"
-        android:hint="Username"
+        android:hint="@string/username"
         android:inputType="textEmailAddress"
         app:layout_constraintBottom_toTopOf="@+id/password"
         app:layout_constraintEnd_toEndOf="parent"
@@ -40,7 +40,8 @@
         android:layout_height="48dp"
         android:layout_marginStart="91dp"
         android:layout_marginEnd="28dp"
-        android:text="Register"
+        android:onClick="register"
+        android:text="@string/register"
         app:layout_constraintBottom_toTopOf="@+id/imageView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.976"
@@ -71,5 +72,31 @@
         app:layout_constraintHorizontal_bias="0.014"
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/img" />
+
+    <TextView
+        android:id="@+id/popup_window"
+        android:layout_width="301dp"
+        android:layout_height="75dp"
+        android:layout_marginTop="32dp"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.325"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/confirm_pop_up"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="64dp"
+        android:text="OK"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/popup_window"
+        app:layout_constraintEnd_toEndOf="@+id/popup_window"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="@+id/popup_window" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
