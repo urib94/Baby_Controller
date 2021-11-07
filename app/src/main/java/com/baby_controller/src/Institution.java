@@ -1,18 +1,30 @@
 package com.baby_controller.src;
 
+import android.util.Log;
+
+import androidx.annotation.Keep;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.LinkedList;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-public class Institution {
+import java.util.LinkedList;
+@Keep
+public class Institution{
     private String name;
     private DatabaseReference reference;
-    LinkedList<Manager1> management = new LinkedList<>();
-    LinkedList<Parent> parents = new LinkedList<>();
+    protected LinkedList<LocalUser> management = new LinkedList<>();
+    protected LinkedList<LocalUser> parents = new LinkedList<>();
+
 
     public Institution(){
     }
@@ -20,8 +32,9 @@ public class Institution {
 
 
     public Institution (Manager1 manager, String name){
+
         this.name = name;
-//        manager.setInstitutionName(this);
+        manager.setInstitutionName(name);
         this.management.add(manager);
     }
 
@@ -30,7 +43,7 @@ public class Institution {
     public Manager1 getManger(String userName){
         for(int i = 0; i < management.size(); i++){
             if(management.get(i).getUserName().equals(userName)){
-                if(management.get(i).getUserType() == User.UserType.PARENT) {
+                if(management.get(i).getUserType() == LocalUser.UserType.PARENT) {
                     return (Manager1) management.get(i);
                 }
             }
@@ -41,7 +54,7 @@ public class Institution {
     public Parent getParent(String userName){
         for(int i = 0; i < parents.size(); i++){
             if(parents.get(i).getUserName().equals(userName)){
-                if(parents.get(i).getUserType() == User.UserType.PARENT) {
+                if(parents.get(i).getUserType() == LocalUser.UserType.PARENT) {
                     return (Parent) parents.get(i);
                 }
             }
@@ -49,17 +62,10 @@ public class Institution {
         return null;
     }
 
-
     public boolean addManager(Manager1 manager){
-        if (management.size() == 0){
-            manager.setInstitution(this);
-            management.add(manager);
-            manager.uploadToDb();
-        }
         if(getManger(manager.getUserName()) == null){
-            manager.setInstitution(this);
-            this.management.add(manager);
-            manager.uploadToDb();
+            manager.getInstitute();
+            management.add(manager);
             return true;
         }
         return  false;
@@ -67,9 +73,8 @@ public class Institution {
 
     public boolean addParent(Parent parent){
         if(getParent(parent.getUserName()) == null){
+            parent.setInstitutionName(name);
             this.parents.add(parent);
-//
-            //         DatabaseManager.addNewManager(this,manager);
             return true;
         }
         return  false;
@@ -79,19 +84,19 @@ public class Institution {
         return name;
     }
 
-    public LinkedList<Manager1> getManagement() {
+    public LinkedList<LocalUser> getManagement() {
         return management;
     }
 
-    public void setManagement(LinkedList<Manager1> management) {
+    public void setManagement(LinkedList<LocalUser> management) {
         this.management = management;
     }
 
-    public LinkedList<Parent> getParents() {
+    public LinkedList<LocalUser> getParents() {
         return parents;
     }
 
-    public void setParents(LinkedList<Parent> parents) {
+    public void setParents(LinkedList<LocalUser> parents) {
         this.parents = parents;
     }
 
@@ -108,23 +113,30 @@ public class Institution {
     }
 
     public DatabaseReference uploadToDb() {
-        reference = FirebaseDatabase.getInstance().getReference().child(name);
-        for(Parent parent: parents){
-            parent.setInstitution(this);
-            parent.uploadToDb();
-        }
-        for (Manager1 man: management){
-            man.setInstitution(this);
-            man.uploadToDb();
-        }
+        reference = FirebaseDatabase.getInstance().getReference().child("Institutions").child(name);
+        //sava every field of Institution to the database
+        reference.child("name").setValue(toJson());
+//
+//
+//        for(Parent parent: parents){
+//            parent.setInstitution(this);
+//            parent.uploadToDb();
+//        }
+//        for (Manager1 man: management){
+//            man.setInstitution(this);
+//            man.uploadToDb();
+//        }
+//
 
-
+        setListeners();
         return reference;
     }
 
+
+
     public Baby needToFeed(){
-        for (Parent parent : getParents()){
-            Baby baby = parent.babyNeedToFeed();
+        for (LocalUser parent : getParents()){
+            Baby baby = ((Parent)parent).babyNeedToFeed();
             if(baby != null){
                 return baby;
             }
@@ -135,40 +147,65 @@ public class Institution {
     // get the list of all the babies that need to be fed
     public LinkedList<Baby> getBabiesNeedToFeed(){
         LinkedList<Baby> babies = new LinkedList<>();
-        for (Parent parent : getParents()){
-            babies.addAll(parent.getBabiesNeedToFeed());
+        for (LocalUser parent : getParents()){
+            babies.addAll(((Parent)parent).getBabiesNeedToFeed());
         }
         return babies;
     }
 
 
-    //get this from firebase
-    public void getInstitutionFromDb(DatabaseReference dbReference) {
-        ValueEventListener postListener = new ValueEventListener() {
-            Institution tmp;
+//    //get this from firebase
+//    public void getInstitutionFromDb(DatabaseReference dbReference) {
+//        ValueEventListener postListener = new ValueEventListener() {
+//            Institution tmp;
+//
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                // Get Post object and use the values to update the UI
+//                tmp = dataSnapshot.getValue(Institution.class);
+//                //update this Institution with the dataSnapshot
+//                if (tmp != null) {
+//                    setManagement(tmp.getManagement());
+//                    setParents(tmp.getParents());
+//                    setName(tmp.getName());
+//                }
+//            }
+//
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//                // TODO: 11/5/2021  writ action option for the different error possibilities
+//                // Getting Post failed, log a message
+//            }
+//        };
+//        dbReference.addValueEventListener(postListener);
+//    }
+
+    //update the database if this local copy is changed
+
+    public void updateDb(){
+        reference = FirebaseDatabase.getInstance().getReference().child("Institutions").child(name);
+        Transaction.Handler tmp = new Transaction.Handler() {
+            @NonNull
+            @Override
+            public Transaction.Result doTransaction(@NonNull MutableData currentData) {
+                currentData.setValue(Institution.this);
+                return Transaction.success(currentData);
+            }
 
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // Get Post object and use the values to update the UI
-                tmp = dataSnapshot.getValue(Institution.class);
-                //update this Institution with the dataSnapshot
-                if (tmp != null) {
-                    setManagement(tmp.getManagement());
-                    setParents(tmp.getParents());
-                    setName(tmp.getName());
+            public void onComplete(@Nullable DatabaseError error, boolean committed, @Nullable DataSnapshot currentData) {
+                if (error != null) {
+                    Log.d("Firebase", "error: " + error.getMessage());
                 }
-            }
 
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // TODO: 11/5/2021  writ action option for the different error possibilities
-                // Getting Post failed, log a message
             }
-        };
-        dbReference.addValueEventListener(postListener);
+        } ;
+        reference.runTransaction(tmp);
     }
-public static Institution findInstitution(String name){
+
+
+    public static Institution findInstitution(String name){
         Institution newOne = new Institution();
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("Institutions").child(name);
         ValueEventListener postListener = new ValueEventListener() {
@@ -181,9 +218,7 @@ public static Institution findInstitution(String name){
                 tmp = dataSnapshot.getValue(Institution.class);
                 //update this Institution with the dataSnapshot
                 if (tmp != null) {
-                    newOne.setManagement(tmp.getManagement());
-                    newOne.setParents(tmp.getParents());
-                    newOne.setName(tmp.getName());
+                    newOne.coppy(tmp);
                 }
             }
 
@@ -199,4 +234,78 @@ public static Institution findInstitution(String name){
         }
 
 
+//upload this institution to the database as a transaction
+
+
+    //set listeners that updates the institution when it changes in the database
+    public void setListeners(){
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Institution tmp = Institution.fromJson(dataSnapshot.getValue(JSONObject.class));
+                if (tmp != null) {
+                    coppy(tmp);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    //Institution to json
+    public JSONObject toJson(){
+        JSONObject json = new JSONObject();
+        try {
+            json.put("name", name);
+            for (int i = 0; i < management.size(); i++) {
+                ((Manager1)management.get(i)).toJson();
+            }
+            for (int i = 0; i < parents.size(); i++) {
+                ((Parent)parents.get(i)).toJson();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return json;
+    }
+
+    //json to institution
+    public static Institution fromJson(JSONObject json) {
+        Institution institution = new Institution();
+        try {
+            institution.setName(json.getString("name"));
+            for (int i = 0; i < json.getJSONArray("management").length(); i++) {
+                Manager1 tmp = new Manager1();
+                tmp.fromJson(json.getJSONArray("management").getJSONObject(i));
+                institution.getManagement().add(tmp);
+            }
+
+            for (int i = 0; i < json.getJSONArray("parents").length(); i++) {
+                institution.addParent(Parent.fromJson(json.getJSONArray("parents").getJSONObject(i)));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return institution;
+    }
+
+
+// clone
+    public Institution clone(){
+        Institution newOne = new Institution();
+        newOne.setManagement(this.management);
+        newOne.setParents(this.parents);
+        newOne.setName(this.name);
+        return newOne;
+    }
+
+    //coppy
+    public void coppy(Institution institution){
+        this.management = institution.management;
+        this.parents = institution.parents;
+        this.name = institution.name;
+    }
 }

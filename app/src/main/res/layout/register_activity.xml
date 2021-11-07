@@ -10,7 +10,7 @@
 
 
     <EditText
-        android:id="@+id/reg_name"
+        android:id="@+id/user_name"
         android:layout_width="350dp"
         android:layout_height="77dp"
         android:ems="10"
@@ -56,16 +56,15 @@
         android:layout_width="350dp"
         android:layout_height="77dp"
         android:ems="10"
-        android:hint="@string/username"
+        android:hint="@string/institution"
+        android:importantForAutofill="no"
         android:inputType="textEmailAddress"
-        android:text="@string/institution"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.471"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.583"
-        android:importantForAutofill="no" />
+        app:layout_constraintVertical_bias="0.583" />
 
     <Switch
         android:id="@+id/is_parent"

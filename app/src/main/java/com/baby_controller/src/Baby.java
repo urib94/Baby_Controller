@@ -1,19 +1,29 @@
 package com.baby_controller.src;
 
 
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.sql.Time;
-import java.util.Date;
 import java.util.LinkedList;
 
 public  class Baby {
     protected DatabaseReference reference;
-    private Parent parent;
+    private LocalUser parent;
     private String name = "";
     private int id = 0;
     //MealList history;
@@ -27,6 +37,8 @@ public  class Baby {
     private int recommendedAmountPerMeal = 0;
 
     public Baby(){}
+
+
 
     public Baby copyForParent(){
         Baby tmp = new Baby();
@@ -76,20 +88,16 @@ public  class Baby {
 
     public void eatingNextMeal(int amount) {
         createNextMeal(amount);
-        if(reference == null){
-            if(parent.getReference() != null){
-                reference = parent.getReference().child("children").child(name);
-            } else {
-                reference = FirebaseDatabase.getInstance().getReference().child(parent.getInstitution()
-                        .getName()).child("parents").child(parent.getUserName()).child("children").child(name);
-            }
-        }
+        //notify the parent using firebase cloud messaging
 
-        for (int i = 0; i < history.size(); i++){
-            history.get(i).uploadToDb(reference,i + 1);
-        }
+
+
         // TODO: 10/25/2021 notify parents
     }
+
+    //upload this Baby to firebase database use transaction
+
+
 
     private void createNextMeal(int amount) {
         if(history.size() == 0){
@@ -107,32 +115,81 @@ public  class Baby {
 
 
     public void uploadToDb(){
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child(parent.getInstitution().getName())
-                .child(User.UserType.PARENT.toString()).child(getParent().getUserName())
-                .child("children").child(getName());
-        ref.child("weight").setValue(this._weight);
-        ref.child("age in months").setValue(this.ageInMonths);
-        ref.child("id").setValue(this.id);
-        ref.child("name").setValue(this.name);
-        ref.child("recommended amount of meals").setValue(this.recommendedAmountOfMeals);
-        ref.child("parent user name").setValue(this.parent.getUserName());
-        ref.child("recommended amount per meal").setValue(this.recommendedAmountPerMeal);
-//        if(reference != null) {
-//            ref.child("reference");//.setValue(this.reference);
-//        }
-        if(history.size() != 0) {
-            if(ref.child("Meals") != null) {
-                for (int i = 0; i < history.size(); i++){
-                    history.get(i).uploadToDb(ref.child("Meals").getRef(),i + 1);
-                }
-            }
-        }
-
-        ValueEventListener postListener = new ValueEventListener() {
+        reference = FirebaseDatabase.getInstance().getReference().child("Institutions").child(getParent().getInstitute().getName())
+        .child("parents").child(getParent().getUserName()).child("children");
+        Transaction.Handler tmp = new Transaction.Handler() {
+            @NonNull
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // Get Post object and use the values to update the UI
-                Baby tmp = dataSnapshot.getValue(Baby.class);
+            public Transaction.Result doTransaction(@NonNull MutableData currentData) {
+                currentData.setValue(Baby.this);
+                return Transaction.success(currentData);
+            }
+
+            @Override
+            public void onComplete(@Nullable DatabaseError error, boolean committed, @Nullable DataSnapshot currentData) {
+                if (error != null) {
+                    Log.d("Firebase", "error: " + error.getMessage());
+                }
+
+            }
+        } ;
+        reference.runTransaction(tmp);
+        setListeners();
+
+
+
+
+//        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child(parent.getInstitution().getName())
+//                .child(LocalUser.UserType.PARENT.toString()).child(getParent().getUserName())
+//                .child("children").child(getName());
+//        ref.child("weight").setValue(this._weight);
+//        ref.child("age in months").setValue(this.ageInMonths);
+//        ref.child("id").setValue(this.id);
+//        ref.child("name").setValue(this.name);
+//        ref.child("recommended amount of meals").setValue(this.recommendedAmountOfMeals);
+//        ref.child("parent user name").setValue(this.parent.getUserName());
+//        ref.child("recommended amount per meal").setValue(this.recommendedAmountPerMeal);
+////        if(reference != null) {
+////            ref.child("reference");//.setValue(this.reference);
+////        }
+//        if(history.size() != 0) {
+//            if(ref.child("Meals") != null) {
+//                for (int i = 0; i < history.size(); i++){
+//                    history.get(i).uploadToDb(ref.child("Meals").getRef(),i + 1);
+//                }
+//            }
+//        }
+//
+//        ValueEventListener postListener = new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                // Get Post object and use the values to update the UI
+//                Baby tmp = dataSnapshot.getValue(Baby.class);
+//                _weight = tmp._weight;
+//                ageInMonths = tmp.ageInMonths;
+//                id = tmp.id;
+//                name = tmp.name;
+//                recommendedAmountOfMeals = tmp.recommendedAmountOfMeals;
+//                parent = tmp.parent;
+//                recommendedAmountPerMeal = tmp.recommendedAmountPerMeal;
+//
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//                // Getting Post failed, log a message
+//
+//            }
+//        };
+//        reference.addValueEventListener(postListener);
+
+    }
+
+    private void setListeners() {
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Baby tmp = dataSnapshot.child(name).getValue(Baby.class);
                 _weight = tmp._weight;
                 ageInMonths = tmp.ageInMonths;
                 id = tmp.id;
@@ -144,15 +201,11 @@ public  class Baby {
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Getting Post failed, log a message
+            public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
-        };
-        reference.addValueEventListener(postListener);
-
+        });
     }
-
 
 
     @Override
@@ -174,7 +227,8 @@ public  class Baby {
         this.reference = reference;
     }
 
-    public Parent getParent() {
+    //returns the parent as a Local user, cast if need be
+    public LocalUser getParent() {
         return parent;
     }
 
@@ -239,4 +293,56 @@ public  class Baby {
     public void setRecommendedAmountPerMeal(int recommendedAmountPerMeal) {
         this.recommendedAmountPerMeal = recommendedAmountPerMeal;
     }
+
+    public void setNeedToEat(){
+        if (history.size() == 0){
+            history.add(new Meal(60));
+        }
+        history.get(history.size() -1).setTimeToEat(new Time(System.currentTimeMillis() - 1000));
+    }
+
+
+    //Baby to Json
+    public JSONObject toJson() {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("name", name);
+            json.put("id", id);
+            json.put("ageInMonths", ageInMonths);
+            json.put("_weight", _weight);
+            json.put("recommendedAmountOfMeals", recommendedAmountOfMeals);
+            json.put("recommendedAmountPerMeal", recommendedAmountPerMeal);
+            json.put("parent", parent.getUserName());
+            for (Meal meal : history) {
+                json.put("history", meal.toJson());
+            }
+
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+        return json;
+    }
+
+    //Baby from Json
+    public static Baby fromJson(JSONObject json) {
+        Baby baby = new Baby();
+        try {
+            baby.name = json.getString("name");
+            baby.id = json.getInt("id");
+            baby.ageInMonths = json.getInt("ageInMonths");
+            baby._weight = json.getDouble("_weight");
+            baby.recommendedAmountOfMeals = json.getInt("recommendedAmountOfMeals");
+            baby.recommendedAmountPerMeal = json.getInt("recommendedAmountPerMeal");
+            baby.parent = Parent.fromJson(json.getJSONObject("parent"));
+            baby.history = new LinkedList<Meal>();
+            JSONArray jsonHistory = json.getJSONArray("history");
+            for (int i = 0; i < jsonHistory.length(); i++) {
+                baby.history.add(Meal.fromJson(jsonHistory.getJSONObject(i)));
+            }
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+        return baby;
+    }
+
 }

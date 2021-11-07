@@ -2,9 +2,10 @@ package com.baby_controller.src.util;
 
 import com.baby_controller.src.Baby;
 import com.baby_controller.src.Institution;
+import com.baby_controller.src.LocalUser;
 import com.baby_controller.src.Manager1;
 import com.baby_controller.src.Parent;
-import com.baby_controller.src.User;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -16,7 +17,19 @@ public class DatabaseManager {
     public static DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference(); ;
     ValueEventListener postListener;
 
+    //firebase
+    public static FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();;
+    public static FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    public static FirebaseAuth.AuthStateListener mAuthListener;
+    public static DatabaseReference myRef = mFirebaseDatabase.getReference();;
+
+    private static final String TAG = "databaseManager";
+
+
+
     public DatabaseManager(){
+
+
 
         postListener = new ValueEventListener() {
             @Override
@@ -37,6 +50,22 @@ public class DatabaseManager {
     }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public static DatabaseReference addNewInstitution(Institution institution){
         dbRef.getRoot().child(institution.getName()).setValue(institution.toString());
         return dbRef;
@@ -44,14 +73,14 @@ public class DatabaseManager {
 
     public static DatabaseReference addNewManager(Institution institution, Manager1 manager){
         DatabaseReference reference = dbRef.getRoot().child(institution.getName()).
-                child(User.UserType.MANAGER.toString()).child(manager.getUserName());
+                child(LocalUser.UserType.MANAGER.toString()).child(manager.getUserName());
         reference.setValue(manager);
         return reference;
     }
 
 
     public static void addNewParent(Institution institution, Manager1 manager, Parent parent){
-        dbRef.getRoot().child(institution.getName()).child(User.UserType.PARENT.toString())
+        dbRef.getRoot().child(institution.getName()).child(LocalUser.UserType.PARENT.toString())
         .child(parent.getUserName()).setValue(parent);
     }
 
@@ -70,7 +99,21 @@ public class DatabaseManager {
 //        return ref;
 //    }
 
-//    public static DatabaseReference
+//  public static DatabaseReference
+
+
+    //save a Institution to the database, with transactions
+    
+
+
+    //save a Manager to the database
+
+
+    //save a Parent to the database
+
+
+    //save a Baby to the database
+
 
 
 

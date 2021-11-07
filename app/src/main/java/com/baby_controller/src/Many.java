@@ -8,7 +8,7 @@
 //Parent parents;
 //String userName;
 //String password;
-//User.UserType userType = User.UserType.MANAGER;
+//LocalUser.UserType userType = LocalUser.UserType.MANAGER;
 //
 //    public Many(String userName, String password) {
 //        this.userName = userName;
@@ -45,11 +45,11 @@
 //        this.password = password;
 //    }
 //
-//    public User.UserType getUserType() {
+//    public LocalUser.UserType getUserType() {
 //        return userType;
 //    }
 //
-//    public void setUserType(User.UserType userType) {
+//    public void setUserType(LocalUser.UserType userType) {
 //        this.userType = userType;
 //    }
 //
