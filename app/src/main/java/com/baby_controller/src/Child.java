@@ -120,14 +120,14 @@
 //
 //    public synchronized DatabaseReference uploadToDb(){
 //        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child(parent.getInstitutionName().getName()).
-//                child(User.UserType.PARENT.toString()).child("Children").child(getName());
+//                child(LocalUser.UserType.PARENT.toString()).child("Children").child(getName());
 //        ref.setValue(this);
 //        return ref;
 //    }
 //
 //    public void upload(){
 //        FirebaseDatabase.getInstance().getReference().child(parent.getInstitutionName().getName()).
-//                child(User.UserType.PARENT.toString()).child("Children").child(getName()).setValue(this);
+//                child(LocalUser.UserType.PARENT.toString()).child("Children").child(getName()).setValue(this);
 //    }
 //
 //    public void calcRecommendedAmountPerMeal(double weight) {

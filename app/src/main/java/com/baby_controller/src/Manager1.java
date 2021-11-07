@@ -6,40 +6,37 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.LinkedList;
 import java.util.List;
 
-public class Manager1 extends User implements Runnable {
-    //    List<Parent> parents = new ArrayList<>();
-    DatabaseReference reference;
-    User.UserType userType = User.UserType.MANAGER;
+public class Manager1 extends LocalUser implements Runnable {
+
+    LocalUser.UserType userType = LocalUser.UserType.MANAGER;
 
     public Manager1(){}
 
-    public Manager1(String userName, String password) {
-        super(userName,password,UserType.MANAGER);
+    public Manager1(String userName,String email,  String password) {
+        super(email, userName,password,UserType.MANAGER);
     }
-
-    public Manager1(String name,String userName, String password) {
-        super(name, userName,password,UserType.MANAGER);
-    }
-
 
     public List<Baby> getChildren() {
         return null;
     }
 
 
-    public User.UserType getUserType() {
+    public LocalUser.UserType getUserType() {
         return userType;
     }
 
-    public void setUserType(User.UserType userType) {
+    public void setUserType(LocalUser.UserType userType) {
         this.userType = userType;
     }
 
     /*
-       uses the User uploadToDb, start working in the "UserType" child
+       uses the LocalUser uploadToDb, start working in the "UserType" child
        returns the reference to the manger's username child
         */
 
@@ -55,51 +52,45 @@ public class Manager1 extends User implements Runnable {
     }
 
     public DatabaseReference uploadToDb() {
-        if(name != null) {
-            reference = FirebaseDatabase.getInstance().getReference().child(getInstitution().getName())
-                    .child("management").child(name);
-            reference.child("name").setValue(name);
-        }else {
-            FirebaseDatabase.getInstance().getReference().child(getInstitution().getName())
+        if (userName != null) {
+            reference = FirebaseDatabase.getInstance().getReference().child("Institutions").child(getInstitute().getName())
                     .child("management").child(userName);
+            reference.child("userName").setValue(toJson());
+            return reference;
+
+//
+//
+//
+//        ValueEventListener postListener = new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                // Get Post object and use the values to update the UI
+//                Manager1 tmp = dataSnapshot.getValue(Manager1.class);
+//                userType = tmp.userType;
+//                userName = tmp.userName;
+//                email = tmp.email;
+//                password = tmp.password;userName = tmp.userName;
+//                password = tmp.password;
+//
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//                // Getting Post failed, log a message
+//
+//            }
+//        };
+//        return reference;
         }
-
-
-        reference.child("user name").setValue(userName);
-        reference.child("password").setValue(password);
-        reference = FirebaseDatabase.getInstance().getReference().child(getInstitution().getName())
-                .child("management").child(name);
-
-
-        ValueEventListener postListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // Get Post object and use the values to update the UI
-                Manager1 tmp = dataSnapshot.getValue(Manager1.class);
-                userType = tmp.userType;
-                userName = tmp.userName;
-                name = tmp.name;
-                password = tmp.password;userName = tmp.userName;
-                name = tmp.name;
-                password = tmp.password;
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Getting Post failed, log a message
-
-            }
-        };
         return reference;
     }
 
 
     public void feedBaby(int amount, Baby babyToFeed){
-        LinkedList<Parent> parents = getInstitution().getParents();
+        LinkedList<LocalUser> parents = getInstitute().getParents();
         Baby tmp = null;
-        for(Parent parent :parents){
-            for (Baby baby: parent.getChildren()){
+        for(LocalUser parent :parents){
+            for (Baby baby: ((Parent)parent).getChildren()){
                 if(tmp == null){
                     if (baby.equals(babyToFeed)){
                         tmp = baby;
@@ -108,7 +99,7 @@ public class Manager1 extends User implements Runnable {
                     if(tmp != null){
                         tmp.eatingNextMeal(amount);
                         tmp.uploadToDb();
-                        parent.notifyParent();
+                        ((Parent)parent).notifyParent();
                         break;
                     }
                 }
@@ -120,17 +111,65 @@ public class Manager1 extends User implements Runnable {
 
     }
 
+    //set listeners that updates the Manger1 when its changes in the database
+    public void setListeners(){
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Manager1 tmp = dataSnapshot.getValue(Manager1.class);
+                userType = tmp.userType;
+                userName = tmp.userName;
+                email = tmp.email;
+                password = tmp.password;
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+
+
 
     @Override
     public void run() {
         int i = 0;
         while (i != 1){
             if((System.currentTimeMillis() % Config.TEN_MIN) == 0) {
-                Baby baby = getInstitution().needToFeed();
+                Baby baby = getInstitute().needToFeed();
                 if (baby != null) {
                     notifyBabyNeedToEat(baby);
                 }
             }
         }
     }
+
+    //Manager1 to Json
+    public JSONObject toJson()  {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("userName", userName);
+            jsonObject.put("password", password);
+            jsonObject.put("email", email);
+            jsonObject.put("userType", userType);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObject;
+    }
+
+    //Json to Manager1
+    public void fromJson(JSONObject jsonObject)  {
+        try {
+            userName = jsonObject.getString("userName");
+            password = jsonObject.getString("password");
+            email = jsonObject.getString("email");
+            userType = UserType.MANAGER;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

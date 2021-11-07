@@ -1,12 +1,13 @@
 package com.baby_controller.src;
 
 
-
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.sql.Time;
 import java.util.Date;
@@ -23,10 +24,6 @@ public class Meal {
      * -1 for un eaten meals, 1 for fully eaten meals, 0 for partially eaten
      */
     private int eaten;
-
-    public int getEaten() {
-        return eaten;
-    }
 
 
     public Meal(){}
@@ -85,19 +82,27 @@ public class Meal {
         return 0;
     }
 
+    //uploads the Baby's meal to the database, use transaction to make sure that the meal is uploaded only if the meal is not already uploaded
     public void uploadToDb(DatabaseReference mealsRef,int count) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(getCurrDate().getDate());
-        stringBuilder.append("\\");
-        stringBuilder.append(getCurrDate().getMonth());
 
-        reference = mealsRef.child(stringBuilder.toString()).getRef();
+        
 
-        reference.child(String.valueOf(count)).child("recommended amount").setValue(recommendedAmount);
-        reference.child(String.valueOf(count)).child("received amount").setValue(receivedAmount);
-        reference.child(String.valueOf(count)).child("when eaten").setValue(whenEaten.getTime());
-        reference.child(String.valueOf(count)).child("time to eat").setValue(timeToEat.getTime());
-        reference.child(String.valueOf(count)).child("curr date").setValue(currDate.getTime());
+
+
+
+        //        mealsRef.child(String.valueOf(count)).setValue(this);
+//        StringBuilder stringBuilder = new StringBuilder();
+//        stringBuilder.append(getCurrDate().getDate());
+//        stringBuilder.append("\\");
+//        stringBuilder.append(getCurrDate().getMonth());
+//
+//        reference = mealsRef.child(stringBuilder.toString()).getRef();
+//
+//        reference.child(String.valueOf(count)).child("recommended amount").setValue(recommendedAmount);
+//        reference.child(String.valueOf(count)).child("received amount").setValue(receivedAmount);
+//        reference.child(String.valueOf(count)).child("when eaten").setValue(whenEaten.getTime());
+//        reference.child(String.valueOf(count)).child("time to eat").setValue(timeToEat.getTime());
+//        reference.child(String.valueOf(count)).child("curr date").setValue(currDate.getTime());
 
         ValueEventListener postListener = new ValueEventListener() {
             @Override
@@ -195,6 +200,39 @@ public class Meal {
 
     public void setReference(DatabaseReference reference) {
         this.reference = reference;
+    }
+
+
+    //Meal to Json
+    public JSONObject toJson(){
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("recommended amount", recommendedAmount);
+            jsonObject.put("received amount", receivedAmount);
+            jsonObject.put("when eaten", whenEaten.getTime());
+            jsonObject.put("time to eat", timeToEat.getTime());
+            jsonObject.put("curr date", currDate.getTime());
+            jsonObject.put("eaten", eaten);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObject;
+    }
+
+    //Json to Meal
+    public static Meal fromJson(JSONObject jsonObject){
+        Meal meal = new Meal();
+        try {
+            meal.setRecommendedAmount(jsonObject.getInt("recommended amount"));
+            meal.setReceivedAmount(jsonObject.getInt("received amount"));
+            meal.setWhenEaten(new Time(jsonObject.getLong("when eaten")));
+            meal.setTimeToEat(new Time(jsonObject.getLong("time to eat")));
+            meal.setCurrDate(new Date(jsonObject.getLong("curr date")));
+            meal.setEaten(jsonObject.getInt("eaten"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return meal;
     }
 }
 

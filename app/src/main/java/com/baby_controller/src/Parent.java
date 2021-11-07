@@ -1,29 +1,40 @@
 package com.baby_controller.src;
 
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.baby_controller.src.util.DatabaseManager;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.sql.Time;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Parent extends User{
-    protected List<Baby> children = new ArrayList<>();;
+public class Parent extends LocalUser {
+    protected LinkedList<Baby> children = new LinkedList<>();;
 
-    public Parent(String userName, String password, UserType userType) {
-        super(userName, password, userType);
+    public Parent(){}
+
+    public Parent(String email,String userName, String password, UserType userType) {
+        super(email, userName, password, userType);
 
     }
 
-    public Parent(String name,String userName, String password, UserType userType) {
-        super(name,userName, password, userType);
+    public Parent(String userName,String email, String password) {
+        super(email,userName, password, UserType.PARENT);
     }
 
 
@@ -56,25 +67,19 @@ public class Parent extends User{
         //DatabaseManager.addNewChild(this,child);
     }
     public synchronized DatabaseReference uploadToDb(){
-        reference = FirebaseDatabase.getInstance().getReference().child(this.getInstitutionName()).
-                child(User.UserType.PARENT.toString()).child(getUserName());
-        reference.child("User Name").setValue(getUserName());
-        reference.child("Password").setValue(get_password());
-        for(int i = 0; i < children.size(); i++){
-            children.get(i).setReference(reference.child("children").child(children.get(i).getName()));
-            children.get(i).uploadToDb();
-
-        }
+        reference = FirebaseDatabase.getInstance().getReference().child(this.getInstitute().getName()).
+                child(LocalUser.UserType.PARENT.toString()).child(getUserName());
+        reference.setValue(toJson());
 
         ValueEventListener postListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // Get Post object and use the values to update the UI
-                Parent tmp = dataSnapshot.getValue(Parent.class);
+                Parent tmp = Parent.fromJson(dataSnapshot.getValue(JSONObject.class));
                 userName = tmp.userName;
-                name = tmp.name;
+                email = tmp.email;
                 password = tmp.password;
-                institute = tmp.institute;
+                institutionName = tmp.institutionName;
                 children = tmp.children;
                 userType = tmp.userType;
             }
@@ -116,7 +121,7 @@ public class Parent extends User{
         return null;
     }
 
-    public void setChildren(List<Baby> children) {
+    public void setChildren(LinkedList<Baby> children) {
         this.children = children;
     }
 
@@ -131,5 +136,115 @@ public class Parent extends User{
             }
         }
         return babiesNeedToFeed;
+    }
+
+    //upload the parent to the database as a transaction
+    public void uploadToDb1(DatabaseReference ref){
+        ref.child(this.getInstitute().getName()).
+                child(LocalUser.UserType.PARENT.toString()).
+                child(getUserName()).runTransaction(new Transaction.Handler() {
+            @NonNull
+            @Override
+            public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
+                Parent tmp = mutableData.getValue(Parent.class);
+                if (tmp == null){
+                    mutableData.setValue(Parent.this);
+                }
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(@Nullable DatabaseError databaseError, boolean b, @Nullable DataSnapshot dataSnapshot) {
+                if (databaseError != null){
+                    Log.d("TAG", "onComplete: " + databaseError.getMessage());
+                }
+            }
+        });
+    }
+
+
+    //set listners that update this Parent when its changes in the database
+    public void setListners(){
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Parent tmp = dataSnapshot.getValue(Parent.class);
+                userName = tmp.userName;
+                email = tmp.email;
+                password = tmp.password;
+                institutionName = tmp.institutionName;
+                children = tmp.children;
+                userType = tmp.userType;
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    //Parent to json
+    public JSONObject toJson(){
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("userName", userName);
+            jsonObject.put("email", email);
+            jsonObject.put("password", password);
+            jsonObject.put("institute", institutionName);
+            jsonObject.put("children", children);
+            jsonObject.put("userType", userType);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObject;
+    }
+
+    //json to Parent
+    public static Parent fromJson(JSONObject jsonObject){
+        Parent parent = new Parent();
+        try {
+            parent.userName = jsonObject.getString("userName");
+            parent.email = jsonObject.getString("email");
+            parent.password = jsonObject.getString("password");
+//            parent.institutionName = Institution.fromJson(jsonObject.getJSONObject("institute"));
+
+            for (int i = 0; i < jsonObject.getJSONArray("children").length(); i++){
+                parent.children.add(Baby.fromJson(jsonObject.getJSONArray("children").getJSONObject(i)));
+            }
+
+            parent.userType = UserType.valueOf(jsonObject.getString("userType"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return parent;
+    }
+
+    //save Parent to firebase as a transaction
+    public void saveToDb(DatabaseReference ref){
+        ref.child(this.getInstitute().getName()).
+                child(LocalUser.UserType.PARENT.toString()).
+                child(getUserName()).runTransaction(new Transaction.Handler() {
+            @NonNull
+            @Override
+            public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
+                Parent tmp = mutableData.getValue(Parent.class);
+
+                if (tmp == null){
+                    int a = mutableData.getValue(Parent.class).toString().length()/1024;
+                    mutableData.setValue(Parent.this);
+                    //print parent size in kb
+
+                }
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(@Nullable DatabaseError databaseError, boolean b, @Nullable DataSnapshot dataSnapshot) {
+                if (databaseError != null){
+                    Log.d("TAG", "onComplete: " + databaseError.getMessage());
+                }
+            }
+        });
     }
 }

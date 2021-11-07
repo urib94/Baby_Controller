@@ -9,21 +9,17 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.baby_controller.src.Baby;
-import com.baby_controller.src.Config;
-import com.baby_controller.src.User;
+import com.baby_controller.src.LocalUser;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 public class MainActivity extends AppCompatActivity {
-    private User currUser;
+    public static LocalUser currLocalUser;
     public FirebaseAuth mAuth;
+    private Button btMenu;
+    private Button feeding;
+
 
 
 
@@ -32,29 +28,39 @@ public class MainActivity extends AppCompatActivity {
         FirebaseApp.initializeApp(getApplicationContext());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mAuth = FirebaseAuth.getInstance();
-        startActivity(new Intent(this,LoginActivity.class));
-        configureNextButton();
-//        FirebaseUser currentUser = mAuth.getCurrentUser();
-//        if(currentUser == null){
-//            startActivity(new Intent(this,LoginActivity.class));
-//        }
+        configureButtons();
 
-        //go to login activity
-        
+        mAuth = FirebaseAuth.getInstance();
+        if(FirebaseAuth.getInstance().getCurrentUser() != null) {
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+        }
     }
 
-    private void configureNextButton() {
-        Button nextButton = (Button) findViewById(R.id.button);
-        nextButton.setOnClickListener(new View.OnClickListener() {
+    @Override
+    public void onStop() {
+        super.onStop();
+        mAuth.signOut();
+    }
+
+    private void configureButtons() {
+        feeding = (Button) findViewById(R.id.feeding);
+        feeding.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                FirebaseUser currentUser = mAuth.getCurrentUser();
-                String ma = currentUser.getEmail();
-                if(Config.CUUR_USER == null) {
-                    starter();
+                Intent intent = new Intent(MainActivity.this, FeedingActivity.class);
+                startActivity(intent);
                 }
+        });
+
+        btMenu = (Button) findViewById(R.id.bt_menu);
+
+        btMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this,BluetoothManager.class);
+                startActivity(intent);
             }
         });
+
 
 
     }
@@ -64,34 +70,17 @@ public class MainActivity extends AppCompatActivity {
     public void starter(){
         startActivity(new Intent(this,LoginActivity.class));
     }
-    public User getCurrUser() {
-        return currUser;
+    public LocalUser getCurrUser() {
+        return currLocalUser;
     }
 
 
-    public static void setCurrUser(String userName) {
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("users");
-        User result = null;
-        //get the user from the db
-        ValueEventListener postListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // Get Post object and use the values to update the UI
-                Config.CUUR_USER  = dataSnapshot.getValue(User.class);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {}
-        };
-        reference.addValueEventListener(postListener);
-        //this.currUser = reference.child(userName).get().getResult().getValue(User.class);
-    }
 
     public void test(View view){
 
         TextView textView = (TextView) view;
 
-        TextView display = findViewById(R.id.button);
+        TextView display = findViewById(R.id.bt_menu);
         String weight = textView.getText().toString();
         Baby baby = new Baby("newBorn",new Double(weight).doubleValue());
         double rec = baby.getRecommendedAmountPerMeal();
