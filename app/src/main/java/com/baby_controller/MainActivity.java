@@ -1,5 +1,6 @@
 package com.baby_controller;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -13,12 +14,15 @@ import com.baby_controller.src.LocalUser;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
     public static LocalUser currLocalUser;
     public FirebaseAuth mAuth;
     private Button btMenu;
     private Button feeding;
+    private Button blogout;
+    private Context context;
 
 
 
@@ -29,9 +33,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         configureButtons();
+        context = this;
 
         mAuth = FirebaseAuth.getInstance();
-        if(FirebaseAuth.getInstance().getCurrentUser() != null) {
+        // TODO: 11/8/2021  delate next line
+        mAuth.signOut();
+
+        if(mAuth.getCurrentUser() == null) {
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
         }
     }
@@ -39,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStop() {
         super.onStop();
-        mAuth.signOut();
+        //mAuth.signOut();
     }
 
     private void configureButtons() {
@@ -61,6 +69,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        blogout = (Button) findViewById(R.id.logout);
+        blogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAuth.signOut();
+                FirebaseUser us = mAuth.getCurrentUser();
+                Intent intent = new Intent(context, LoginActivity.class);
+                startActivity(intent);
+            }
+        });
 
 
     }

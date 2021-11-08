@@ -17,13 +17,16 @@ import com.google.firebase.database.ValueEventListener;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
+
 @Keep
 public class Institution{
     private String name;
     private DatabaseReference reference;
-    protected LinkedList<LocalUser> management = new LinkedList<>();
-    protected LinkedList<LocalUser> parents = new LinkedList<>();
+    protected List<LocalUser> management = new ArrayList<>();
+    protected List<LocalUser> parents =     new ArrayList<>();
 
 
     public Institution(){
@@ -84,15 +87,11 @@ public class Institution{
         return name;
     }
 
-    public LinkedList<LocalUser> getManagement() {
+    public List<LocalUser> getManagement() {
         return management;
     }
 
-    public void setManagement(LinkedList<LocalUser> management) {
-        this.management = management;
-    }
-
-    public LinkedList<LocalUser> getParents() {
+    public List<LocalUser> getParents() {
         return parents;
     }
 
@@ -296,8 +295,8 @@ public class Institution{
 // clone
     public Institution clone(){
         Institution newOne = new Institution();
-        newOne.setManagement(this.management);
-        newOne.setParents(this.parents);
+        newOne.management = this.management;
+        newOne.parents = this.parents;
         newOne.setName(this.name);
         return newOne;
     }

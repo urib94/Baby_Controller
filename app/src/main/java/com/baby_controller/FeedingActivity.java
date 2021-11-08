@@ -38,10 +38,7 @@ public class FeedingActivity extends BluetoothManager {
     @Override
     public void onStart() {
         super.onStart();
-        LocalUser us = Config.CUUR_USER;
-        babies.addAll(us.getInstitute().getBabiesNeedToFeed());
-        hungryBabies = (ListView)findViewById(R.id.babys_to_feed);
-        hungryBabies.setAdapter(babies); // assign model to view
+
     }
 
 

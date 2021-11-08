@@ -56,7 +56,7 @@ public class LoginActivity extends AppCompatActivity {
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         myRef = mFirebaseDatabase.getReference().child("Users");
         FirebaseUser user = mAuth.getCurrentUser();
-        userID = user.getUid();
+//        userID = user.getUid();
 
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -68,8 +68,10 @@ public class LoginActivity extends AppCompatActivity {
 
                 }else {
                     //user is signed out
-                    Log.d(TAG,"onAuthStateChanged : signed out" + user.getUid());
-                    toastMessage("Successfully signed out with: " + user.getEmail());
+                    if(userID != null) {
+                        Log.d(TAG, "onAuthStateChanged : signed out" + user.getUid());
+                        toastMessage("Successfully signed out with: " + user.getEmail());
+                    }
                 }
             }
         };
@@ -116,7 +118,6 @@ public class LoginActivity extends AppCompatActivity {
         super.onStop();
         if(mAuthListener != null){
           mAuth.removeAuthStateListener(mAuthListener);
-
         }
     }
 

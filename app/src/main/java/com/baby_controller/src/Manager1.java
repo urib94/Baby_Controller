@@ -9,7 +9,6 @@ import com.google.firebase.database.ValueEventListener;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.LinkedList;
 import java.util.List;
 
 public class Manager1 extends LocalUser implements Runnable {
@@ -87,7 +86,7 @@ public class Manager1 extends LocalUser implements Runnable {
 
 
     public void feedBaby(int amount, Baby babyToFeed){
-        LinkedList<LocalUser> parents = getInstitute().getParents();
+        List<LocalUser> parents = getInstitute().getParents();
         Baby tmp = null;
         for(LocalUser parent :parents){
             for (Baby baby: ((Parent)parent).getChildren()){
