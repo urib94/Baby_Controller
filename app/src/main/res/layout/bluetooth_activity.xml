@@ -78,24 +78,16 @@
         </LinearLayout>
 
         <Button
-            android:id="@+id/scan"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toStartOf="@+id/off"
-            android:text="Bluetooth ON" />
-
-        <Button
             android:id="@+id/off"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/scan"
-            android:layout_toEndOf="@+id/PairedBtn"
-            android:layout_toRightOf="@+id/PairedBtn"
-            android:text="Bluetooth OFF" />
+            android:layout_toEndOf="@+id/paired_btn"
+            android:layout_toRightOf="@+id/paired_btn"
+            android:text="@string/bluetooth_is_off" />
 
         <Button
-            android:id="@+id/PairedBtn"
+            android:id="@+id/paired_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/scan"
@@ -115,7 +107,7 @@
             android:id="@+id/devicesListView"
             android:layout_width="wrap_content"
             android:layout_height="366dp"
-            android:layout_below="@+id/PairedBtn"
+            android:layout_below="@+id/paired_btn"
             android:layout_alignEnd="@+id/off"
             android:layout_alignRight="@+id/off"
             android:choiceMode="singleChoice" />

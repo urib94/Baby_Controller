@@ -152,6 +152,15 @@ public class Institution{
         return babies;
     }
 
+    // get the list of all the babies that dont need to be fed
+    public LinkedList<Baby> getBabiesNotNeedToFeed(){
+        LinkedList<Baby> babies = new LinkedList<>();
+        for (LocalUser parent : getParents()){
+            babies.addAll(((Parent)parent).getBabiesNotNeedToFeed());
+        }
+        return babies;
+    }
+
 
 //    //get this from firebase
 //    public void getInstitutionFromDb(DatabaseReference dbReference) {

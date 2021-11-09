@@ -261,6 +261,7 @@ public class LocalUser {
     public void setDefaultDevice(BluetoothDevice defaultDevice) {
         this.defaultDevice = defaultDevice;
         reference.addValueEventListener(postListener);
-
     }
+
+
 }

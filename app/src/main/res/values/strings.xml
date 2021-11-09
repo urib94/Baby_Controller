@@ -24,6 +24,11 @@
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
+    <string name="bluetooth_on">Bluetooth On</string>
+    <string name="bluetooth_off">Bluetooth Off</string>
+    <string name="discover_new_devices">Discover New Devices</string>
+    <string name="stop_discovering">Stop Discovering</string>
+    <string name="bluetooth_is_off">Bluetooth OFF</string>
 
 
 </resources>

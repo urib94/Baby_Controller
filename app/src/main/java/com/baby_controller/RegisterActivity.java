@@ -264,7 +264,8 @@ public class RegisterActivity extends AppCompatActivity {
                             password.setText("");
                             institutionName.setText("");
                             if(newUser.getUserType() == LocalUser.UserType.MANAGER){
-                                Intent intent = new Intent(RegisterActivity.this,MangerMainActivity.cllass);
+                                //todo make diffrent cases to ech user types
+                                Intent intent = new Intent(RegisterActivity.this,MainActivity.class);
                             }
                             releaseInstance();
                             finish();

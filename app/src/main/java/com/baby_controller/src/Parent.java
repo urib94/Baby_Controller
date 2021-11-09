@@ -138,6 +138,18 @@ public class Parent extends LocalUser {
         return babiesNeedToFeed;
     }
 
+    public LinkedList<Baby> getBabiesNotNeedToFeed() {
+        LinkedList<Baby> babiesDontNeedToFeed = new LinkedList<>();
+        for(Baby baby: children){
+            Meal last = baby.history.get(baby.history.size() -1);
+            Time now = new Time(System.currentTimeMillis());
+            if (now.before(last.getTimeToEat())){
+                babiesDontNeedToFeed.add(baby);
+            }
+        }
+        return babiesDontNeedToFeed;
+    }
+
     //upload the parent to the database as a transaction
     public void uploadToDb1(DatabaseReference ref){
         ref.child(this.getInstitute().getName()).
@@ -247,4 +259,8 @@ public class Parent extends LocalUser {
             }
         });
     }
+
+
+    // get the list of all the babies that dont need to be fed
+
 }

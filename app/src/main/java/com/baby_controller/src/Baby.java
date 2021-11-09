@@ -20,6 +20,7 @@ import org.json.JSONObject;
 
 import java.sql.Time;
 import java.util.LinkedList;
+import java.util.List;
 
 public  class Baby {
     protected DatabaseReference reference;
@@ -27,7 +28,7 @@ public  class Baby {
     private String name = "";
     private int id = 0;
     //MealList history;
-    LinkedList<Meal> history = new LinkedList<Meal>();
+    List<Meal> history = new LinkedList<Meal>();
     private int ageInMonths = 0;
     Meal meal = new Meal(60);
 //    private Parent[] parents = new Parent[2];
@@ -87,7 +88,25 @@ public  class Baby {
     }
 
     public void eatingNextMeal(int amount) {
-        createNextMeal(amount);
+        if(history.size() == 0){
+            history.add(new Meal(amount));
+        }
+        history.get(history.size() - 1).setEaten(1);
+        history.get(history.size() - 1).setReceivedAmount(amount);
+        history.get(history.size() - 1).setWhenEaten(new Time(System.currentTimeMillis()));
+        createNextMeal();
+        int count = 0;
+        for(LocalUser parents :parent.getInstitute().getParents()){
+            if(parent.getEmail().equals(parents.getEmail())){
+                break;
+            }
+            count++;
+        }
+
+        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference().child("Institutions")
+                .child(getParent().getInstitutionName()).child("parents").child(String.valueOf(count));
+        myRef.child("babies").child(name).setValue(this);
+
         //notify the parent using firebase cloud messaging
 
 
@@ -99,15 +118,7 @@ public  class Baby {
 
 
 
-    private void createNextMeal(int amount) {
-        if(history.size() == 0){
-            history.add(new Meal(amount));
-        }
-        history.get(history.size() - 1).setReceivedAmount(amount);
-        history.get(history.size() - 1).setEaten(1);
-        history.get(history.size() - 1).setWhenEaten(new Time(System.currentTimeMillis()));
-        history.get(history.size() - 1).setEaten(1);
-
+    private void createNextMeal() {
         history.add(new Meal(recommendedAmountPerMeal));
         history.get(history.size() - 1).setEaten(-1);
         history.get(history.size() - 1).calcTimeToEat(history.get(history.size() - 2));
@@ -345,4 +356,11 @@ public  class Baby {
         return baby;
     }
 
+    public List<Meal> getHistory() {
+        return history;
+    }
+
+    public void setHistory(List<Meal> history) {
+        this.history = history;
+    }
 }

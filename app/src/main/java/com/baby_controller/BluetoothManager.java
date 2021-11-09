@@ -77,7 +77,7 @@ public class BluetoothManager extends AppCompatActivity {
         mScanBtn = (Button)findViewById(R.id.scan);
         mOffBtn = (Button)findViewById(R.id.off);
         mDiscoverBtn = (Button)findViewById(R.id.discover);
-        mListPairedDevicesBtn = (Button)findViewById(R.id.PairedBtn);
+        mListPairedDevicesBtn = (Button)findViewById(R.id.paired_btn);
         mLED1 = (CheckBox)findViewById(R.id.choose_defult);
         backToMain = (Button)findViewById(R.id.back_to_main_menu);
 
@@ -92,7 +92,7 @@ public class BluetoothManager extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                setContentView(R.layout.feeding_activity);
+                setContentView(R.layout.administer_food_activity);
                 //start feedingActivity
                 Intent intent = new Intent(BluetoothManager.this, FeedingActivity.class);
                 startActivity(intent);
@@ -320,7 +320,7 @@ public class BluetoothManager extends AppCompatActivity {
 
 
             if(mBTSocket.isConnected()){
-                setContentView(R.layout.feeding_activity);
+                setContentView(R.layout.administer_food_activity);
 
 
             }
