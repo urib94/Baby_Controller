@@ -1,5 +1,7 @@
 package com.baby_controller.src;
 
+import androidx.annotation.NonNull;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -11,14 +13,18 @@ import org.json.JSONObject;
 
 import java.util.List;
 
-public class Manager1 extends LocalUser implements Runnable {
+public class Manager1 extends LocalUser {
 
-    LocalUser.UserType userType = LocalUser.UserType.MANAGER;
-
-    public Manager1(){}
+    public Manager1(){
+        super();
+    }
 
     public Manager1(String userName,String email,  String password) {
         super(email, userName,password,UserType.MANAGER);
+    }
+
+    public Manager1(LocalUser localUser) {
+        super(localUser);
     }
 
     public List<Baby> getChildren() {
@@ -86,7 +92,7 @@ public class Manager1 extends LocalUser implements Runnable {
 
 
     public void feedBaby(int amount, Baby babyToFeed){
-        List<LocalUser> parents = getInstitute().getParents();
+        List<Parent> parents = getInstitute().getParents();
         Baby tmp = null;
         for(LocalUser parent :parents){
             for (Baby baby: ((Parent)parent).getChildren()){
@@ -132,18 +138,18 @@ public class Manager1 extends LocalUser implements Runnable {
 
 
 
-    @Override
-    public void run() {
-        int i = 0;
-        while (i != 1){
-            if((System.currentTimeMillis() % Config.TEN_MIN) == 0) {
-                Baby baby = getInstitute().needToFeed();
-                if (baby != null) {
-                    notifyBabyNeedToEat(baby);
-                }
-            }
-        }
-    }
+//    @Override
+//    public void run() {
+//        int i = 0;
+//        while (i != 1){
+//            if((System.currentTimeMillis() % Config.TEN_MIN) == 0) {
+//                Baby baby = getInstitute().needToFeed();
+//                if (baby != null) {
+//                    notifyBabyNeedToEat(baby);
+//                }
+//            }
+//        }
+//    }
 
     //Manager1 to Json
     public JSONObject toJson()  {
@@ -171,4 +177,23 @@ public class Manager1 extends LocalUser implements Runnable {
         }
     }
 
+    //coppy constructor
+    public Manager1(Manager1 manager) {
+        super(manager);
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "Manager1{" +
+                "reference=" + reference +
+                ", userType=" + userType +
+                ", institutionName='" + institutionName + '\'' +
+                ", userName='" + userName + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", uid='" + uid + '\'' +
+                ", defaultDevice=" + defaultDevice +
+                '}';
+    }
 }

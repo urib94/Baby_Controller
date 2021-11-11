@@ -8,6 +8,13 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
+    <supports-screens
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:smallScreens="true"
+        android:anyDensity="true" />
+
+
     <application
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_descriptor"
@@ -17,7 +24,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Baby_controller" >
         <activity
-            android:name=".MainActivity"
+            android:name=".LoginActivity"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,16 +33,19 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".LoginActivity"
+            android:name=".MainActivity"
             android:exported="true" />
         <activity
             android:name=".RegisterActivity"
             android:exported="true" />
         <activity
-            android:name=".BluetoothManager"
+            android:name=".BluetoothConnectionManager"
             android:exported="true" />
         <activity
             android:name=".FeedingActivity"
+            android:exported="true" />
+        <activity
+            android:name=".FeedingActivity2"
             android:exported="true" />
     </application>
 

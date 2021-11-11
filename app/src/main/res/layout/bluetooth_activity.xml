@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="BluetoothManager">
+    tools:context=".BluetoothConnectionManager">
 
 
     <LinearLayout
@@ -106,17 +106,12 @@
         <ListView
             android:id="@+id/devicesListView"
             android:layout_width="wrap_content"
-            android:layout_height="366dp"
+            android:layout_height="470dp"
             android:layout_below="@+id/paired_btn"
             android:layout_alignEnd="@+id/off"
             android:layout_alignRight="@+id/off"
             android:choiceMode="singleChoice" />
 
-        <Button
-            android:id="@+id/back_to_main_menu"
-            android:layout_width="match_parent"
-            android:layout_height="67dp"
-            android:text="back to main menu" />
 
     </LinearLayout>
 

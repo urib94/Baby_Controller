@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.baby_controller.src.Baby;
 import com.baby_controller.src.BabyListAdapter;
+import com.baby_controller.src.Config;
 import com.baby_controller.src.Institution;
 import com.baby_controller.src.LocalUser;
 import com.baby_controller.src.Parent;
@@ -31,7 +32,7 @@ public class ManegeInstituteActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         FirebaseApp.initializeApp(getApplicationContext());
         super.onCreate(savedInstanceState);
-        if(MainActivity.currLocalUser.getUserType() == LocalUser.UserType.MANAGER ){
+        if(Config.getCurrentUser().getUserType() == LocalUser.UserType.MANAGER ){
             setContentView(R.layout.manager_mange_institute);
             MangerBabyListMaker();
         }else{
@@ -43,7 +44,7 @@ public class ManegeInstituteActivity extends AppCompatActivity {
     public void MangerBabyListMaker(){
         //get the institute of the user from the database
         DatabaseReference mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("Institutions")
-                .child(MainActivity.currLocalUser.getInstitutionName());
+                .child(Config.getCurrentUser().getInstitutionName());
 
         mDatabaseReference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -68,7 +69,7 @@ public class ManegeInstituteActivity extends AppCompatActivity {
     public void ParentBabyListMaker(){
         //get the institute of the user from the database
         DatabaseReference mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("Institutions")
-                .child(MainActivity.currLocalUser.getInstitutionName());
+                .child(Config.getCurrentUser().getInstitutionName());
 
         mDatabaseReference.addValueEventListener(new ValueEventListener() {
             @Override

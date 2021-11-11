@@ -26,7 +26,7 @@ public class Institution{
     private String name;
     private DatabaseReference reference;
     protected List<LocalUser> management = new ArrayList<>();
-    protected List<LocalUser> parents =     new ArrayList<>();
+    protected List<Parent> parents =     new ArrayList<>();
 
 
     public Institution(){
@@ -43,6 +43,7 @@ public class Institution{
 
 
 
+
     public Manager1 getManger(String userName){
         for(int i = 0; i < management.size(); i++){
             if(management.get(i).getUserName().equals(userName)){
@@ -52,6 +53,11 @@ public class Institution{
             }
         }
         return null;
+    }
+
+    //set management by LinkedList
+    public void setManagement(ArrayList<LocalUser> management) {
+        this.management = management;
     }
 
     public Parent getParent(String userName){
@@ -91,11 +97,11 @@ public class Institution{
         return management;
     }
 
-    public List<LocalUser> getParents() {
+    public List<Parent> getParents() {
         return parents;
     }
 
-    public void setParents(LinkedList<LocalUser> parents) {
+    public void setParents(ArrayList<Parent> parents) {
         this.parents = parents;
     }
 

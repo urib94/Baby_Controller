@@ -25,11 +25,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.baby_controller.src.Baby;
 import com.baby_controller.src.BabyListAdapter;
+import com.baby_controller.src.Config;
 import com.baby_controller.src.DeviceListAdapter;
 import com.baby_controller.src.Institution;
 import com.baby_controller.src.LocalUser;
 import com.baby_controller.src.Parent;
-import com.baby_controller.src.util.BluetoothConnectionService;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -41,13 +41,13 @@ import java.util.Set;
 import java.util.UUID;
 
 public class FeedingActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "Feeding Activity";
 
     public static double foodWight = 0;
-    BluetoothAdapter mBluetoothAdapter;
+//    BluetoothAdapter mBluetoothAdapter;
     Button btnDiscovere;
 
-    BluetoothConnectionService mBluetoothConnection;
+//    BluetoothConnectionService mBluetoothConnection;
 
     private Button feed;
     public static Baby babyToFeed;
@@ -156,12 +156,14 @@ public class FeedingActivity extends AppCompatActivity implements AdapterView.On
         }
     };
 
+    //redundant
     private void startFeeding() {
         setContentView(R.layout.choos_baby_to_feed);
         configureBabyChooserButtons();
         babyListsMaker();
     }
 
+    //copied
     private void configureBabyChooserButtons() {
         reallyHungryBabies = (ListView) findViewById(R.id.really_hungry_list);
         hungryBabies = (ListView) findViewById(R.id.hungry_list);
@@ -208,10 +210,11 @@ public class FeedingActivity extends AppCompatActivity implements AdapterView.On
         }
     };
 
+    //copied
     public void babyListsMaker(){
         //get the institute of the user from the database
         DatabaseReference mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("Institutions")
-                .child(MainActivity.currLocalUser.getInstitutionName());
+                .child(Config.getCurrentUser().getInstitutionName());
 
         mDatabaseReference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -234,7 +237,7 @@ public class FeedingActivity extends AppCompatActivity implements AdapterView.On
 
         //the same for the babies that are not hungry
         DatabaseReference mDatabaseReference2 = FirebaseDatabase.getInstance().getReference().child("Institutions")
-                .child(MainActivity.currLocalUser.getInstitutionName());
+                .child(Config.getCurrentUser().getInstitutionName());
 
         mDatabaseReference2.addValueEventListener(new ValueEventListener() {
             @Override
@@ -310,7 +313,7 @@ public class FeedingActivity extends AppCompatActivity implements AdapterView.On
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View v) {
-                if(!mBluetoothAdapter.isEnabled()){
+                if(!Config.getmBluetoothAdapter().isEnabled()){
                     enableDisableBT();
                 }
                 btnDiscover(v);
@@ -322,7 +325,7 @@ public class FeedingActivity extends AppCompatActivity implements AdapterView.On
             public void onClick(View view) {
                 Log.d(TAG, "onClick: enabling/disabling bluetooth.");
                 enableDisableBT();
-                if(mBluetoothAdapter.isEnabled()){
+                if(Config.getmBluetoothAdapter().isEnabled()){
                     btnOnOFf.setText(R.string.bluetooth_off);
                 }else btnOnOFf.setText(R.string.bluetooth_on);
             }
@@ -346,11 +349,12 @@ public class FeedingActivity extends AppCompatActivity implements AdapterView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //todo change the content view to bluetooth connection (and make one)
-        if(MainActivity.currLocalUser.getDefaultDevice() == null) {
+        if(Config.getCurrentUser().getDefaultDevice() == null) {
             setContentView(R.layout.bluetooth_activity);
             configureBtButtons();
         }else {
-            startBTConnection(MainActivity.currLocalUser.getDefaultDevice(),MY_UUID_INSECURE);
+            setContentView(R.layout.choos_baby_to_feed);
+            startBTConnection(Config.getCurrentUser().getDefaultDevice(),MY_UUID_INSECURE);
             setContentView(R.layout.choos_baby_to_feed);
             configureBabyChooserButtons();
             startFeeding();
@@ -361,7 +365,7 @@ public class FeedingActivity extends AppCompatActivity implements AdapterView.On
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
         registerReceiver(mBroadcastReceiver4, filter);
 
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        Config.setmBluetoothAdapter(BluetoothAdapter.getDefaultAdapter());
 
 
     }
@@ -377,17 +381,17 @@ public class FeedingActivity extends AppCompatActivity implements AdapterView.On
      */
     public void startBTConnection(BluetoothDevice device, UUID uuid){
         Log.d(TAG, "startBTConnection: Initializing RFCOM Bluetooth Connection.");
-        if(chooseDefault.isChecked() && MainActivity.currLocalUser.getDefaultDevice() == null){
-            MainActivity.currLocalUser.setDefaultDevice(device);
-            FirebaseDatabase.getInstance().getReference().child("Users").child(MainActivity.currLocalUser.getUid())
+        if(chooseDefault.isChecked() && Config.getCurrentUser().getDefaultDevice() == null){
+            Config.getCurrentUser().setDefaultDevice(device);
+            FirebaseDatabase.getInstance().getReference().child("Users").child(Config.getCurrentUser().getUid())
                     .child("defaultDevice").setValue(device);
         }
-        mBluetoothConnection.startClient(device,uuid);
+//        Config.getBluetoothConnectionManger().startClient(device,uuid);
     }
 
     private void listPairedDevices(View view){
-        mPairedDevices = mBluetoothAdapter.getBondedDevices();
-        if(mBluetoothAdapter.isEnabled()) {
+        mPairedDevices = BluetoothAdapter.getDefaultAdapter().getBondedDevices();
+        if(BluetoothAdapter.getDefaultAdapter().isEnabled()) {
             // put it's one to the adapter
             for (BluetoothDevice device : mPairedDevices) {
                 mPairedDeviceListAdapter.add(device);
@@ -402,10 +406,10 @@ public class FeedingActivity extends AppCompatActivity implements AdapterView.On
 
     public void enableDisableBT(){
 
-        if(mBluetoothAdapter == null){
+        if(BluetoothAdapter.getDefaultAdapter() == null){
             Log.d(TAG, "enableDisableBT: Does not have BT capabilities.");
         }
-        if(!mBluetoothAdapter.isEnabled()){
+        if(!BluetoothAdapter.getDefaultAdapter().isEnabled()){
             Log.d(TAG, "enableDisableBT: enabling BT.");
             Intent enableBTIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 
@@ -414,9 +418,9 @@ public class FeedingActivity extends AppCompatActivity implements AdapterView.On
             IntentFilter BTIntent = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
             registerReceiver(mBroadcastReceiver1, BTIntent);
         }
-        if(mBluetoothAdapter.isEnabled()){
+        if(BluetoothAdapter.getDefaultAdapter().isEnabled()){
             Log.d(TAG, "enableDisableBT: disabling BT.");
-            mBluetoothAdapter.disable();
+            BluetoothAdapter.getDefaultAdapter().disable();
 
             IntentFilter BTIntent = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
             registerReceiver(mBroadcastReceiver1, BTIntent);
@@ -432,25 +436,25 @@ public class FeedingActivity extends AppCompatActivity implements AdapterView.On
     public void btnDiscover(View view) {
         Log.d(TAG, "btnDiscover: Looking for unpaired devices.");
 
-        if(mBluetoothAdapter.isDiscovering()){
-            mBluetoothAdapter.cancelDiscovery();
+        if(BluetoothAdapter.getDefaultAdapter().isDiscovering()){
+            BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
             Log.d(TAG, "btnDiscover: Canceling discovery.");
             btnDiscovere.setText(R.string.discover_new_devices);
 
             //check BT permissions in manifest
             checkBTPermissions();
 
-            mBluetoothAdapter.startDiscovery();
+            BluetoothAdapter.getDefaultAdapter().startDiscovery();
             IntentFilter discoverDevicesIntent = new IntentFilter(BluetoothDevice.ACTION_FOUND);
             registerReceiver(mBroadcastReceiver3, discoverDevicesIntent);
         }else {
             btnDiscovere.setText(R.string.stop_discovering);
         }
-        if(!mBluetoothAdapter.isDiscovering()){
+        if(!BluetoothAdapter.getDefaultAdapter().isDiscovering()){
 
             //check BT permissions in manifest
             checkBTPermissions();
-            mBluetoothAdapter.startDiscovery();
+            BluetoothAdapter.getDefaultAdapter().startDiscovery();
             IntentFilter discoverDevicesIntent = new IntentFilter(BluetoothDevice.ACTION_FOUND);
             registerReceiver(mBroadcastReceiver3, discoverDevicesIntent);
         }
@@ -481,7 +485,7 @@ public class FeedingActivity extends AppCompatActivity implements AdapterView.On
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         if(view.equals(lvNewDevices)) {
             //first cancel discovery because its very memory intensive.
-            mBluetoothAdapter.cancelDiscovery();
+            BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
 
             Log.d(TAG, "onItemClick: You Clicked on a device.");
             String deviceName = mBTDevices.get(i).getName();
@@ -497,7 +501,7 @@ public class FeedingActivity extends AppCompatActivity implements AdapterView.On
                 Log.d(TAG, "Trying to pair with " + deviceName);
                 mBTDevices.get(i).createBond();
                 mBTDevice = mBTDevices.get(i);
-                mBluetoothConnection = new BluetoothConnectionService(FeedingActivity.this);
+//                mBluetoothConnection = new BluetoothConnectionService(FeedingActivity.this);
                 startConnection();
             }
         }else if (view.equals(reallyHungryBabies)){

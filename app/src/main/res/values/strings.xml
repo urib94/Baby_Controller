@@ -26,9 +26,16 @@
     <string name="menu_slideshow">Slideshow</string>
     <string name="bluetooth_on">Bluetooth On</string>
     <string name="bluetooth_off">Bluetooth Off</string>
-    <string name="discover_new_devices">Discover New Devices</string>
     <string name="stop_discovering">Stop Discovering</string>
     <string name="bluetooth_is_off">Bluetooth OFF</string>
+    <string name="choose_default">Choose Default</string>
+    <string name="rx">RX:</string>
+    <string name="status">Status:</string>
+    <string name="show_paired_devices">Show paired Devices</string>
+    <string name="discover_new_devices">Discover New Devices</string>
+    <string name="back_to_main_menu">back to main menu</string>
+    <string name="turn_bt_on">Turn Bluetooth On</string>
+    <string name="turn_bt_off">Turn Bluetooth Off</string>
 
 
 </resources>

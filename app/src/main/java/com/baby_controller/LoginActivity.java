@@ -11,10 +11,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.baby_controller.src.Baby;
 import com.baby_controller.src.Config;
 import com.baby_controller.src.LocalUser;
-import com.baby_controller.src.Parent;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
@@ -27,6 +25,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.Objects;
+
 public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
@@ -36,7 +36,7 @@ public class LoginActivity extends AppCompatActivity {
     //add Firebase Database stuff
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference myRef;
-    String userID;
+    String userUID;
 
 
     //buttons
@@ -44,7 +44,7 @@ public class LoginActivity extends AppCompatActivity {
     TextView password;
     Button login;
     Button register;
-    TextView popupWindow;
+
 
 
     @Override
@@ -68,43 +68,34 @@ public class LoginActivity extends AppCompatActivity {
 
                 }else {
                     //user is signed out
-                    if(userID != null) {
+                    if(userUID != null) {
                         Log.d(TAG, "onAuthStateChanged : signed out" + user.getUid());
                         toastMessage("Successfully signed out with: " + user.getEmail());
                     }
                 }
             }
         };
-
-
+//
+//        myRef.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                // This method is called once with the initial value and again
+//                // whenever data at this location is updated.
+//                if (dataSnapshot != null && mAuth.getCurrentUser() != null) {
+//                    showData(dataSnapshot);
+//                }
+//            }
+//            @Override
+//            public void onCancelled(DatabaseError error) {
+//                // Failed to read value
+//                Log.w(TAG, "Failed to read value.", error.toException());
+//            }
+//        });
     }
 
 
 
-    private void showData(DataSnapshot dataSnapshot){
-        for(DataSnapshot ds : dataSnapshot.getChildren()){
-            if(ds.child(userID).getValue(LocalUser.class) != null) {
-                if (ds.child(userID).getValue(LocalUser.class).getEmail().equals(email.getText().toString())) {
-                    MainActivity.currLocalUser = new LocalUser();
-                    MainActivity.currLocalUser.setUserName(ds.child(userID).getValue(LocalUser.class).getUserName()); //set the user name
-                    MainActivity.currLocalUser.setEmail(ds.child(userID).getValue(LocalUser.class).getEmail());
-                    MainActivity.currLocalUser.setPassword(ds.child(userID).getValue(LocalUser.class).getPassword());
-                    MainActivity.currLocalUser.setUserType(ds.child(userID).getValue(LocalUser.class).getUserType());
-                    MainActivity.currLocalUser.setDefaultDevice(ds.child(userID).getValue(LocalUser.class).getDefaultDevice());
-                    MainActivity.currLocalUser.setInstitutionName(ds.child(userID).getValue(LocalUser.class).getInstitute().getName());
-                    MainActivity.currLocalUser.setInstitutionName(ds.child(userID).getValue(LocalUser.class).getInstitutionName());
-                    MainActivity.currLocalUser.setReference(ds.child(userID).getValue(LocalUser.class).getReference());
-                    MainActivity.currLocalUser.setUid(ds.child(userID).getValue(LocalUser.class).getUid());
 
-                    if (MainActivity.currLocalUser.getUserType() == LocalUser.UserType.PARENT) {
-                        for (Baby baby : ds.child(userID).getValue(Parent.class).getChildren()) {
-                            ((Parent) MainActivity.currLocalUser).addNewChild(baby);
-                        }
-                    }
-                }
-            }
-        }
-    }
 
     @Override
     public void onStart() {
@@ -113,18 +104,14 @@ public class LoginActivity extends AppCompatActivity {
         setUpButtons();
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        if(mAuthListener != null){
-          mAuth.removeAuthStateListener(mAuthListener);
-        }
-    }
 
 
     private void updateUI(FirebaseUser currentUser) {
-        LoginActivity.this.onStop();
+        LocalUser localUser = Config.getCurrentUser();
+        Intent intent = new Intent(this,MainActivity.class);
+        startActivity(intent);
         finish();
+
     }
 
     public void setUpButtons() {
@@ -132,47 +119,27 @@ public class LoginActivity extends AppCompatActivity {
         password = (TextView) findViewById(R.id.password);
         login = (Button) findViewById(R.id.login);
         register = (Button) findViewById(R.id.register);
-        popupWindow = (TextView) findViewById(R.id.popup_window);
+
 
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!email.getText().toString().equals("") && !password.getText().toString().equals("")) {
+                if (!email.getText().toString().equals("") && !password.getText().toString().equals("")) {
                     // Read from the database
                     login(v);
-                    myRef.addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            // This method is called once with the initial value and again
-                            // whenever data at this location is updated.
-                            if (dataSnapshot != null && mAuth.getCurrentUser() != null) {
-                                showData(dataSnapshot);
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError error) {
-                            // Failed to read value
-                            Log.w(TAG, "Failed to read value.", error.toException());
-                        }
-                    });
-                }else{
-                    toastMessage("Pleas fill all the fields");
                 }
             }
         });
 
         register.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
                 register(v);
             }
-
-
-
         });
-
     }
+
 
     private void toastMessage(String s) {
         Toast.makeText(LoginActivity.this ,s,Toast.LENGTH_SHORT).show();
@@ -184,23 +151,38 @@ public class LoginActivity extends AppCompatActivity {
         if (!mail.equals("") && !pass.equals("")){
             mAuth.signInWithEmailAndPassword(mail, pass)
                     .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful()) {
-                                // Sign in success, update UI with the signed-in user's information
-                                Log.d("login success", "signInWithEmail:success");
-                                FirebaseUser user = mAuth.getCurrentUser();
-                                updateUI(user);
-                                setCurrUser(getUserFromFirebase(email.getText().toString()));
-                                updateUI(user);
-                            } else {
-                                // If sign in fails, display a message to the user.
-                                Log.w(TAG, "signInWithEmail:failure", task.getException());
-                                Toast.makeText(LoginActivity.this, "error, try different email or password",
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    if (task.isSuccessful()) {
+                        // Sign in success, update UI with the signed-in user's information
+                        Log.d("login success", "signInWithEmail:success");
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        userUID = user.getUid();
+//                       myRef.addValueEventListener(new ValueEventListener() {
+//                           @Override
+//                           public void onDataChange(DataSnapshot dataSnapshot) {
+//                               // This method is called once with the initial value and again
+//                               // whenever data at this location is updated.
+//                               if (dataSnapshot != null && mAuth.getCurrentUser() != null) {
+//                                   showData(dataSnapshot);
+//                               }
+//                           }
+//                         @Override
+//                           public void onCancelled(DatabaseError error) {
+//                           // Failed to read value
+//                            Log.w(TAG, "Failed to read value.", error.toException());
+//                       }
+//                   });
+
+                   updateUI(user);
+                } else {
+                    // If sign in fails, display a message to the user.
+                    Log.w(TAG, "signInWithEmail:failure", task.getException());
+                    Toast.makeText(LoginActivity.this, "error, try different email or password",
+                            Toast.LENGTH_SHORT).show();
+                }
+                }
+            });
         }else {
             toastMessage("You didn't fill in all the fields");
         }
@@ -216,18 +198,19 @@ public class LoginActivity extends AppCompatActivity {
     public LocalUser getUserFromFirebase(String userName) {
         //get user from firebase
         final LocalUser[] tmp = {new LocalUser()};
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("users").child(userName);
+        tmp[0].setUserName("tmp");
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("Users").child(userName);
+
         ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                //update current user
+                LocalUser localUser = new LocalUser("s", "s", "s", LocalUser.UserType.MANAGER);
                 for (DataSnapshot ds : snapshot.getChildren()) {
-                    if (ds.getKey().equals(mAuth.getCurrentUser().getUid())) {
-                        tmp[0] = ds.getValue(LocalUser.class);
+                    if (Objects.equals(ds.getKey(), Objects.requireNonNull(mAuth.getCurrentUser()).getUid())) {
+                        Config.setCurrentUser(ds.getValue(LocalUser.class));
                         break;
                     }
                 }
-                System.out.println(Config.CUUR_USER.toString());
 
             }
 
@@ -235,14 +218,22 @@ public class LoginActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
+
         };
-        ref.addListenerForSingleValueEvent(valueEventListener);
-        return tmp[0];
+
+
+        ref.addValueEventListener(valueEventListener);
+        return Config.getCurrentUser();
     }
 
-    public void setCurrUser(LocalUser localUser) {
-        Config.CUUR_USER  = localUser;
-        System.out.println("\n\n\n"+ Config.CUUR_USER.toString() + "\n\n\n\n\n");
-    }
+    public void getit(DataSnapshot dataSnapshot){
+        LocalUser localUser = new LocalUser("s","s","s", LocalUser.UserType.MANAGER);
+        for (DataSnapshot ds : dataSnapshot.getChildren()) {
+            if (ds.getKey().equals(mAuth.getCurrentUser().getUid())) {
+                Config.setCurrentUser(ds.getValue(LocalUser.class));
+                break;
+            }
+        }
 
+    }
 }

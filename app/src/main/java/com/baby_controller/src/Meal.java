@@ -1,6 +1,8 @@
 package com.baby_controller.src;
 
 
+import androidx.annotation.NonNull;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -10,7 +12,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.sql.Time;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Meal {
 
@@ -30,6 +36,41 @@ public class Meal {
 
     public Meal(int recommendedAmount){
         this.recommendedAmount = recommendedAmount;
+    }
+
+    public static List<Meal> listFromString(String HistoryString) {
+        List<Meal> mealList = new ArrayList<>();
+        LinkedList<String> meals = new LinkedList<>(Arrays.asList(HistoryString.split("}")));
+
+        for(String str: meals){
+            LinkedList<String> meal = new LinkedList<>(Arrays.asList(str.split("\n")));
+            Meal newMeal = new Meal();
+            for(String a_meal: meal) {
+                String[] tmp = a_meal.split(",");
+                tmp[0] = tmp[0].replace(" ", "");
+                tmp[1] = tmp[1].replace(" ", "");
+
+                switch (tmp[0]){
+                    case "recommendedAmount":
+                        newMeal.setReceivedAmount(Integer.parseInt(tmp[1]));
+                        break;
+                    case "receivedAmount":
+                        newMeal.setRecommendedAmount(Integer.parseInt(tmp[1]));
+                        break;
+                    case "whenEaten":
+                        newMeal.setWhenEaten(new Time(Long.parseLong(tmp[1])));
+                        break;
+                    case "timeToEat":
+                        newMeal.setTimeToEat(new Time(Long.parseLong(tmp[1])));
+                        break;
+                    case "eaten":
+                        newMeal.setEaten(Integer.parseInt(tmp[1]));
+                        break;
+                }
+            }
+            mealList.add(newMeal);
+        }
+        return mealList;
     }
 
     public void setTimeToEat(Time time){
@@ -144,13 +185,14 @@ public class Meal {
         this.recommendedAmount = recommendedAmount;
     }
 
+    @NonNull
     @Override
     public String toString() {
-        return  "recommendedAmount=" + recommendedAmount +
-                "\nreceivedAmount=" + receivedAmount +
-                "\nwhenEaten=" + whenEaten +
-                "\ntimeToEat=" + timeToEat +
-                "\neaten=" + eaten ;
+        return  "\nrecommendedAmount=" + recommendedAmount +
+                ",receivedAmount=" + receivedAmount +
+                ",whenEaten=" + whenEaten +
+                ",timeToEat=" + timeToEat +
+                ",eaten=" + eaten+ "/n" ;
 
     }
 

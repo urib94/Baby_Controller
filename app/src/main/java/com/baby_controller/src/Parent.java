@@ -5,7 +5,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.baby_controller.src.util.DatabaseManager;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -19,14 +18,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.sql.Time;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
 public class Parent extends LocalUser {
-    protected LinkedList<Baby> children = new LinkedList<>();;
+    protected List<Baby> children = new ArrayList<>();;
 
-    public Parent(){}
+    public Parent(){
+        super();
+    }
 
     public Parent(String email,String userName, String password, UserType userType) {
         super(email, userName, password, userType);
@@ -36,6 +39,61 @@ public class Parent extends LocalUser {
     public Parent(String userName,String email, String password) {
         super(email,userName, password, UserType.PARENT);
     }
+
+    public Parent(String userName,String email, String password, String uid, String instituteName) {
+        super(email,userName, password, UserType.PARENT,uid,instituteName);
+    }
+
+    public Parent(LocalUser localUser) {
+        super(localUser);
+        if(localUser instanceof Parent){
+            this.children = ((Parent) localUser).getChildren();
+        }
+    }
+
+    public static  Parent fromString(String userString){
+        Parent newParent =(Parent) LocalUserFromString(userString);
+        int childrenIndex = userString.indexOf("children=") + "children=".length();
+//        System.out.println("original user String = " + userString);
+        String children = userString.substring(childrenIndex);
+//        System.out.println("children = " + children + "end of print");
+        LinkedList<String> babies = new LinkedList<>();
+        babies.addAll(Arrays.asList(children.split("><")));
+
+        for (String str: babies){
+            if(babies.size() <= 1){
+                return newParent;
+            }
+            System.out.println("len is gratter than 1 ");
+            Baby newBorn = new Baby();
+            String[] tmp = str.split(",");
+            if(tmp.length < 2) continue;
+            tmp[0] = tmp[0].replace(" ", "");
+            tmp[1] = tmp[1].replace(" ", "");
+            switch (tmp[0]){
+                case "parent":
+                    newBorn.setParent(newParent);
+                    break;
+                case "name":
+                    newBorn.setName(tmp[1]);
+                    break;
+                case "id":
+                    newBorn.setId(Integer.parseInt(tmp[1]));
+                case "ageInMonths":
+                    newBorn.setAgeInMonths(Integer.parseInt(tmp[1]));
+                case "weight":
+                    newBorn.setWeight(Double.parseDouble(tmp[1]));
+                case "recommendedAmountPerMeal":
+                    newBorn.setRecommendedAmountPerMeal(Integer.parseInt(tmp[1]));
+                case "recommendedAmountOfMeals":
+                    newBorn.set_recommendedAmountOfMeals(Integer.parseInt(tmp[1]));
+                case "history":
+                    newBorn.setHistory(Meal.listFromString(tmp[1]));
+            }
+        }
+        return newParent;
+    }
+
 
 
     public List<Baby> getChildren() {
@@ -58,13 +116,11 @@ public class Parent extends LocalUser {
         Date today = new Date(System.currentTimeMillis());
         newBaby.setAgeInMonths((int)((today.getTime() - dateOfBirth.getTime()) / (1000 * 60 +24 * 30)));
         children.add(newBaby);
-        DatabaseManager.addNewChild(this,newBaby);
     }
+
     public void addNewChild(Baby child){
         child.setParent(this);
         children.add(child);
-
-        //DatabaseManager.addNewChild(this,child);
     }
     public synchronized DatabaseReference uploadToDb(){
         reference = FirebaseDatabase.getInstance().getReference().child(this.getInstitute().getName()).
@@ -96,9 +152,18 @@ public class Parent extends LocalUser {
     }
 
 
+    @NonNull
     @Override
     public String toString() {
-        return super.toString() + "\nchildren=" + children;
+        return  "reference=" + reference +
+                ",userType=" + userType +
+                ",institutionName=" + institutionName +
+                ",userName=" + userName +
+                ",email=" + email +
+                ",password=" + password +
+                ",uid=" + uid +
+                ",defaultDevice=" + defaultDevice  + ",children=" + children +
+                '}';
     }
 
     //notify the parent that the child is hungry with firebase cloud messaging
@@ -261,6 +326,14 @@ public class Parent extends LocalUser {
     }
 
 
-    // get the list of all the babies that dont need to be fed
+    //override copy constructor
+
+    public Parent(Parent parent){
+        super(parent);
+        this.children = parent.children;
+
+    }
+
+
 
 }

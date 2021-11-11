@@ -1,18 +1,18 @@
 package com.baby_controller.src;
 
 import android.bluetooth.BluetoothDevice;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.MutableData;
-import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Objects;
 
 
 public class LocalUser {
@@ -26,13 +26,14 @@ public class LocalUser {
     protected String email;
     protected String password;
     protected String uid;
-    private BluetoothDevice defaultDevice = null;
-    private ValueEventListener postListener;
+    protected BluetoothDevice defaultDevice = null;
+
 
 
     public LocalUser(){}
 
     public LocalUser(String email ,String userName, String password, UserType userType){
+
         this.email = email;
         this.userName = userName;
         this.password = password;
@@ -40,101 +41,117 @@ public class LocalUser {
 
     }
 
-
-    public void changPassword(String newPassword){
-        password = newPassword;
+    //coppy other user
+    public LocalUser(LocalUser other){
+        this.userName = other.userName;
+        this.password = other.password;
+        this.email = other.email;
+        this.institutionName = other.institutionName;
+        this.userType = other.userType;
+        this.uid = other.uid;
+        this.reference = other.reference;
+        this.defaultDevice = other.defaultDevice;
     }
 
-    public DatabaseReference uploadToDb(){
+    public LocalUser(String email, String userName, String password, UserType userType, String uid, String instituteName) {
+        this.email = email;
+        this.userName = userName;
+        this.userType = userType;
+        this.password = password;
+        this.uid = uid;
+        this.institutionName = instituteName;
+    }
 
-        reference = FirebaseDatabase.getInstance().getReference().child("Users").child(userName);
-        Transaction.Handler tmp = new Transaction.Handler() {
-            @NonNull
-            @Override
-            public Transaction.Result doTransaction(@NonNull MutableData currentData) {
-                currentData.setValue(LocalUser.this);
-                return Transaction.success(currentData);
+    //parse a string to a user
+    public static LocalUser LocalUserFromString(String userString){
+        LocalUser newUser = null;
+        //delete all the "{" and "}"
+        int end = userString.indexOf("children=");
+        if (end > 0 ) {
+            userString = userString.substring(0, end);
+        }
+        userString = userString.replace("{","");
+        userString = userString.replace("}","");
+        LinkedList<String> user = new LinkedList<>(Arrays.asList(userString.split(",")));
+
+        for (String str : user) {
+            String[] tmp = str.split("=");
+            tmp[0] = tmp[0].replace(" ", "");
+            tmp[1] = tmp[1].replace(" ", "");
+            if(newUser != null && newUser.getUserType() != null){
+                break;
             }
 
-            @Override
-            public void onComplete(@Nullable DatabaseError error, boolean committed, @Nullable DataSnapshot currentData) {
-                if (error != null) {
-                    Log.d("Firebase", "error: " + error.getMessage());
-                }
+            switch (tmp[0]) {
 
+                case "userType":
+                    System.out.println("user type in user from string = " + tmp[1]);
+                    if(tmp[1].equals(UserType.MANAGER.toString())){
+                        newUser = new Manager1();
+                    }else if(tmp[1].equals(UserType.PARENT.toString())){
+                        newUser = new Parent();
+                    }
             }
-        } ;
-        reference.runTransaction(tmp);
-
-        return reference;
-    }
-
-//    //upload to this LocalUser to the database as a transaction
-//    public void uploadToDb(){
-//        //update the reference to the users section of the database
-//        reference = FirebaseDatabase.getInstance().getReference().child("Users").child(userName);
-//
-//        Transaction.Handler tmp = new Transaction.Handler() {
-//            @NonNull
-//            @Override
-//            public Transaction.Result doTransaction(@NonNull MutableData currentData) {
-//                currentData.setValue(LocalUser.this);
-//                return Transaction.success(currentData);
-//            }
-//
-//            @Override
-//            public void onComplete(@Nullable DatabaseError error, boolean committed, @Nullable DataSnapshot currentData) {
-//                if (error != null) {
-//                    Log.d("Firebase", "error: " + error.getMessage());
-//                }
-//
-//            }
-//        } ;
-//        reference.runTransaction(tmp);
-//    }
-
-    //set listeners that updates the LocalUser when it changes in the database
-    public void setListener(){
-        //use the methods of the Parent or Manger1 to set the listener depending on the user type
-        switch (userType){
-
-            case MANAGER:
-                ((Manager1)LocalUser.this).setListener();
-                break;
-            case PARENT:
-                ((Parent)LocalUser.this).setListener();
-                break;
-            case ADMINISTRATOR:
-                break;
-        }
-    }
-    // method that get a localUser and set this to ist values
-    public void setLocalUser(LocalUser localUser){
-        if(localUser.institutionName != null)   this.institutionName = localUser.institutionName;
-        if(localUser.userName != null)          this.userName = localUser.userName;
-        if(localUser.email != null)             this.email = localUser.email;
-        if(localUser.password != null)          this.password = localUser.password;
-        if(localUser.userType != null)          this.userType = localUser.userType;
-    }
-
-    public void uploadNewUser(){
-        if(getInstitute().getReference() == null)
-            getInstitute().uploadToDb();
-        switch (userType){
-
-            case MANAGER:
-                ((Manager1)this).uploadToDb();
-                break;
-            case PARENT:
-                ((Parent)this).uploadToDb();
-                break;
-
         }
 
-        DatabaseReference tmpRef = FirebaseDatabase.getInstance().getReference().child("users").child(getUserName());
+        for (String str : user){
+            String[] tmp = str.split("=");
+            tmp[0] = tmp[0].replace(" ","");
+            switch (tmp[0]){
+                case "uid":
+                    newUser.uid = tmp[1];
+                    break;
+                case "password":
+                    newUser.password = tmp[1];
+                    break;
+                case "institutionName":
+                    newUser.institutionName = tmp[1];
+                    break;
+                case "userType":
+                    if(tmp[1].equals(UserType.MANAGER.toString())){
+                        newUser.userType = UserType.MANAGER;
+                    }else if(tmp[1].equals(UserType.PARENT.toString())){
+                        newUser.userType = UserType.PARENT;
+                    }
+                    break;
+                case "userName":
+                    newUser.userName = tmp[1];
+                    break;
+                case "email":
+                    newUser.email = tmp[1];
+                    break;
+            }
+//            if (newUser.userType == UserType.PARENT){
+//                newUser
+//            }
+        }
 
-        tmpRef.child("reference").setValue("");
-        tmpRef.child("reference").setValue(reference.toString());
+        System.out.println("local user from string = "+newUser.toString());
+        return newUser;
+    }
+
+    public static UserType getUserTypeFromString(String userString){
+        LocalUser newUser = null;
+        //delete all the "{" and "}"
+        userString = userString.replace("{","");
+        userString = userString.replace("}","");
+        LinkedList<String> user = new LinkedList<>();
+        user.addAll(Arrays.asList(userString.split(",")));
+
+        for (String str : user) {
+            String[] tmp = str.split("=");
+            tmp[0].replace(" ", "");
+            switch (tmp[0]) {
+                case " userType":
+                case "userType":
+                    if(tmp[1].equals(UserType.MANAGER.toString())){
+                        newUser = new Manager1();
+                    }else if(tmp[1].equals(UserType.PARENT.toString())){
+                        newUser = new Parent();
+                    }
+            }
+        }
+        return newUser.userType;
     }
 
     public String getInstitutionName() {
@@ -148,6 +165,7 @@ public class LocalUser {
 
     public void setUserType(UserType userType) {
         this.userType = userType;
+        updateInDb();
     }
 
     public String getUserName() {
@@ -164,16 +182,17 @@ public class LocalUser {
 
     public void setReference(DatabaseReference reference) {
         this.reference = reference;
+        updateInDb();
     }
 
 
     public LocalUser getUserFromDb(String userName){
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("users");
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("Users");
 
 
         LocalUser result = null;
         //get the user from the db
-        postListener = new ValueEventListener() {
+        ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // Get Post object and use the values to update the UI
@@ -188,7 +207,7 @@ public class LocalUser {
 
             }
         };
-        reference.addValueEventListener(postListener);
+        reference.addValueEventListener(valueEventListener);
         return reference.child(userName).get().getResult().getValue(LocalUser.class);
     }
 
@@ -198,7 +217,7 @@ public class LocalUser {
         if (institutionName != null){
             //get the Institution from the db by its name
             DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("Institutions").child(institutionName);
-            postListener = new ValueEventListener() {
+            ValueEventListener valueEventListener = new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     // Get Post object and use the values to update the UI
@@ -224,10 +243,12 @@ public class LocalUser {
 
     public void setPassword(String password) {
         this.password = password;
+        updateInDb();
     }
 
     public void setInstitutionName(String institutionName) {
         this.institutionName = institutionName;
+        updateInDb();
     }
 
     public String getEmail() {
@@ -236,6 +257,7 @@ public class LocalUser {
 
     public void setEmail(String email) {
         this.email = email;
+        updateInDb();
     }
 
     public String getUid() {
@@ -260,8 +282,99 @@ public class LocalUser {
 
     public void setDefaultDevice(BluetoothDevice defaultDevice) {
         this.defaultDevice = defaultDevice;
-        reference.addValueEventListener(postListener);
+        System.out.println("defaultDevice = " + defaultDevice.toString());
+        updateInDb();
+    }
+
+    private void updateInDb() {
+        if(Config.getCurrentUser() != null) {
+            LocalUser tmp = this;
+            DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+            ValueEventListener valueEventListener = new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                    //update under "Users"
+                    for (DataSnapshot ds : snapshot.getChildren()) {
+                        if (tmp.getUid().equals(Objects.requireNonNull(ds.getValue(LocalUser.class)).getUid())) {
+                            ds.getRef().setValue(tmp);
+                            System.out.println("updating user");
+                        }
+                        if (Objects.equals(ds.getKey(), Config.getCurrentUser().getUid())) {
+                            ds.getRef().setValue(LocalUser.this);
+                            break;
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                }
+            };
+            ref.addValueEventListener(valueEventListener);
+
+            //update under the Institution
+
+            if (this.getUserType() == UserType.PARENT) {
+                //make a new Parent object from the current user
+                Parent parent = new Parent(this);
+
+                System.out.println("parent defaultDevice = " + parent.getDefaultDevice().toString());
+                ref.child("Institutions").child(institutionName).child("parents").setValue(parent);
+            } else if (this.getUserType() == UserType.MANAGER) {
+                //make a new Manager1 object from the current user
+                Manager1 manager1 = new Manager1( this);
+                Parent parent1= Parent.fromString("{reference=null, userType=PARENT, institutionName='uri', userName='uri', email='uri@uri.com', password='uriuri', uid='8lgwFdWbREgUt1Uu7pHYvmW17EA2', defaultDevice=null}");
+                parent1.addNewChild(new Baby("newborn",75.0));
+                System.out.println("parent1 amount of kids" + parent1.children.size());
+                System.out.println("parent 1 TOSTRING()"+parent1.toString());
+                Parent parent = Parent.fromString(parent1.toString());
+                System.out.println("parent. tostring() = " + parent.toString());
+                System.out.println("manger1 == " + manager1.toString());
+                System.out.println(ref.getRoot().child("Users").child(uid).toString());
+
+//                ref.getRoot().child("Users").child(uid).setValue(manager1);
+
+
+//            Manager1 manager1 = new Manager1(((Manager1) this));
+                if (manager1.getDefaultDevice() != null) {
+                    System.out.println("manager defaultDevice = " + manager1.getDefaultDevice().toString());
+                } else {
+                    System.out.println("manager defaultDevice = null");
+                }
+                ref.child("Institutions").child(institutionName).child("management").child(uid).setValue(manager1.toString());
+
+            }
+
+
+//           ref.child("Institutions").child(institutionName).child("management").addValueEventListener(valueEventListener);
+//        }else {
+//            ref.child("Institutions").child(institutionName).child("parents").addValueEventListener(valueEventListener);
+//        }
+//        System.out.println("uuiidd = " + uid);
+//        // update under "users"
+//        if(userType == UserType.MANAGER) {
+//            ref.getRoot().child("Users").child(uid).setValue((Manager1)LocalUser.this);
+//        }else{
+//            ref.getRoot().child("Users").child(uid).setValue((Parent)LocalUser.this);
+//        }
+        }
     }
 
 
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "LocalUser{" +
+                "reference=" + reference +
+                ",userType=" + userType +
+                ",institutionName=" + institutionName +
+                ",userName=" + userName +
+                ",email=" + email +
+                ",password=" + password +
+                ",uid=" + uid +
+                ",defaultDevice=" + defaultDevice +
+                '}';
+    }
 }

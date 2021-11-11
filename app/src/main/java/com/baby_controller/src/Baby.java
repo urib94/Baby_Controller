@@ -33,7 +33,7 @@ public  class Baby {
     Meal meal = new Meal(60);
 //    private Parent[] parents = new Parent[2];
 
-    private double _weight = 0;
+    private double weight = 0;
     private int recommendedAmountOfMeals = 0;
     private int recommendedAmountPerMeal = 0;
 
@@ -45,7 +45,7 @@ public  class Baby {
         Baby tmp = new Baby();
         tmp.recommendedAmountPerMeal = this.recommendedAmountPerMeal;
         tmp.recommendedAmountOfMeals = this.recommendedAmountOfMeals;
-        tmp._weight= this._weight;
+        tmp.weight = this.weight;
         tmp.ageInMonths = ageInMonths;
         tmp.history = this.history;
         tmp.parent = parent;
@@ -59,14 +59,14 @@ public  class Baby {
     }
 
     public Baby(String name, double weight){
-        this._weight = weight;
+        this.weight = weight;
         this.name = name;
         calcRecommendedAmountPerMeal(weight);
        // history = new MealList(recommendedAmountPerMeal);
     }
 
     public Baby(double weight){
-        _weight = weight;
+        this.weight = weight;
         calcRecommendedAmountPerMeal(weight);
         //history = new MealList(recommendedAmountPerMeal);
     }
@@ -201,7 +201,7 @@ public  class Baby {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Baby tmp = dataSnapshot.child(name).getValue(Baby.class);
-                _weight = tmp._weight;
+                weight = tmp.weight;
                 ageInMonths = tmp.ageInMonths;
                 id = tmp.id;
                 name = tmp.name;
@@ -221,13 +221,13 @@ public  class Baby {
 
     @Override
     public String toString() {
-        return "name='" + name +
-                "\nid=" + id +
-                "\nhistory=" + history +
-                "\nageInMonths=" + ageInMonths +
-                "\n_weight=" + _weight +
-                "\nrecommendedAmountOfMeals=" + recommendedAmountOfMeals +
-                "\nrecommendedAmountPerMeal=" + recommendedAmountPerMeal ;
+        return "{name=" + name +
+                ",id=" + id +
+                ",ageInMonths=" + ageInMonths +
+                ",weight=" + weight +
+                ",recommendedAmountOfMeals=" + recommendedAmountOfMeals +
+                ",recommendedAmountPerMeal=" + recommendedAmountPerMeal +
+                "\nhistory=" + history + "><" ;
     }
 
     public DatabaseReference getReference() {
@@ -245,8 +245,6 @@ public  class Baby {
 
     public void setParent(Parent parent) {
         this.parent = parent;
-        parent.getChildren().add(copyForParent());
-
     }
 
     public String getName() {
@@ -281,12 +279,12 @@ public  class Baby {
         this.ageInMonths = ageInMonths;
     }
 
-    public double get_weight() {
-        return _weight;
+    public double getWeight() {
+        return weight;
     }
 
-    public void set_weight(double _weight) {
-        this._weight = _weight;
+    public void setWeight(double weight) {
+        this.weight = weight;
     }
 
     public int getRecommendedAmountOfMeals() {
@@ -320,7 +318,7 @@ public  class Baby {
             json.put("name", name);
             json.put("id", id);
             json.put("ageInMonths", ageInMonths);
-            json.put("_weight", _weight);
+            json.put("_weight", weight);
             json.put("recommendedAmountOfMeals", recommendedAmountOfMeals);
             json.put("recommendedAmountPerMeal", recommendedAmountPerMeal);
             json.put("parent", parent.getUserName());
@@ -341,7 +339,7 @@ public  class Baby {
             baby.name = json.getString("name");
             baby.id = json.getInt("id");
             baby.ageInMonths = json.getInt("ageInMonths");
-            baby._weight = json.getDouble("_weight");
+            baby.weight = json.getDouble("_weight");
             baby.recommendedAmountOfMeals = json.getInt("recommendedAmountOfMeals");
             baby.recommendedAmountPerMeal = json.getInt("recommendedAmountPerMeal");
             baby.parent = Parent.fromJson(json.getJSONObject("parent"));
@@ -362,5 +360,17 @@ public  class Baby {
 
     public void setHistory(List<Meal> history) {
         this.history = history;
+    }
+
+    public void setParent(LocalUser parent) {
+        this.parent = parent;
+    }
+
+    public Meal getMeal() {
+        return meal;
+    }
+
+    public void setMeal(Meal meal) {
+        this.meal = meal;
     }
 }
