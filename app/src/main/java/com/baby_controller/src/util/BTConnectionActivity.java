@@ -1,4 +1,4 @@
-package com.baby_controller;
+package com.baby_controller.src.util;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -22,6 +22,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.baby_controller.FeedingActivity2;
+import com.baby_controller.R;
 import com.baby_controller.src.Config;
 
 import java.io.IOException;
@@ -31,7 +33,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.UUID;
 
-public class BluetoothConnectionManager extends AppCompatActivity {
+public class BTConnectionActivity extends AppCompatActivity {
 
     private final boolean defaultAssigned = false;
     private Handler defaultMHandler; // Our main handler that will receive callback notifications
@@ -83,20 +85,6 @@ public class BluetoothConnectionManager extends AppCompatActivity {
         mDevicesListView = (ListView)findViewById(R.id.devicesListView);
         mDevicesListView.setAdapter(mBTArrayAdapter); // assign model to view
         mDevicesListView.setOnItemClickListener(mDeviceClickListener);
-        //start feedingActivity
-
-
-//        backToMain.setOnClickListener(new View.OnClickListener() {
-//            /**
-//             * Called when a view has been clicked.
-//             *
-//             * @param v The view that was clicked.
-//             */
-//            @Override
-//            public void onClick(View v) {
-//                finish();
-//            }
-//        });
 
 
         mHandler = new Handler(Looper.getMainLooper()){
@@ -141,6 +129,7 @@ public class BluetoothConnectionManager extends AppCompatActivity {
             mListPairedDevicesBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v){
+                    System.out.println("clock on ");
                     listPairedDevices(v);
                 }
             });
@@ -190,6 +179,7 @@ public class BluetoothConnectionManager extends AppCompatActivity {
     }
 
     private void discover(View view){
+        System.out.println("call for discover methood");
         // Check if the device is already discovering
         if(mBTAdapter.isDiscovering()){
             mBTAdapter.cancelDiscovery();
@@ -222,13 +212,17 @@ public class BluetoothConnectionManager extends AppCompatActivity {
     };
 
     private void listPairedDevices(View view){
+        System.out.println("listPairedDevices method");
         mPairedDevices = mBTAdapter.getBondedDevices();
         if(mBTAdapter.isEnabled()) {
             // put it's one to the adapter
             for (BluetoothDevice device : mPairedDevices)
-                mBTArrayAdapter.add(device.getName() + "\n" + device.getAddress());
-
-            Toast.makeText(getApplicationContext(), "Show Paired Devices", Toast.LENGTH_SHORT).show();
+                //add a new device only if it is not already in the list
+                if(mBTArrayAdapter.getPosition(device.getName() + "\n" + device.getAddress()) == -1) {
+                    System.out.println("position index =" + String.valueOf(mBTArrayAdapter.getPosition(device.getName() + "\n" + device.getAddress())));
+                    mBTArrayAdapter.add(device.getName() + "\n" + device.getAddress());
+                    Toast.makeText(getApplicationContext(), "Show Paired Devices", Toast.LENGTH_SHORT).show();
+                }
         }
         else
             Toast.makeText(getApplicationContext(), "Bluetooth not on", Toast.LENGTH_SHORT).show();
@@ -253,6 +247,8 @@ public class BluetoothConnectionManager extends AppCompatActivity {
             final String address = info.substring(info.length() - 17);
             final String name = info.substring(0,info.length() - 17);
 
+            System.out.println("curr user before bt connection = " + Config.getCurrentUser().toString());
+
             // Spawn a new thread to avoid blocking the GUI one
             new Thread()
             {
@@ -261,8 +257,6 @@ public class BluetoothConnectionManager extends AppCompatActivity {
                     boolean fail = false;
 
                     BluetoothDevice device;
-
-
                     if(Config.getCurrentUser().getDefaultDeviceAddress() == null) {
                         device = mBTAdapter.getRemoteDevice(address);
                     }else {
@@ -307,50 +301,6 @@ public class BluetoothConnectionManager extends AppCompatActivity {
         }
     };
 
-    // Spawn a new thread to avoid blocking the GUI one
-    public void establishConnection(String address, String name){
-        new Thread()
-        {
-            public void run() {
-                boolean fail = false;
-
-                BluetoothDevice device;
-                if(Config.getCurrentUser().getDefaultDeviceAddress() == null) {
-                    device = mBTAdapter.getRemoteDevice(address);
-                }else {
-                    device = Config.getDefaultDevice();
-                }
-
-                try {
-                    mBTSocket = createBluetoothSocket(device);
-                } catch (IOException e) {
-                    fail = true;
-                    Toast.makeText(getBaseContext(), "Socket creation failed", Toast.LENGTH_SHORT).show();
-                }
-                // Establish the Bluetooth socket connection.
-                try {
-                    mBTSocket.connect();
-                } catch (IOException e) {
-                    try {
-                        fail = true;
-                        mBTSocket.close();
-                        mHandler.obtainMessage(CONNECTING_STATUS, -1, -1)
-                                .sendToTarget();
-                    } catch (IOException e2) {
-                        //insert code to deal with this
-                        Toast.makeText(getBaseContext(), "Socket creation failed", Toast.LENGTH_SHORT).show();
-                    }
-                }
-                if(fail == false) {
-                    mConnectedThread = new ConnectedThread(mBTSocket);
-                    mConnectedThread.start();
-
-                    mHandler.obtainMessage(CONNECTING_STATUS, 1, -1, name)
-                            .sendToTarget();
-                }
-            }
-        }.start();
-    }
 
     private BluetoothSocket createBluetoothSocket(BluetoothDevice device) throws IOException {
         return  device.createRfcommSocketToServiceRecord(BTMODULEUUID);
@@ -431,7 +381,10 @@ public class BluetoothConnectionManager extends AppCompatActivity {
     }
 
     public synchronized void setmBTSocket(BluetoothSocket mBTSocket) {
-        BluetoothConnectionManager.mBTSocket = mBTSocket;
+        mBTSocket = mBTSocket;
     }
 }
+
+
+
 

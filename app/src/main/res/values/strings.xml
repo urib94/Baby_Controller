@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Baby_controller</string>
     <string name="enter">Enter</string>
-    <string name="enter_the_chaild_wight_in_kg">Enter the chaild wight in KG</string>
+    <string name="enter_the_child_wight_in_kg">Enter the child wight in KG</string>
     <string name="read_buffer"><![CDATA[<Read Buffer>]]></string>
     <string name="bluetooth_status"><![CDATA[<Bluetooth Status>]]></string>
     <string name="register">Register</string>
@@ -10,8 +10,8 @@
     <string name="password">Password</string>
     <string name="email">Email</string>
 
-    <string name="institution">Insitution</string>
-    <string name="parent">Parent</string>
+    <string name="institution">Institution</string>
+    <string name="parentName">Parent</string>
     <string name="manger">Manger</string>
     <string name="title_activity_main2">MainActivity2</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -24,9 +24,8 @@
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
-    <string name="bluetooth_on">Bluetooth On</string>
-    <string name="bluetooth_off">Bluetooth Off</string>
-    <string name="stop_discovering">Stop Discovering</string>
+    <string name="bluetooth_on">Turn Bluetooth On</string>
+    <string name="bluetooth_off">Turn Bluetooth Off</string>
     <string name="bluetooth_is_off">Bluetooth OFF</string>
     <string name="choose_default">Choose Default</string>
     <string name="rx">RX:</string>
@@ -36,6 +35,16 @@
     <string name="back_to_main_menu">back to main menu</string>
     <string name="turn_bt_on">Turn Bluetooth On</string>
     <string name="turn_bt_off">Turn Bluetooth Off</string>
+    <string name="test">test</string>
+    <string name="stop_discovering">Stop Discovering</string>
+    <string name="user_need_to_connect_to_bt">You must connect to the device in order to start feeding</string>
+
+    <string name="wight">Wight</string>
+    <string name="day_month_year">day/month/year</string>
+    <string name="add_new_baby">Add New Baby</string>
+    <string name="back">Back</string>
+    <string name="parent_name">Parent Name</string>
+    <string name="feeding">Feeding</string>
 
 
 </resources>

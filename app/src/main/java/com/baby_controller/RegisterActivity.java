@@ -93,7 +93,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         String instName = institutionName.getText().toString();
         if(mAuth.getCurrentUser() != null) {
-            userUID = mAuth.getCurrentUser().getUid();
+
         }
         myRef.getRoot().addChildEventListener(new ChildEventListener() {
             @Override
@@ -101,6 +101,7 @@ public class RegisterActivity extends AppCompatActivity {
                 if(completed){
                     return;
                 }
+                userUID = mAuth.getCurrentUser().getUid();
 
                 boolean notNew = false;
                 LinkedList<Institution> institutionLinkedList = new LinkedList<>();
@@ -118,12 +119,15 @@ public class RegisterActivity extends AppCompatActivity {
                             }
                         } catch (Exception e) {
                             Log.d(TAG, "onChildAdded: " + e.getMessage());
+                            continue;
                         }
                         if (institutionLinkedList.size() >= 1) {
                             if (newUser.getUserType() == LocalUser.UserType.MANAGER) {
                                 if (institutionLinkedList.get(institutionLinkedList.size() - 1).getName().equals(instName)) {
+                                    newUser.setIndexInInstitute(institutionLinkedList.size() - 1);
                                     institutionLinkedList.getLast().getManagement().add(newUser);
                                     snap.getRef().setValue(institutionLinkedList.getLast());
+                                    snap.getRef().getRoot().child("Users").child(userUID).setValue(newUser);
                                     System.out.println("FIANALY MADE IT");
                                     completed = true;
                                     notNew = true;
@@ -134,8 +138,10 @@ public class RegisterActivity extends AppCompatActivity {
                                 if (institutionLinkedList.size() >= 1 && institutionLinkedList.
                                         get(institutionLinkedList.size() - 1).getName().equals(instName)) {
                                     Parent newParent = (Parent) newUser;
+                                    newParent.setIndexInInstitute(institutionLinkedList.size() - 1);
                                     institutionLinkedList.getLast().getParents().add(newParent);
                                     snap.getRef().setValue(institutionLinkedList.getLast());
+                                    snap.getRef().getRoot().child("Users").child(userUID).setValue(newUser);
                                     System.out.println("FIANALY MADE IT");
                                     notNew = true;
                                     completed = true;
@@ -287,8 +293,8 @@ public class RegisterActivity extends AppCompatActivity {
                             toastMessage("Successfully registered");
                             firebaseUser  =mAuth.getCurrentUser();
                             userToDb();
-                            myRef.getRoot().child("Users").child("Listener Trigger").setValue(" ");
-                            myRef.getRoot().child("Users").child("Listener Trigger").setValue(null);
+                            myRef.getRoot().child("Listener Trigger").setValue(" ");
+                            myRef.getRoot().child("Listener Trigger").setValue(null);
 
                             toastMessage("\tWelcome!\t");
                             userName.setText("");

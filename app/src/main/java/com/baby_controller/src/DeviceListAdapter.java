@@ -19,6 +19,7 @@ public class DeviceListAdapter extends ArrayAdapter<BluetoothDevice> {
     private ArrayList<BluetoothDevice> mDevices;
     private int  mViewResourceId;
 
+
     public DeviceListAdapter(Context context, int tvResourceId, ArrayList<BluetoothDevice> devices){
         super(context, tvResourceId,devices);
         this.mDevices = devices;

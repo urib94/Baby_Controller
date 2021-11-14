@@ -1,25 +1,14 @@
 package com.baby_controller.src;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.MutableData;
-import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.sql.Time;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,54 +33,18 @@ public class Parent extends LocalUser {
         super(email,userName, password, UserType.PARENT,uid,instituteName);
     }
 
+    //copy constructor
+    public Parent(Parent parent){
+        super(parent);
+        this.children = parent.children;
+
+    }
+
     public Parent(LocalUser localUser) {
         super(localUser);
         if(localUser instanceof Parent){
             this.children = ((Parent) localUser).getChildren();
         }
-    }
-
-    public static  Parent fromString(String userString){
-        Parent newParent =(Parent) LocalUserFromString(userString);
-        int childrenIndex = userString.indexOf("children=") + "children=".length();
-//        System.out.println("original user String = " + userString);
-        String children = userString.substring(childrenIndex);
-//        System.out.println("children = " + children + "end of print");
-        LinkedList<String> babies = new LinkedList<>();
-        babies.addAll(Arrays.asList(children.split("><")));
-
-        for (String str: babies){
-            if(babies.size() <= 1){
-                return newParent;
-            }
-            System.out.println("len is gratter than 1 ");
-            Baby newBorn = new Baby();
-            String[] tmp = str.split(",");
-            if(tmp.length < 2) continue;
-            tmp[0] = tmp[0].replace(" ", "");
-            tmp[1] = tmp[1].replace(" ", "");
-            switch (tmp[0]){
-                case "parent":
-                    newBorn.setParent(newParent);
-                    break;
-                case "name":
-                    newBorn.setName(tmp[1]);
-                    break;
-                case "id":
-                    newBorn.setId(Integer.parseInt(tmp[1]));
-                case "ageInMonths":
-                    newBorn.setAgeInMonths(Integer.parseInt(tmp[1]));
-                case "weight":
-                    newBorn.setWeight(Double.parseDouble(tmp[1]));
-                case "recommendedAmountPerMeal":
-                    newBorn.setRecommendedAmountPerMeal(Integer.parseInt(tmp[1]));
-                case "recommendedAmountOfMeals":
-                    newBorn.set_recommendedAmountOfMeals(Integer.parseInt(tmp[1]));
-                case "history":
-                    newBorn.setHistory(Meal.listFromString(tmp[1]));
-            }
-        }
-        return newParent;
     }
 
 
@@ -101,70 +54,31 @@ public class Parent extends LocalUser {
     }
 
 
-    public Baby getChild(String name, int id) {
+    public Baby getChild(String name) {
         for (Baby child : children) {
-            if (child.getName().equals(name) && child.getId() == id) {
+            if (child.getName().equals(name)) {
                 return child;
             }
         }
         return null;
     }
 
-    public void addNewChild(String name, int day, int month, int year, double wight){
-        Baby newBaby = new Baby(wight);
+    public void addNewChild(String babyName, int day, int month, int year, double wight){
+        Baby newBaby = new Baby(babyName,wight);
         Date dateOfBirth = new Date(year,month,day);
         Date today = new Date(System.currentTimeMillis());
         newBaby.setAgeInMonths((int)((today.getTime() - dateOfBirth.getTime()) / (1000 * 60 +24 * 30)));
+        newBaby.setParentName(name);
+        newBaby.setParentUid(uid);
+        newBaby.setIndexInInstitute(indexInInstitute);
+        newBaby.setInstitutionName(institutionName);
+        newBaby.setIndexInParent(children.size());
         children.add(newBaby);
-    }
-
-    public void addNewChild(Baby child){
-        child.setParent(this);
-        children.add(child);
-    }
-    public synchronized DatabaseReference uploadToDb(){
-        reference = FirebaseDatabase.getInstance().getReference().child(this.getInstitute().getName()).
-                child(LocalUser.UserType.PARENT.toString()).child(getUserName());
-        reference.setValue(toJson());
-
-        ValueEventListener postListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // Get Post object and use the values to update the UI
-                Parent tmp = Parent.fromJson(dataSnapshot.getValue(JSONObject.class));
-                userName = tmp.userName;
-                email = tmp.email;
-                password = tmp.password;
-                institutionName = tmp.institutionName;
-                children = tmp.children;
-                userType = tmp.userType;
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Getting Post failed, log a message
-
-            }
-        };
-
-        return FirebaseDatabase.getInstance().getReference();
-
+        updateInDb();
     }
 
 
-    @NonNull
-    @Override
-    public String toString() {
-        return  "reference=" + reference +
-                ",userType=" + userType +
-                ",institutionName=" + institutionName +
-                ",userName=" + userName +
-                ",email=" + email +
-                ",password=" + password +
-                ",uid=" + uid +
-                ",defaultDevice=" + defaultDevice  + ",children=" + children +
-                '}';
-    }
+
 
     //notify the parent that the child is hungry with firebase cloud messaging
     public void notifyParent(){
@@ -215,29 +129,6 @@ public class Parent extends LocalUser {
         return babiesDontNeedToFeed;
     }
 
-    //upload the parent to the database as a transaction
-    public void uploadToDb1(DatabaseReference ref){
-        ref.child(this.getInstitute().getName()).
-                child(LocalUser.UserType.PARENT.toString()).
-                child(getUserName()).runTransaction(new Transaction.Handler() {
-            @NonNull
-            @Override
-            public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
-                Parent tmp = mutableData.getValue(Parent.class);
-                if (tmp == null){
-                    mutableData.setValue(Parent.this);
-                }
-                return Transaction.success(mutableData);
-            }
-
-            @Override
-            public void onComplete(@Nullable DatabaseError databaseError, boolean b, @Nullable DataSnapshot dataSnapshot) {
-                if (databaseError != null){
-                    Log.d("TAG", "onComplete: " + databaseError.getMessage());
-                }
-            }
-        });
-    }
 
 
     //set listners that update this Parent when its changes in the database
@@ -246,7 +137,7 @@ public class Parent extends LocalUser {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Parent tmp = dataSnapshot.getValue(Parent.class);
-                userName = tmp.userName;
+                name = tmp.name;
                 email = tmp.email;
                 password = tmp.password;
                 institutionName = tmp.institutionName;
@@ -261,79 +152,21 @@ public class Parent extends LocalUser {
         });
     }
 
-    //Parent to json
-    public JSONObject toJson(){
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("userName", userName);
-            jsonObject.put("email", email);
-            jsonObject.put("password", password);
-            jsonObject.put("institute", institutionName);
-            jsonObject.put("children", children);
-            jsonObject.put("userType", userType);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return jsonObject;
+
+
+
+    @NonNull
+    @Override
+    public String toString() {
+        return  "reference=" + reference +
+                ",userType=" + userType +
+                ",institutionName=" + institutionName +
+                ",userName=" + name +
+                ",email=" + email +
+                ",password=" + password +
+                ",uid=" + uid +
+                ",defaultDevice=" + defaultDeviceAddress + ",children=" + children +
+                '}';
     }
-
-    //json to Parent
-    public static Parent fromJson(JSONObject jsonObject){
-        Parent parent = new Parent();
-        try {
-            parent.userName = jsonObject.getString("userName");
-            parent.email = jsonObject.getString("email");
-            parent.password = jsonObject.getString("password");
-//            parent.institutionName = Institution.fromJson(jsonObject.getJSONObject("institute"));
-
-            for (int i = 0; i < jsonObject.getJSONArray("children").length(); i++){
-                parent.children.add(Baby.fromJson(jsonObject.getJSONArray("children").getJSONObject(i)));
-            }
-
-            parent.userType = UserType.valueOf(jsonObject.getString("userType"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return parent;
-    }
-
-    //save Parent to firebase as a transaction
-    public void saveToDb(DatabaseReference ref){
-        ref.child(this.getInstitute().getName()).
-                child(LocalUser.UserType.PARENT.toString()).
-                child(getUserName()).runTransaction(new Transaction.Handler() {
-            @NonNull
-            @Override
-            public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
-                Parent tmp = mutableData.getValue(Parent.class);
-
-                if (tmp == null){
-                    int a = mutableData.getValue(Parent.class).toString().length()/1024;
-                    mutableData.setValue(Parent.this);
-                    //print parent size in kb
-
-                }
-                return Transaction.success(mutableData);
-            }
-
-            @Override
-            public void onComplete(@Nullable DatabaseError databaseError, boolean b, @Nullable DataSnapshot dataSnapshot) {
-                if (databaseError != null){
-                    Log.d("TAG", "onComplete: " + databaseError.getMessage());
-                }
-            }
-        });
-    }
-
-
-    //override copy constructor
-
-    public Parent(Parent parent){
-        super(parent);
-        this.children = parent.children;
-
-    }
-
-
 
 }

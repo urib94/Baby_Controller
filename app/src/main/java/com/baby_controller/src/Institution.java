@@ -14,9 +14,6 @@ import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -46,7 +43,7 @@ public class Institution{
 
     public Manager1 getManger(String userName){
         for(int i = 0; i < management.size(); i++){
-            if(management.get(i).getUserName().equals(userName)){
+            if(management.get(i).getName().equals(userName)){
                 if(management.get(i).getUserType() == LocalUser.UserType.PARENT) {
                     return (Manager1) management.get(i);
                 }
@@ -60,9 +57,9 @@ public class Institution{
         this.management = management;
     }
 
-    public Parent getParent(String userName){
+    public Parent getParent(String name){
         for(int i = 0; i < parents.size(); i++){
-            if(parents.get(i).getUserName().equals(userName)){
+            if(parents.get(i).getName().equals(name)){
                 if(parents.get(i).getUserType() == LocalUser.UserType.PARENT) {
                     return (Parent) parents.get(i);
                 }
@@ -72,7 +69,7 @@ public class Institution{
     }
 
     public boolean addManager(Manager1 manager){
-        if(getManger(manager.getUserName()) == null){
+        if(getManger(manager.getName()) == null){
             manager.getInstitute();
             management.add(manager);
             return true;
@@ -81,7 +78,7 @@ public class Institution{
     }
 
     public boolean addParent(Parent parent){
-        if(getParent(parent.getUserName()) == null){
+        if(getParent(parent.getName()) == null){
             parent.setInstitutionName(name);
             this.parents.add(parent);
             return true;
@@ -115,26 +112,6 @@ public class Institution{
 
     public void setReference(DatabaseReference reference) {
         this.reference = reference;
-    }
-
-    public DatabaseReference uploadToDb() {
-        reference = FirebaseDatabase.getInstance().getReference().child("Institutions").child(name);
-        //sava every field of Institution to the database
-        reference.child("name").setValue(toJson());
-//
-//
-//        for(Parent parent: parents){
-//            parent.setInstitution(this);
-//            parent.uploadToDb();
-//        }
-//        for (Manager1 man: management){
-//            man.setInstitution(this);
-//            man.uploadToDb();
-//        }
-//
-
-        setListeners();
-        return reference;
     }
 
 
@@ -246,65 +223,6 @@ public class Institution{
             ref.addValueEventListener(postListener);
             return newOne;
         }
-
-
-//upload this institution to the database as a transaction
-
-
-    //set listeners that updates the institution when it changes in the database
-    public void setListeners(){
-        reference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Institution tmp = Institution.fromJson(dataSnapshot.getValue(JSONObject.class));
-                if (tmp != null) {
-                    coppy(tmp);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }
-
-    //Institution to json
-    public JSONObject toJson(){
-        JSONObject json = new JSONObject();
-        try {
-            json.put("name", name);
-            for (int i = 0; i < management.size(); i++) {
-                ((Manager1)management.get(i)).toJson();
-            }
-            for (int i = 0; i < parents.size(); i++) {
-                ((Parent)parents.get(i)).toJson();
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return json;
-    }
-
-    //json to institution
-    public static Institution fromJson(JSONObject json) {
-        Institution institution = new Institution();
-        try {
-            institution.setName(json.getString("name"));
-            for (int i = 0; i < json.getJSONArray("management").length(); i++) {
-                Manager1 tmp = new Manager1();
-                tmp.fromJson(json.getJSONArray("management").getJSONObject(i));
-                institution.getManagement().add(tmp);
-            }
-
-            for (int i = 0; i < json.getJSONArray("parents").length(); i++) {
-                institution.addParent(Parent.fromJson(json.getJSONArray("parents").getJSONObject(i)));
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return institution;
-    }
 
 
 // clone

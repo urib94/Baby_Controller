@@ -1,5 +1,6 @@
 package com.baby_controller.src.util;
 
+
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -7,13 +8,8 @@ import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.util.Log;
-import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import com.baby_controller.FeedingActivity;
-import com.baby_controller.R;
-import com.google.firebase.FirebaseApp;
+import com.baby_controller.src.Config;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,10 +18,11 @@ import java.nio.charset.Charset;
 import java.util.UUID;
 
 
-public class BluetoothConnectionService extends AppCompatActivity {
+
+public class BluetoothConnectionService {
     private static final String TAG = "BluetoothConnectionServ";
 
-    private static final String appName = FirebaseApp.getInstance().getName();
+    private static final String appName = "BabyController";
 
     private static final UUID MY_UUID_INSECURE =
             UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
@@ -40,18 +37,18 @@ public class BluetoothConnectionService extends AppCompatActivity {
     private UUID deviceUUID;
     ProgressDialog mProgressDialog;
 
-
-    private TextView measuredWight;
-
     private ConnectedThread mConnectedThread;
 
     public BluetoothConnectionService(Context context) {
         mContext = context;
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         start();
-        measuredWight = findViewById(R.id.measured_wight);
     }
 
+    public BluetoothConnectionService() {
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        start();
+    }
 
     /**
      * This thread runs while listening for incoming connections. It behaves
@@ -63,42 +60,42 @@ public class BluetoothConnectionService extends AppCompatActivity {
         // The local server socket
         private final BluetoothServerSocket mmServerSocket;
 
-        public AcceptThread(){
+        public AcceptThread() {
             BluetoothServerSocket tmp = null;
 
             // Create a new listening server socket
-            try{
+            try {
                 tmp = mBluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord(appName, MY_UUID_INSECURE);
 
                 Log.d(TAG, "AcceptThread: Setting up Server using: " + MY_UUID_INSECURE);
-            }catch (IOException e){
-                Log.e(TAG, "AcceptThread: IOException: " + e.getMessage() );
+            } catch (IOException e) {
+                Log.e(TAG, "AcceptThread: IOException: " + e.getMessage());
             }
 
             mmServerSocket = tmp;
         }
 
-        public void run(){
+        public void run() {
             Log.d(TAG, "run: AcceptThread Running.");
 
-            BluetoothSocket socket = null;
 
-            try{
+
+            try {
                 // This is a blocking call and will only return on a
                 // successful connection or an exception
                 Log.d(TAG, "run: RFCOM server socket start.....");
 
-                socket = mmServerSocket.accept();
+                Config.setBtSocket(mmServerSocket.accept());
 
                 Log.d(TAG, "run: RFCOM server socket accepted connection.");
 
-            }catch (IOException e){
-                Log.e(TAG, "AcceptThread: IOException: " + e.getMessage() );
+            } catch (IOException e) {
+                Log.e(TAG, "AcceptThread: IOException: " + e.getMessage());
             }
 
             //talk about this is in the 3rd
-            if(socket != null){
-                connected(socket,mmDevice);
+            if (Config.getBtSocket() != null) {
+                connected(Config.getBtSocket(), mmDevice);
             }
 
             Log.i(TAG, "END mAcceptThread ");
@@ -109,7 +106,7 @@ public class BluetoothConnectionService extends AppCompatActivity {
             try {
                 mmServerSocket.close();
             } catch (IOException e) {
-                Log.e(TAG, "cancel: Close of AcceptThread ServerSocket failed. " + e.getMessage() );
+                Log.e(TAG, "cancel: Close of AcceptThread ServerSocket failed. " + e.getMessage());
             }
         }
 
@@ -129,7 +126,7 @@ public class BluetoothConnectionService extends AppCompatActivity {
             deviceUUID = uuid;
         }
 
-        public void run(){
+        public void run() {
             BluetoothSocket tmp = null;
             Log.i(TAG, "RUN mConnectThread ");
 
@@ -137,7 +134,7 @@ public class BluetoothConnectionService extends AppCompatActivity {
             // given BluetoothDevice
             try {
                 Log.d(TAG, "ConnectThread: Trying to create InsecureRfcommSocket using UUID: "
-                        +MY_UUID_INSECURE );
+                        + MY_UUID_INSECURE);
                 tmp = mmDevice.createRfcommSocketToServiceRecord(deviceUUID);
             } catch (IOException e) {
                 Log.e(TAG, "ConnectThread: Could not create InsecureRfcommSocket " + e.getMessage());
@@ -164,10 +161,13 @@ public class BluetoothConnectionService extends AppCompatActivity {
                 } catch (IOException e1) {
                     Log.e(TAG, "mConnectThread: run: Unable to close connection in socket " + e1.getMessage());
                 }
-                Log.d(TAG, "run: ConnectThread: Could not connect to UUID: " + MY_UUID_INSECURE );
+                Log.d(TAG, "run: ConnectThread: Could not connect to UUID: " + MY_UUID_INSECURE);
             }
-            connected(mmSocket,mmDevice);
+
+            //will talk about this in the 3rd video
+            connected(mmSocket, mmDevice);
         }
+
         public void cancel() {
             try {
                 Log.d(TAG, "cancel: Closing Client Socket.");
@@ -177,7 +177,6 @@ public class BluetoothConnectionService extends AppCompatActivity {
             }
         }
     }
-
 
 
     /**
@@ -199,24 +198,25 @@ public class BluetoothConnectionService extends AppCompatActivity {
     }
 
     /**
-     AcceptThread starts and sits waiting for a connection.
-     Then ConnectThread starts and attempts to make a connection with the other devices AcceptThread.
+     * AcceptThread starts and sits waiting for a connection.
+     * Then ConnectThread starts and attempts to make a connection with the other devices AcceptThread.
      **/
 
-    public void startClient(BluetoothDevice device,UUID uuid){
+    public void startClient(BluetoothDevice device, UUID uuid) {
         Log.d(TAG, "startClient: Started.");
 
         //initprogress dialog
-        mProgressDialog = ProgressDialog.show(mContext,"Connecting Bluetooth"
-                ,"Please Wait...",true);
-
+        if(mContext != null) {
+            mProgressDialog = ProgressDialog.show(mContext, "Connecting Bluetooth"
+                    , "Please Wait...", true);
+        }
         mConnectThread = new ConnectThread(device, uuid);
         mConnectThread.start();
     }
 
     /**
-     Finally the ConnectedThread which is responsible for maintaining the BTConnection, Sending the data, and
-     receiving incoming data through input/output streams respectively.
+     * Finally the ConnectedThread which is responsible for maintaining the BTConnection, Sending the data, and
+     * receiving incoming data through input/output streams respectively.
      **/
     private class ConnectedThread extends Thread {
         private final BluetoothSocket mmSocket;
@@ -230,10 +230,12 @@ public class BluetoothConnectionService extends AppCompatActivity {
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
 
-            //dismiss the progress dialog when connection is established
-            try{
-                mProgressDialog.dismiss();
-            }catch (NullPointerException e){
+            //dismiss the progressdialog when connection is established
+            try {
+                if (mProgressDialog != null) {
+                    mProgressDialog.dismiss();
+                }
+            } catch (NullPointerException e) {
                 e.printStackTrace();
             }
 
@@ -249,7 +251,7 @@ public class BluetoothConnectionService extends AppCompatActivity {
             mmOutStream = tmpOut;
         }
 
-        public void run(){
+        public void run() {
             byte[] buffer = new byte[1024];  // buffer store for the stream
 
             int bytes; // bytes returned from read()
@@ -259,13 +261,10 @@ public class BluetoothConnectionService extends AppCompatActivity {
                 // Read from the InputStream
                 try {
                     bytes = mmInStream.read(buffer);
-                    String incomingMessage = new String(buffer, 0, bytes);
-                    FeedingActivity.setFoodWight(Double.parseDouble(incomingMessage));
-                    measuredWight.setText(String.valueOf(FeedingActivity.getFoodWight()));
-
+                    String incomingMessage = new String(buffer,0,  bytes);
                     Log.d(TAG, "InputStream: " + incomingMessage);
                 } catch (IOException e) {
-                    Log.e(TAG, "write: Error reading Input Stream. " + e.getMessage() );
+                    Log.e(TAG, "write: Error reading Input Stream. " + e.getMessage());
                     break;
                 }
             }
@@ -278,7 +277,7 @@ public class BluetoothConnectionService extends AppCompatActivity {
             try {
                 mmOutStream.write(bytes);
             } catch (IOException e) {
-                Log.e(TAG, "write: Error writing to output stream. " + e.getMessage() );
+                Log.e(TAG, "write: Error writing to output stream. " + e.getMessage());
             }
         }
 
@@ -286,7 +285,8 @@ public class BluetoothConnectionService extends AppCompatActivity {
         public void cancel() {
             try {
                 mmSocket.close();
-            } catch (IOException e) { }
+            } catch (IOException e) {
+            }
         }
     }
 
@@ -314,4 +314,57 @@ public class BluetoothConnectionService extends AppCompatActivity {
         mConnectedThread.write(out);
     }
 
+
+
+//    private class DiscoverThred extends Thread{
+//        public DiscoverThred(BluetoothAdapter mBluetoothAdapter,Button btnEnableDisable_Discoverable,
+//                             ArrayList<BluetoothDevice> mBTDevices) {
+//
+//        }
+//
+//        @Override
+//        public void run() {
+//            super.run();
+//            if(mBluetoothAdapter.isDiscovering()){
+//                mBluetoothAdapter.cancelDiscovery();
+//                Log.d(TAG, "btnDiscover: Canceling discovery.");
+//            }
+//            if(!mBluetoothAdapter.isDiscovering()){
+//                btnEnableDisable_Discoverable.setText(R.string.stop_discovering);
+//
+//
+//                Log.d(TAG, "btnDiscover: started discovery.");
+//
+//                if(mBluetoothAdapter.startDiscovery()){
+//                    System.out.println("discovery error");
+//                }
+//                IntentFilter discoverDevicesIntent = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+//                mContext.registerReceiver(mBroadcastReceiver3, discoverDevicesIntent);
+//        }
+//    }
+//        /**
+//         * Broadcast Receiver for listing devices that are not yet paired
+//         * -Executed by btnDiscover() method.
+//         */
+//        private BroadcastReceiver mBroadcastReceiver3 = new BroadcastReceiver() {
+//            @Override
+//            public void onReceive(Context context, Intent intent) {
+//                final String action = intent.getAction();
+//                Log.d(TAG, "onReceive: ACTION FOUND.");
+//
+//                if (action.equals(BluetoothDevice.ACTION_FOUND)){
+//                    BluetoothDevice device = intent.getParcelableExtra (BluetoothDevice.EXTRA_DEVICE);
+//                    mBTDevices.add(device);
+//                    System.out.println("mBTDevices = " + mBTDevices.toString());
+//                    Log.d(TAG, "onReceive: " + device.getName() + ": " + device.getAddress());
+//                    DeviceListAdapter mDeviceListAdapter = new DeviceListAdapter(context, R.layout.device_adapter_view, mBTDevices);
+//                    mDeviceListAdapter.notifyDataSetChanged();
+//                    lvNewDevices.setAdapter(mDeviceListAdapter);
+//                }
+//            }
+//        };
+
+
 }
+
+

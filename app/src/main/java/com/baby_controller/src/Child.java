@@ -66,11 +66,11 @@
 //        // TODO: 10/21/2021 dasdasdasda
 //    }
 //
-//    public int getId() {
+//    public int getIndexInInstitute() {
 //        return id;
 //    }
 //
-//    public void setId(int id) {
+//    public void setIndexInInstitute(int id) {
 //        this.id = id;
 //    }
 //
@@ -199,7 +199,7 @@
 //        return parent;
 //    }
 //
-//    public void setParent(Parent parent) {
+//    public void setParentName(Parent parent) {
 //        this.parent = parent;
 //    }
 //

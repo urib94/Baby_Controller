@@ -101,7 +101,7 @@
             android:layout_below="@+id/off"
             android:layout_toEndOf="@+id/choose_defult"
             android:layout_toRightOf="@+id/choose_defult"
-            android:text="Discover New Devices" />
+            android:text="@string/discover_new_devices" />
 
         <ListView
             android:id="@+id/devicesListView"

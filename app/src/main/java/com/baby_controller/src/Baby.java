@@ -14,19 +14,21 @@ import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.sql.Time;
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
 public  class Baby {
     protected DatabaseReference reference;
-    private LocalUser parent;
+    private String parentName;
+    private String parentUid;
     private String name = "";
-    private int id = 0;
+    private String institutionName;
+    private int indexInInstitute = 0;
     //MealList history;
     List<Meal> history = new LinkedList<Meal>();
     private int ageInMonths = 0;
@@ -36,22 +38,10 @@ public  class Baby {
     private double weight = 0;
     private int recommendedAmountOfMeals = 0;
     private int recommendedAmountPerMeal = 0;
+    private int indexInParent;
 
     public Baby(){}
 
-
-
-    public Baby copyForParent(){
-        Baby tmp = new Baby();
-        tmp.recommendedAmountPerMeal = this.recommendedAmountPerMeal;
-        tmp.recommendedAmountOfMeals = this.recommendedAmountOfMeals;
-        tmp.weight = this.weight;
-        tmp.ageInMonths = ageInMonths;
-        tmp.history = this.history;
-        tmp.parent = parent;
-        tmp.name = this.name;
-        return tmp;
-    }
 
     public Baby(String name) {
         this.name = name;
@@ -96,18 +86,12 @@ public  class Baby {
         history.get(history.size() - 1).setWhenEaten(new Time(System.currentTimeMillis()));
         createNextMeal();
         int count = 0;
-        for(LocalUser parents :parent.getInstitute().getParents()){
-            if(parent.getEmail().equals(parents.getEmail())){
-                break;
-            }
-            count++;
-        }
 
         DatabaseReference myRef = FirebaseDatabase.getInstance().getReference().child("Institutions")
-                .child(getParent().getInstitutionName()).child("parents").child(String.valueOf(count));
+                .child(institutionName).child("parents").child(String.valueOf(indexInInstitute));
         myRef.child("babies").child(name).setValue(this);
 
-        //notify the parent using firebase cloud messaging
+        //notify the parentName using firebase cloud messaging
 
 
 
@@ -126,8 +110,8 @@ public  class Baby {
 
 
     public void uploadToDb(){
-        reference = FirebaseDatabase.getInstance().getReference().child("Institutions").child(getParent().getInstitute().getName())
-        .child("parents").child(getParent().getUserName()).child("children");
+        reference = FirebaseDatabase.getInstance().getReference().child("Institutions").child(institutionName)
+        .child("parents").child(parentName).child("children").child(String.valueOf(indexInParent));
         Transaction.Handler tmp = new Transaction.Handler() {
             @NonNull
             @Override
@@ -147,53 +131,6 @@ public  class Baby {
         reference.runTransaction(tmp);
         setListeners();
 
-
-
-
-//        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child(parent.getInstitution().getName())
-//                .child(LocalUser.UserType.PARENT.toString()).child(getParent().getUserName())
-//                .child("children").child(getName());
-//        ref.child("weight").setValue(this._weight);
-//        ref.child("age in months").setValue(this.ageInMonths);
-//        ref.child("id").setValue(this.id);
-//        ref.child("name").setValue(this.name);
-//        ref.child("recommended amount of meals").setValue(this.recommendedAmountOfMeals);
-//        ref.child("parent user name").setValue(this.parent.getUserName());
-//        ref.child("recommended amount per meal").setValue(this.recommendedAmountPerMeal);
-////        if(reference != null) {
-////            ref.child("reference");//.setValue(this.reference);
-////        }
-//        if(history.size() != 0) {
-//            if(ref.child("Meals") != null) {
-//                for (int i = 0; i < history.size(); i++){
-//                    history.get(i).uploadToDb(ref.child("Meals").getRef(),i + 1);
-//                }
-//            }
-//        }
-//
-//        ValueEventListener postListener = new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                // Get Post object and use the values to update the UI
-//                Baby tmp = dataSnapshot.getValue(Baby.class);
-//                _weight = tmp._weight;
-//                ageInMonths = tmp.ageInMonths;
-//                id = tmp.id;
-//                name = tmp.name;
-//                recommendedAmountOfMeals = tmp.recommendedAmountOfMeals;
-//                parent = tmp.parent;
-//                recommendedAmountPerMeal = tmp.recommendedAmountPerMeal;
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//                // Getting Post failed, log a message
-//
-//            }
-//        };
-//        reference.addValueEventListener(postListener);
-
     }
 
     private void setListeners() {
@@ -203,10 +140,10 @@ public  class Baby {
                 Baby tmp = dataSnapshot.child(name).getValue(Baby.class);
                 weight = tmp.weight;
                 ageInMonths = tmp.ageInMonths;
-                id = tmp.id;
+                indexInInstitute = tmp.indexInInstitute;
                 name = tmp.name;
                 recommendedAmountOfMeals = tmp.recommendedAmountOfMeals;
-                parent = tmp.parent;
+                parentName = tmp.parentName;
                 recommendedAmountPerMeal = tmp.recommendedAmountPerMeal;
 
             }
@@ -222,7 +159,7 @@ public  class Baby {
     @Override
     public String toString() {
         return "{name=" + name +
-                ",id=" + id +
+                ",indexInInstitute=" + indexInInstitute +
                 ",ageInMonths=" + ageInMonths +
                 ",weight=" + weight +
                 ",recommendedAmountOfMeals=" + recommendedAmountOfMeals +
@@ -238,14 +175,6 @@ public  class Baby {
         this.reference = reference;
     }
 
-    //returns the parent as a Local user, cast if need be
-    public LocalUser getParent() {
-        return parent;
-    }
-
-    public void setParent(Parent parent) {
-        this.parent = parent;
-    }
 
     public String getName() {
         return name;
@@ -255,21 +184,25 @@ public  class Baby {
         this.name = name;
     }
 
-    public int getId() {
-        return id;
+    public int getIndexInInstitute() {
+        return indexInInstitute;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setIndexInInstitute(int id) {
+        this.indexInInstitute = id;
     }
 
-    //public MealList getHistory() {
-//        return history;
-//    }
+    public void setParentName(String parentName) {
+        this.parentName = parentName;
+    }
 
-//    public void setHistory(MealList history) {
-//        this.history = history;
-//    }
+    public String getParentUid() {
+        return parentUid;
+    }
+
+    public void setParentUid(String parentUid) {
+        this.parentUid = parentUid;
+    }
 
     public int getAgeInMonths() {
         return ageInMonths;
@@ -285,6 +218,14 @@ public  class Baby {
 
     public void setWeight(double weight) {
         this.weight = weight;
+    }
+
+    public String getInstitutionName() {
+        return institutionName;
+    }
+
+    public void setInstitutionName(String institutionName) {
+        this.institutionName = institutionName;
     }
 
     public int getRecommendedAmountOfMeals() {
@@ -316,12 +257,12 @@ public  class Baby {
         JSONObject json = new JSONObject();
         try {
             json.put("name", name);
-            json.put("id", id);
+            json.put("id", indexInInstitute);
             json.put("ageInMonths", ageInMonths);
             json.put("_weight", weight);
             json.put("recommendedAmountOfMeals", recommendedAmountOfMeals);
             json.put("recommendedAmountPerMeal", recommendedAmountPerMeal);
-            json.put("parent", parent.getUserName());
+            json.put("parentName", parentName);
             for (Meal meal : history) {
                 json.put("history", meal.toJson());
             }
@@ -332,27 +273,16 @@ public  class Baby {
         return json;
     }
 
-    //Baby from Json
-    public static Baby fromJson(JSONObject json) {
-        Baby baby = new Baby();
-        try {
-            baby.name = json.getString("name");
-            baby.id = json.getInt("id");
-            baby.ageInMonths = json.getInt("ageInMonths");
-            baby.weight = json.getDouble("_weight");
-            baby.recommendedAmountOfMeals = json.getInt("recommendedAmountOfMeals");
-            baby.recommendedAmountPerMeal = json.getInt("recommendedAmountPerMeal");
-            baby.parent = Parent.fromJson(json.getJSONObject("parent"));
-            baby.history = new LinkedList<Meal>();
-            JSONArray jsonHistory = json.getJSONArray("history");
-            for (int i = 0; i < jsonHistory.length(); i++) {
-                baby.history.add(Meal.fromJson(jsonHistory.getJSONObject(i)));
-            }
-        }catch (JSONException e){
-            e.printStackTrace();
-        }
-        return baby;
+
+    //get a date and return how many months old it is
+    public static int calculateAgeInMonth(int year, int month, int day){
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.MONTH, month);
+        calendar.set(Calendar.DAY_OF_MONTH, day);
+        return (int) ((System.currentTimeMillis() - calendar.getTimeInMillis()) / (1000L *60*60*24*30));
     }
+
 
     public List<Meal> getHistory() {
         return history;
@@ -362,8 +292,17 @@ public  class Baby {
         this.history = history;
     }
 
-    public void setParent(LocalUser parent) {
-        this.parent = parent;
+
+    public String getParentName() {
+        return parentName;
+    }
+
+    public int getIndexInParent() {
+        return indexInParent;
+    }
+
+    public void setIndexInParent(int indexInParent) {
+        this.indexInParent = indexInParent;
     }
 
     public Meal getMeal() {

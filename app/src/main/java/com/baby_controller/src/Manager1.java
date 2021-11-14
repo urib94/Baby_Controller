@@ -57,9 +57,9 @@ public class Manager1 extends LocalUser {
     }
 
     public DatabaseReference uploadToDb() {
-        if (userName != null) {
+        if (name != null) {
             reference = FirebaseDatabase.getInstance().getReference().child("Institutions").child(getInstitute().getName())
-                    .child("management").child(userName);
+                    .child("management").child(name);
             reference.child("userName").setValue(toJson());
             return reference;
 
@@ -123,7 +123,7 @@ public class Manager1 extends LocalUser {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Manager1 tmp = dataSnapshot.getValue(Manager1.class);
                 userType = tmp.userType;
-                userName = tmp.userName;
+                name = tmp.name;
                 email = tmp.email;
                 password = tmp.password;
             }
@@ -155,7 +155,7 @@ public class Manager1 extends LocalUser {
     public JSONObject toJson()  {
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("userName", userName);
+            jsonObject.put("userName", name);
             jsonObject.put("password", password);
             jsonObject.put("email", email);
             jsonObject.put("userType", userType);
@@ -168,7 +168,7 @@ public class Manager1 extends LocalUser {
     //Json to Manager1
     public void fromJson(JSONObject jsonObject)  {
         try {
-            userName = jsonObject.getString("userName");
+            name = jsonObject.getString("userName");
             password = jsonObject.getString("password");
             email = jsonObject.getString("email");
             userType = UserType.MANAGER;
@@ -189,11 +189,13 @@ public class Manager1 extends LocalUser {
                 "reference=" + reference +
                 ", userType=" + userType +
                 ", institutionName='" + institutionName + '\'' +
-                ", userName='" + userName + '\'' +
+                ", userName='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", uid='" + uid + '\'' +
-                ", defaultDevice=" + defaultDevice +
+                ", defaultDevice=" + defaultDeviceAddress +
                 '}';
     }
+
+
 }

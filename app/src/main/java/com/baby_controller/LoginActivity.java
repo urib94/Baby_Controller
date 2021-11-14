@@ -9,16 +9,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.baby_controller.src.Config;
 import com.baby_controller.src.LocalUser;
+import com.baby_controller.src.Manager1;
+import com.baby_controller.src.Parent;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -69,8 +73,8 @@ public class LoginActivity extends AppCompatActivity {
                 }else {
                     //user is signed out
                     if(userUID != null) {
-                        Log.d(TAG, "onAuthStateChanged : signed out" + user.getUid());
-                        toastMessage("Successfully signed out with: " + user.getEmail());
+                        Log.d(TAG, "onAuthStateChanged : signed out");
+                        toastMessage("Successfully signed out with: ");
                     }
                 }
             }
@@ -106,8 +110,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
 
-    private void updateUI(FirebaseUser currentUser) {
-        LocalUser localUser = Config.getCurrentUser();
+    private void updateUI() {
         Intent intent = new Intent(this,MainActivity.class);
         startActivity(intent);
         finish();
@@ -156,37 +159,61 @@ public class LoginActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         // Sign in success, update UI with the signed-in user's information
                         Log.d("login success", "signInWithEmail:success");
-                        FirebaseUser user = mAuth.getCurrentUser();
-                        userUID = user.getUid();
-//                       myRef.addValueEventListener(new ValueEventListener() {
-//                           @Override
-//                           public void onDataChange(DataSnapshot dataSnapshot) {
-//                               // This method is called once with the initial value and again
-//                               // whenever data at this location is updated.
-//                               if (dataSnapshot != null && mAuth.getCurrentUser() != null) {
-//                                   showData(dataSnapshot);
-//                               }
-//                           }
-//                         @Override
-//                           public void onCancelled(DatabaseError error) {
-//                           // Failed to read value
-//                            Log.w(TAG, "Failed to read value.", error.toException());
-//                       }
-//                   });
+                        userUID = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
 
-                   updateUI(user);
+                        myRef.getRoot().addChildEventListener(new ChildEventListener() {
+                           @Override
+                           public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                               for (DataSnapshot snap : snapshot.getChildren()) {
+                                   if (Objects.equals(snap.getKey(), userUID)) {
+                                       try {
+                                           if (snap.getValue(LocalUser.class).getUserType() == LocalUser.UserType.MANAGER) {
+                                               Config.setCurrentUser(snap.getValue(Manager1.class));
+                                               Log.i(TAG, "update local user to a manger");
+                                               updateUI();
+                                               return;
+                                           } else {
+                                               Config.setCurrentUser(snap.getValue(Parent.class));
+                                               Log.i(TAG, "update local user to a parent");
+                                               updateUI();
+                                               return;
+                                           }
+                                       } catch (Exception e) {
+                                           e.printStackTrace();
+                                       }
+                                   }
+                               }
+                           }
+
+                           @Override
+                           public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) { }
+                           @Override
+                           public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
+                           @Override
+                           public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+
+                           @Override
+                           public void onCancelled(@NonNull DatabaseError error) { }
+
+
+                   });
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "signInWithEmail:failure", task.getException());
                     Toast.makeText(LoginActivity.this, "error, try different email or password",
                             Toast.LENGTH_SHORT).show();
                 }
-                }
-            });
+                    myRef.getRoot().child("Users").child("trigger").setValue(" ");
+                    myRef.getRoot().child("Users").child("trigger").setValue(null);
+            }
+
+        });
+
         }else {
             toastMessage("You didn't fill in all the fields");
         }
     }
+
 
 
     public void register(View view) {
@@ -198,7 +225,7 @@ public class LoginActivity extends AppCompatActivity {
     public LocalUser getUserFromFirebase(String userName) {
         //get user from firebase
         final LocalUser[] tmp = {new LocalUser()};
-        tmp[0].setUserName("tmp");
+        tmp[0].setName("tmp");
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("Users").child(userName);
 
         ValueEventListener valueEventListener = new ValueEventListener() {

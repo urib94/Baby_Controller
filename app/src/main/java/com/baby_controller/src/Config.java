@@ -1,8 +1,10 @@
 package com.baby_controller.src;
 
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 
-import com.baby_controller.BluetoothConnectionManager;
+import com.baby_controller.src.util.BluetoothConnectionService;
 
 import java.sql.Time;
 
@@ -11,7 +13,7 @@ public class Config {
 
     private static LocalUser CUUR_USER;
 
-    public static double FOOD = 1;
+    public static double FOOD = 0;
 
     public static final long TIME_BETWEEN_MEALS = 90000;
 
@@ -19,32 +21,30 @@ public class Config {
 
     public static final long TEN_MIN = 600000;
 
-    private static BluetoothConnectionManager mBluetoothManger = new BluetoothConnectionManager();
+    private static BluetoothConnectionService mBluetoothConnectionService
+            = new BluetoothConnectionService();
 
-    private static BluetoothAdapter mBluetoothAdapter;
 
+    private static BluetoothSocket btSocket;
 
     public Config(){}
 
 
 
-    public static synchronized  BluetoothConnectionManager getBluetoothConnectionManger(){
-        return  mBluetoothManger;
+    public static synchronized  BluetoothConnectionService getBluetoothConnectionService(){
+        return  mBluetoothConnectionService;
     }
 
-    public static synchronized void setMBluetoothConnectionManger(BluetoothConnectionManager newMBluetoothManger){
-        mBluetoothManger = newMBluetoothManger;
+    public static synchronized void setBluetoothConnectionService(BluetoothConnectionService newBluetoothConnectionService){
+        mBluetoothConnectionService = newBluetoothConnectionService;
     }
 
-    public static synchronized BluetoothAdapter getmBluetoothAdapter(){
-        return mBluetoothAdapter;
-    }
-
-    public static synchronized void setmBluetoothAdapter(BluetoothAdapter newMBluetoothAdapter){
-        mBluetoothAdapter = newMBluetoothAdapter;
-    }
 
     public static synchronized LocalUser getCurrentUser() {
+        if(CUUR_USER != null){
+            System.out.println("CurrentUser = " + CUUR_USER.toString());
+        }
+        else System.out.println("CurrentUser = null");
         return CUUR_USER;
     }
 
@@ -52,7 +52,32 @@ public class Config {
         CUUR_USER = new LocalUser(user);
     }
 
-//    public static void updateCurrUserData() {
+
+    public static synchronized double getFoodAmount(){
+        return FOOD;
+    }
+
+    public static synchronized void setFoodAmount(double amount){
+        FOOD = amount;
+    }
+
+    public static synchronized BluetoothSocket getBtSocket() {
+        return btSocket;
+    }
+
+    public static synchronized void setBtSocket(BluetoothSocket btSocket) {
+        Config.btSocket = btSocket;
+    }
+
+    public static BluetoothDevice getDefaultDevice(){
+        if(CUUR_USER.getDefaultDeviceAddress() == null){
+            return null;
+        }
+        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+        return adapter.getRemoteDevice(CUUR_USER.getDefaultDeviceAddress());
+    }
+
+    //    public static void updateCurrUserData() {
 //        FirebaseDatabase.getInstance().getReference().child("Users").child(getCurrentUser().getUid())
 //                .setValue(getCurrentUser());
 //    }

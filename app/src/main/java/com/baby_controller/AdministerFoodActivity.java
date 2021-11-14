@@ -8,6 +8,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.baby_controller.src.Config;
+
 public class AdministerFoodActivity extends AppCompatActivity {
 
     private static final String TAG = "Administer Food";
@@ -29,13 +31,13 @@ public class AdministerFoodActivity extends AppCompatActivity {
         feed.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(FeedingActivity.babyToFeed != null) {
+                if(FeedingActivity2.babyToFeed != null) {
                     feedingThred.start();
                 }
             }
         });
         feedingThred = new FeedingThred();
-        measuredWight.setText(String.valueOf(FeedingActivity.getFoodWight()));
+        measuredWight.setText(String.valueOf(Config.getFoodAmount()));
 
 
     }
@@ -63,9 +65,9 @@ public class AdministerFoodActivity extends AppCompatActivity {
 
 
         public void feedBaby(){
-            if(FeedingActivity.getFoodWight() != 0) {
-                FeedingActivity.babyToFeed.eatingNextMeal((int) FeedingActivity.getFoodWight());
-                toastMessage(FeedingActivity.babyToFeed.getName() + "ate " + String.valueOf(FeedingActivity.getFoodWight()) + " mL");
+            if(Config.getFoodAmount() != 0) {
+                FeedingActivity2.babyToFeed.eatingNextMeal((int) Config.getFoodAmount());
+                toastMessage(FeedingActivity2.babyToFeed.getName() + "ate " + String.valueOf(Config.getFoodAmount()) + " mL");
                 feedingComplete = true;
                 //todo add a visual comformetion to the user that the meal is given
             }

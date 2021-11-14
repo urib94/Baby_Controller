@@ -66,21 +66,13 @@ public class FeedingActivity2 extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(btConnected()){
-            setContentView(R.layout.choos_baby_to_feed);
-            configureBabyChooserButtons();
-            babyListsMaker();
-        }else{
-            Intent intent = new Intent(FeedingActivity2.this, BluetoothConnectionManager.class);
-            startActivity(intent);
-
-        }
-
-
-
+        setContentView(R.layout.choos_baby_to_feed);
+        configureBabyChooserButtons();
+        babyListsMaker();
     }
 
     public void babyListsMaker(){
+        System.out.println(Config.getCurrentUser().toString());
         //get the institute of the user from the database
         DatabaseReference mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("Institutions")
                 .child(Config.getCurrentUser().getInstitutionName());
@@ -154,13 +146,7 @@ public class FeedingActivity2 extends AppCompatActivity {
     }
 
 
-    public boolean btConnected(){
-        if(Config.getBluetoothConnectionManger() == null){
-            return false;
-        } else if (Config.getBluetoothConnectionManger().getmBTSocket() == null){
-            return false;
-        }else return Config.getBluetoothConnectionManger().getmBTSocket().isConnected();
-    }
+
 
     private void toastMessage(String s) {
         Toast.makeText(FeedingActivity2.this ,s,Toast.LENGTH_SHORT).show();
