@@ -3,18 +3,14 @@ package com.baby_controller.src;
 import androidx.annotation.NonNull;
 
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
 
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
-import java.util.List;
 
 public class Parent extends LocalUser {
-    protected List<Baby> children = new ArrayList<>();;
+    protected ArrayList<Baby> children = new ArrayList<>();
 
     public Parent(){
         super();
@@ -49,7 +45,7 @@ public class Parent extends LocalUser {
 
 
 
-    public List<Baby> getChildren() {
+    public ArrayList<Baby> getChildren() {
         return children;
     }
 
@@ -100,7 +96,7 @@ public class Parent extends LocalUser {
         return null;
     }
 
-    public void setChildren(LinkedList<Baby> children) {
+    public void setChildren(ArrayList<Baby> children) {
         this.children = children;
     }
 
@@ -108,9 +104,15 @@ public class Parent extends LocalUser {
     public LinkedList<Baby> getBabiesNeedToFeed() {
         LinkedList<Baby> babiesNeedToFeed = new LinkedList<>();
         for(Baby baby: children){
+            if(baby.history.size() == 0){
+                Meal tmpMeal = new Meal(baby.getRecommendedAmountPerMeal());
+                tmpMeal.setTimeToEat(new Time(System.currentTimeMillis() -1000));
+                baby.getHistory().add(tmpMeal);
+
+            }
             Meal last = baby.history.get(baby.history.size() -1);
             Time now = new Time(System.currentTimeMillis());
-            if (now.after(last.getTimeToEat())){
+            if (last.getTimeToEat() == null || now.after(last.getTimeToEat())){
                 babiesNeedToFeed.add(baby);
             }
         }
@@ -122,7 +124,7 @@ public class Parent extends LocalUser {
         for(Baby baby: children){
             Meal last = baby.history.get(baby.history.size() -1);
             Time now = new Time(System.currentTimeMillis());
-            if (now.before(last.getTimeToEat())){
+            if (last.getTimeToEat() == null || now.before(last.getTimeToEat())){
                 babiesDontNeedToFeed.add(baby);
             }
         }
@@ -131,37 +133,16 @@ public class Parent extends LocalUser {
 
 
 
-    //set listners that update this Parent when its changes in the database
-    public void setListners(){
-        reference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Parent tmp = dataSnapshot.getValue(Parent.class);
-                name = tmp.name;
-                email = tmp.email;
-                password = tmp.password;
-                institutionName = tmp.institutionName;
-                children = tmp.children;
-                userType = tmp.userType;
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }
-
 
 
 
     @NonNull
     @Override
     public String toString() {
-        return  "reference=" + reference +
-                ",userType=" + userType +
+        return  ",userType=" + userType +
                 ",institutionName=" + institutionName +
                 ",userName=" + name +
+                ",indexInInstitute=" + indexInInstitute +
                 ",email=" + email +
                 ",password=" + password +
                 ",uid=" + uid +

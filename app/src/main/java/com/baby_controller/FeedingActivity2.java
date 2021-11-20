@@ -26,6 +26,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class FeedingActivity2 extends AppCompatActivity {
@@ -71,6 +72,22 @@ public class FeedingActivity2 extends AppCompatActivity {
         babyListsMaker();
     }
 
+    public void what (DataSnapshot snapshot){
+        for(DataSnapshot snap :snapshot.getChildren()){
+            System.out.println("curr key = " + snap.getKey()  + " - " + (snap.getValue() instanceof String));
+            if(snap.getValue() instanceof ArrayList || snap.getValue() instanceof List){
+                for (DataSnapshot dataSnapshot: snap.getChildren()){
+                    System.out.println("curr key = " + dataSnapshot.getKey()  + " - " + (dataSnapshot.getValue() instanceof String));
+                    if(snap.getValue() instanceof ArrayList || snap.getValue() instanceof List) {
+                        for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
+                            System.out.println("curr key = " + dataSnapshot1.getKey() + " - " + (dataSnapshot1.getValue() instanceof String));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     public void babyListsMaker(){
         System.out.println(Config.getCurrentUser().toString());
         //get the institute of the user from the database
@@ -80,10 +97,12 @@ public class FeedingActivity2 extends AppCompatActivity {
         mDatabaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                System.out.println(dataSnapshot.toString());
+                what(dataSnapshot);
                 Institution institution = dataSnapshot.getValue(Institution.class);
-                if(institution != null){
-                    for(LocalUser parent : institution.getParents()){
-                        mHungryBabies.addAll(((Parent)parent).getBabiesNeedToFeed());
+                if(institution != null && institution.getParents() != null){
+                    for(Parent parent : institution.getParents()){
+                        mHungryBabies.addAll(parent.getBabiesNeedToFeed());
                     }
                     mReallyHungryBabyListAdapter = new BabyListAdapter(FeedingActivity2.this,R.layout.baby_adapter_view, mHungryBabies);
                     reallyHungryBabies.setAdapter(mReallyHungryBabyListAdapter);

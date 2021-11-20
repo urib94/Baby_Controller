@@ -67,22 +67,20 @@ public class AddBabyActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 System.out.println("pressed on click");
+                if(checkInput()) {
+                    updateValues();
 
+                    System.out.println("institution == null ? " + (institution == null));
+                    if (institution != null) {
 
-                if(sBabyName == ("") || sParentName == ("") || dWight ==0 || dateOfBirth.getText().toString().equals("")){
-                    toastMessage("pleas fill out all the fields");
-                    return;
-                }
-                updateValues();
-                System.out.println( "institution == null ? " +(institution == null) );
-                if(institution != null) {
-
-                    if(addNewBaby(Config.getCurrentUser().getUserType() == LocalUser.UserType.MANAGER)){
-                        parentName.setText("");
-                        babyName.setText("");
-                        dateOfBirth.setText("");
-                        wight.setText("");
-                        add .setText("");
+                        if (addNewBaby(Config.getCurrentUser().getUserType() == LocalUser.UserType.PARENT)) {
+                            parentName.setText("");
+                            babyName.setText("");
+                            dateOfBirth.setText("");
+                            wight.setText("");
+                        } else {
+                            toastMessage(babyName + "was not ");
+                        }
                     }
                 }
             }
@@ -96,14 +94,24 @@ public class AddBabyActivity extends AppCompatActivity {
         });
     }
 
+    public boolean checkInput(){
+        if(babyName.getText().toString().equals("") || parentName.getText().toString().equals("")
+                || dateOfBirth.getText().toString().split("/").length != 3 || wight.getText().toString().equals("")){
+            toastMessage("pleas fill out all the fields");
+            return false;
+        }else if(wight.getText().toString().equals("0")){
+            toastMessage("no diet is that good, baby weight must be more than 0");
+            return false;
+        }
+        else return true;
+    }
+
     private void updateValues() {
         sParentName = parentName.getText().toString();
         sBabyName = babyName.getText().toString();
+        dateOfBirth.setText(dateOfBirth.getText().toString().replace(".","/"));
         dWight = Double.parseDouble(wight.getText().toString());
         String[] tmpDate = dateOfBirth.getText().toString().split("/");
-        for (String str:tmpDate) {
-            str.replace(".","/");
-        }
         iDateOfBirth = new int[]{Integer.parseInt(tmpDate[2]), Integer.parseInt(tmpDate[1]), Integer.parseInt(tmpDate[0])};
 
     }
@@ -115,27 +123,29 @@ public class AddBabyActivity extends AppCompatActivity {
                 System.out.println(Config.getCurrentUser().toString());
                 System.out.println("getInstitute() method invoked");
                 for (DataSnapshot snap:snapshot.getChildren()){
-                    System.out.println("snap in get inst = " + snap.toString());
-                    Institution tmpInst;
-                    try {
-                        tmpInst = snap.getValue(Institution.class);
-                        if (tmpInst == null) {
-                            System.out.println("tmp = null");
+                    if(snap.getKey().equals(Config.getCurrentUser().getInstitutionName())) {
+                        System.out.println("snap in get inst = " + snap.toString());
+                        Institution tmpInst;
+                        try {
+                            tmpInst = snap.getValue(Institution.class);
+                            if (tmpInst == null) {
+                                System.out.println("tmp = null");
+                                continue;
+                            } else {
+                                System.out.println("institution name = " + tmpInst.getName() + " curr user inst name = " +
+                                        Config.getCurrentUser().getInstitutionName());
+                                System.out.println("tmpInst = " + tmpInst.toString());
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, e.getMessage());
                             continue;
-                        }else {
-                            System.out.println("institution name = " + tmpInst.getName() + " curr user inst name = "+
-                                    Config.getCurrentUser().getInstitutionName());
-                            System.out.println("tmpInst = "+ tmpInst.toString());
                         }
-                    }catch (Exception e){
-                        Log.e(TAG,e.getMessage());
-                        continue;
-                    }
-                    if(Config.getCurrentUser().getInstitutionName().equals(tmpInst.getName())){
-                        institution = tmpInst;
-                        System.out.println("inst found" +  institution.toString());
-                        instituteRef = snap.getRef();
-                        break;
+                        if (Config.getCurrentUser().getInstitutionName().equals(tmpInst.getName())) {
+                            institution = tmpInst;
+                            System.out.println("inst found" + institution.toString());
+                            instituteRef = snap.getRef();
+                            break;
+                        }
                     }
                 }
             }
@@ -149,16 +159,18 @@ public class AddBabyActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError error) { }
         });
 
-    triggerListener();
+        triggerListener();
     }
 
     private void triggerListener(){
         FirebaseDatabase.getInstance().getReference().getRoot().child("trigger").setValue(" ");
         FirebaseDatabase.getInstance().getReference().getRoot().child("trigger").setValue(null);
     }
+
+
     private boolean addNewBaby(boolean currIsParent){
         System.out.println( "institution == null ? " +(institution == null) );
-        if(currIsParent){
+        if(currIsParent && Config.getCurrentUser() instanceof Parent){
             ((Parent)(Config.getCurrentUser())).addNewChild(sBabyName,iDateOfBirth[0],iDateOfBirth[1],iDateOfBirth[2]
             ,dWight);
             toastMessage(sBabyName + "was successfully added");
@@ -167,7 +179,9 @@ public class AddBabyActivity extends AppCompatActivity {
             System.out.println("institution = "+ institution.toString());
             institution.getParent(sParentName).addNewChild(sBabyName,iDateOfBirth[0],iDateOfBirth[1],iDateOfBirth[2]
                             ,dWight);
-                    return true;
+            System.out.println("instituteRef = "+instituteRef.toString());
+            System.out.println("institute to upload = " + institution.toString());
+            return true;
         }
         toastMessage("unable to add " + sBabyName + " to " + sParentName + " try again later");
         return false;

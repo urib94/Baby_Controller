@@ -2,12 +2,6 @@ package com.baby_controller.src;
 
 import androidx.annotation.NonNull;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -56,39 +50,6 @@ public class Manager1 extends LocalUser {
         return null;
     }
 
-    public DatabaseReference uploadToDb() {
-        if (name != null) {
-            reference = FirebaseDatabase.getInstance().getReference().child("Institutions").child(getInstitute().getName())
-                    .child("management").child(name);
-            reference.child("userName").setValue(toJson());
-            return reference;
-
-//
-//
-//
-//        ValueEventListener postListener = new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                // Get Post object and use the values to update the UI
-//                Manager1 tmp = dataSnapshot.getValue(Manager1.class);
-//                userType = tmp.userType;
-//                userName = tmp.userName;
-//                email = tmp.email;
-//                password = tmp.password;userName = tmp.userName;
-//                password = tmp.password;
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//                // Getting Post failed, log a message
-//
-//            }
-//        };
-//        return reference;
-        }
-        return reference;
-    }
 
 
     public void feedBaby(int amount, Baby babyToFeed){
@@ -103,7 +64,6 @@ public class Manager1 extends LocalUser {
                     }
                     if(tmp != null){
                         tmp.eatingNextMeal(amount);
-                        tmp.uploadToDb();
                         ((Parent)parent).notifyParent();
                         break;
                     }
@@ -114,25 +74,6 @@ public class Manager1 extends LocalUser {
     }
     public void notifyBabyNeedToEat(Baby baby){
 
-    }
-
-    //set listeners that updates the Manger1 when its changes in the database
-    public void setListeners(){
-        reference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Manager1 tmp = dataSnapshot.getValue(Manager1.class);
-                userType = tmp.userType;
-                name = tmp.name;
-                email = tmp.email;
-                password = tmp.password;
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
     }
 
 
@@ -186,7 +127,6 @@ public class Manager1 extends LocalUser {
     @Override
     public String toString() {
         return "Manager1{" +
-                "reference=" + reference +
                 ", userType=" + userType +
                 ", institutionName='" + institutionName + '\'' +
                 ", userName='" + name + '\'' +

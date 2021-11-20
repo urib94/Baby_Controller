@@ -39,9 +39,9 @@ public class BabyListAdapter extends ArrayAdapter<Baby> {
                 babyName.setText(baby.getName());
             }
             if (recommendedAmount != null) {
-                recommendedAmount.setText(baby.getRecommendedAmountPerMeal());
+                recommendedAmount.setText(String.valueOf(baby.getRecommendedAmountPerMeal()));
             }
-            if(timeToEat != null){
+            if(timeToEat != null && baby.getHistory().get(baby.getHistory().size() - 1).getTimeToEat() != null){
                 timeToEat.setText(baby.getHistory().get(baby.getHistory().size() - 1).getTimeToEat().toString());
             }
         }

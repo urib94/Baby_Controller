@@ -14,7 +14,6 @@ import java.util.LinkedList;
 
 public class LocalUser {
     protected int indexInInstitute = 0;
-    protected DatabaseReference reference;
     protected UserType userType;
     protected String institutionName;
     protected String name;
@@ -46,7 +45,6 @@ public class LocalUser {
         this.institutionName = other.institutionName;
         this.userType = other.userType;
         this.uid = other.uid;
-        this.reference = other.reference;
         this.defaultDeviceAddress = other.defaultDeviceAddress;
     }
 
@@ -173,14 +171,7 @@ public class LocalUser {
         this.name = name;
     }
 
-    public DatabaseReference getReference() {
-        return reference;
-    }
 
-    public void setReference(DatabaseReference reference) {
-        this.reference = reference;
-
-    }
 
 
     public LocalUser getUserFromDb(String userName){
@@ -296,7 +287,6 @@ public class LocalUser {
                 userToStringInDB(ref.getRoot().child("Users").child(uid));
                 userToStringInDB(ref.getRoot().child("Institutions").child(institutionName).child("management").child(String.valueOf(indexInInstitute)));
             } else {
-
                 userToStringInDB(ref.getRoot().child("Users").child(uid));
                 userToStringInDB(ref.getRoot().child("Institutions").child(institutionName).child("parents").child(String.valueOf(indexInInstitute)));
             }
@@ -309,8 +299,9 @@ public class LocalUser {
         ref.child("password").setValue(password);
         ref.child("name").setValue(name);
         ref.child("userType").setValue(userType);
-        ref.child("indexInInstitute").setValue(String.valueOf(indexInInstitute));
+        ref.child("indexInInstitute").setValue(indexInInstitute);
         ref.child("defaultDevice").setValue((Object) defaultDeviceAddress);
+        ref.child("uid").setValue(uid);
         if(userType == UserType.PARENT){
             if(((Parent)this).getChildren().size() >= 1){
                 ref.child("children").child("0").setValue(((Parent) this).children.get(0));
@@ -332,7 +323,6 @@ public class LocalUser {
     @Override
     public String toString() {
         return "LocalUser{" +
-                "reference=" + reference +
                 ",userType=" + userType +
                 ",institutionName=" + institutionName +
                 ",userName=" + name +

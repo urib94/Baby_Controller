@@ -31,6 +31,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.LinkedList;
+import java.util.Objects;
 
 public class RegisterActivity extends AppCompatActivity {
     private static final String TAG = "AddToDatabase";
@@ -44,7 +45,6 @@ public class RegisterActivity extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener mAuthListener;
     private DatabaseReference myRef;
     private LocalUser newUser;
-    private FirebaseUser firebaseUser;
 
 
     //buttons
@@ -64,8 +64,6 @@ public class RegisterActivity extends AppCompatActivity {
         //declare the database reference object. This is what we use to access the database.
         //NOTE: Unless you are signed in, this will not be useable.
         mAuth = FirebaseAuth.getInstance();
-        firebaseUser = mAuth.getCurrentUser();
-
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         myRef = mFirebaseDatabase.getReference();
 
@@ -92,8 +90,8 @@ public class RegisterActivity extends AppCompatActivity {
     public void userToDb(){
 
         String instName = institutionName.getText().toString();
-        if(mAuth.getCurrentUser() != null) {
-
+        if(mAuth.getCurrentUser() == null) {
+            return;
         }
         myRef.getRoot().addChildEventListener(new ChildEventListener() {
             @Override
@@ -124,9 +122,14 @@ public class RegisterActivity extends AppCompatActivity {
                         if (institutionLinkedList.size() >= 1) {
                             if (newUser.getUserType() == LocalUser.UserType.MANAGER) {
                                 if (institutionLinkedList.get(institutionLinkedList.size() - 1).getName().equals(instName)) {
-                                    newUser.setIndexInInstitute(institutionLinkedList.size() - 1);
-                                    institutionLinkedList.getLast().getManagement().add(newUser);
-                                    snap.getRef().setValue(institutionLinkedList.getLast());
+                                    Institution institution = institutionLinkedList.getLast();
+                                    setNewUserIndexInInstitue(institution);
+                                    System.out.println(institution.getManagement().toString());
+                                    newUser.setInstitutionName(institution.getName());
+                                    institution.getManagement().add(newUser);
+//                                    institutionLinkedList.getLast().getManagement().add(newUser);
+//                                    snap.getRef().setValue(institutionLinkedList.getLast());
+                                    snap.getRef().setValue(institution);
                                     snap.getRef().getRoot().child("Users").child(userUID).setValue(newUser);
                                     System.out.println("FIANALY MADE IT");
                                     completed = true;
@@ -137,10 +140,13 @@ public class RegisterActivity extends AppCompatActivity {
                             } else {
                                 if (institutionLinkedList.size() >= 1 && institutionLinkedList.
                                         get(institutionLinkedList.size() - 1).getName().equals(instName)) {
+                                    Institution institution = institutionLinkedList.getLast();
+                                    setNewUserIndexInInstitue(institution);
                                     Parent newParent = (Parent) newUser;
-                                    newParent.setIndexInInstitute(institutionLinkedList.size() - 1);
-                                    institutionLinkedList.getLast().getParents().add(newParent);
-                                    snap.getRef().setValue(institutionLinkedList.getLast());
+                                    System.out.println("parents list in the institute = " + institution.getParents().toString());
+                                    institution.getParents().add(newParent);
+                                    newParent.setInstitutionName(institution.getName());
+                                    snap.getRef().setValue(institution);
                                     snap.getRef().getRoot().child("Users").child(userUID).setValue(newUser);
                                     System.out.println("FIANALY MADE IT");
                                     notNew = true;
@@ -162,7 +168,7 @@ public class RegisterActivity extends AppCompatActivity {
                         completed = true;
                     }else{
                         Log.d(TAG, "attempt to register to unavailable institute");
-                        firebaseUser.delete();
+                        mAuth.getCurrentUser().delete();
                         toastMessage("this institute is not register to our service.\n try a different" +
                                 "one or contact are support team");
                     }
@@ -184,6 +190,15 @@ public class RegisterActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void setNewUserIndexInInstitue(Institution institution) {
+        if(newUser.getUserType() == LocalUser.UserType.MANAGER){
+            newUser.setIndexInInstitute(institution.getManagement().size());
+        }else {
+            newUser.setIndexInInstitute(institution.getParents().size());
+        }
+
     }
 
     private void configButtons() {
@@ -222,47 +237,9 @@ public class RegisterActivity extends AppCompatActivity {
                         newUser = new Manager1(user_name, mail, pass);
                     }
 
-                        // if the institution name is not on the database, create one
-
-
-
-//                            @Override
-//                            public void onDataChange(DataSnapshot dataSnapshot) {
-//                                if(newUser.getUserType()== LocalUser.UserType.MANAGER) {
-//                                    if (dataSnapshot.child(instName).getValue(Institution.class) == null) {
-//                                        //make a new Institution
-//                                        Institution institution = new Institution((Manager1) newUser, instName);
-//                                        // make the user the admin of the Institution
-//                                        myRef.getRoot().child("Institutions").child(instName).setValue(institution);
-//                                    } else {
-//                                        myRef.child("Users").child(userUID).setValue((Manager1)newUser);
-//                                        myRef.getRoot().child("Institutions").child(instName).setValue(dataSnapshot.child(instName)
-//                                                .getValue(Institution.class).addManager((Manager1) newUser));
-//                                        myRef.child("Users").child(userUID).setValue((Manager1)newUser);
-//                                    }
-//                                }else{
-//                                    if (dataSnapshot.child(instName).getValue(Institution.class) == null) {
-//                                        Log.d(TAG, "attempt to register to unavailable institute");
-//                                        toastMessage("this institute is not register to our service.\n try a different" +
-//                                                "one or contact are support team");
-//                                    } else {
-//                                        myRef.child("Users").child(userUID).setValue((Parent) newUser);
-//                                        myRef.getRoot().child("Institutions").child(instName).setValue(dataSnapshot.child(instName)
-//                                                .getValue(Institution.class).addParent((Parent) newUser));
-//                                    }
-//                                }
-//                            }
-//
-//                            @Override
-//                            public void onCancelled(@NonNull DatabaseError error) {}
-//                        });
-
-
-
                 }else{
                     toastMessage("Fill out all the fields");
                 }
-
             }
         });
 
@@ -291,7 +268,7 @@ public class RegisterActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("success", "createUserWithEmail:success");
                             toastMessage("Successfully registered");
-                            firebaseUser  =mAuth.getCurrentUser();
+                            newUser.setUid(Objects.requireNonNull(mAuth.getCurrentUser()).getUid());
                             userToDb();
                             myRef.getRoot().child("Listener Trigger").setValue(" ");
                             myRef.getRoot().child("Listener Trigger").setValue(null);

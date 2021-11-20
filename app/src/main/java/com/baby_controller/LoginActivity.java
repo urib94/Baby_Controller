@@ -167,6 +167,7 @@ public class LoginActivity extends AppCompatActivity {
                                for (DataSnapshot snap : snapshot.getChildren()) {
                                    if (Objects.equals(snap.getKey(), userUID)) {
                                        try {
+                                           LocalUser localUser = snap.getValue(LocalUser.class);
                                            if (snap.getValue(LocalUser.class).getUserType() == LocalUser.UserType.MANAGER) {
                                                Config.setCurrentUser(snap.getValue(Manager1.class));
                                                Log.i(TAG, "update local user to a manger");

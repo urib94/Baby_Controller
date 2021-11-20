@@ -22,6 +22,7 @@ import java.util.List;
 public class Institution{
     private String name;
     private DatabaseReference reference;
+    // TODO: 11/20/2021 cheng list to arreyLists
     protected List<LocalUser> management = new ArrayList<>();
     protected List<Parent> parents =     new ArrayList<>();
 
@@ -58,11 +59,9 @@ public class Institution{
     }
 
     public Parent getParent(String name){
-        for(int i = 0; i < parents.size(); i++){
-            if(parents.get(i).getName().equals(name)){
-                if(parents.get(i).getUserType() == LocalUser.UserType.PARENT) {
-                    return (Parent) parents.get(i);
-                }
+        for(Parent parent: parents){
+            if(parent != null && parent.getName().equals(name)){
+                return parent;
             }
         }
         return null;
@@ -239,5 +238,16 @@ public class Institution{
         this.management = institution.management;
         this.parents = institution.parents;
         this.name = institution.name;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "Institution{" +
+                "name='" + name + '\'' +
+                ", reference=" + reference +
+                ", management=" + management +
+                ", parents=" + parents +
+                '}';
     }
 }

@@ -27,32 +27,7 @@ public class MealList {
 //        }
         return  null;
     }
-    public void uploadToDb(DatabaseReference mealsRef) {
-        reference = mealsRef.child("Meals").getRef();
-        int mealsToday = 0;
-        for (int i = 0; i < getAmountOfMeals(); i++){
-            int d = get(i).getCurrDate().getDate();
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append(get(i).getCurrDate().getDate());
-            stringBuilder.append("\\");
-            stringBuilder.append(get(i).getCurrDate().getMonth());
-            if(i ==0  || get(i).getCurrDate().equals(get(i - 1))) {
-                if(i == 0){
-                    DatabaseReference ref = reference.child(stringBuilder.toString()).
-                            child(String.valueOf(0));
-                    ref.setValue(get(i));
-                }else {
-                    reference.child(stringBuilder.toString()).
-                            child(String.valueOf(mealsToday)).setValue(get(i));
-                }
-            }else mealsToday = 0;
-            reference.child(stringBuilder.toString()).
-                    child(String.valueOf(i)).setValue(new Baby());
-        }
-        this.reference = mealsRef.child("Meals");
-        //reference.child(String.valueOf(getLast().getCurrDate().getDate()));
 
-    }
 
     public void add(int recommendedAmount){
 //        Meal tmp = new Meal(recommendedAmount);

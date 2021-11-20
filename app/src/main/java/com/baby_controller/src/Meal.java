@@ -3,31 +3,21 @@ package com.baby_controller.src;
 
 import androidx.annotation.NonNull;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
 public class Meal {
 
-    private DatabaseReference reference;
+
     private int recommendedAmount;
     private int receivedAmount = 0;
-    private Time whenEaten = new Time(0);
-    private Time timeToEat = new Time(0);
-    private Date currDate = new Date(System.currentTimeMillis());
+    private Time whenEaten;
+    private Time timeToEat;
     /*
-     * -1 for un eaten meals, 1 for fully eaten meals, 0 for partially eaten
+     * -1 for uneaten meals, 1 for fully eaten meals, 0 for partially eaten
      */
     private int eaten;
 
@@ -36,6 +26,7 @@ public class Meal {
 
     public Meal(int recommendedAmount){
         this.recommendedAmount = recommendedAmount;
+        eaten = -1;
     }
 
     public static List<Meal> listFromString(String HistoryString) {
@@ -123,56 +114,6 @@ public class Meal {
         return 0;
     }
 
-    //uploads the Baby's meal to the database, use transaction to make sure that the meal is uploaded only if the meal is not already uploaded
-    public void uploadToDb(DatabaseReference mealsRef,int count) {
-
-        
-
-
-
-
-        //        mealsRef.child(String.valueOf(count)).setValue(this);
-//        StringBuilder stringBuilder = new StringBuilder();
-//        stringBuilder.append(getCurrDate().getDate());
-//        stringBuilder.append("\\");
-//        stringBuilder.append(getCurrDate().getMonth());
-//
-//        reference = mealsRef.child(stringBuilder.toString()).getRef();
-//
-//        reference.child(String.valueOf(count)).child("recommended amount").setValue(recommendedAmount);
-//        reference.child(String.valueOf(count)).child("received amount").setValue(receivedAmount);
-//        reference.child(String.valueOf(count)).child("when eaten").setValue(whenEaten.getTime());
-//        reference.child(String.valueOf(count)).child("time to eat").setValue(timeToEat.getTime());
-//        reference.child(String.valueOf(count)).child("curr date").setValue(currDate.getTime());
-
-        ValueEventListener postListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // Get Post object and use the values to update the UI
-                Meal tmp = dataSnapshot.getValue(Meal.class);
-               currDate = tmp.currDate;
-               eaten = tmp.eaten;
-               receivedAmount = tmp.receivedAmount;
-               timeToEat = tmp.timeToEat;
-               whenEaten = tmp.whenEaten;
-
-
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Getting Post failed, log a message
-
-            }
-        };
-    }
-    public Date getCurrDate() {
-        return currDate;
-    }
-
-    public void setCurrDate(Date currDate) {
-        this.currDate = currDate;
-    }
-
     public int getReceivedAmount() {
         return receivedAmount;
     }
@@ -236,45 +177,37 @@ public class Meal {
 //    }
 
 
-    public DatabaseReference getReference() {
-        return reference;
-    }
 
-    public void setReference(DatabaseReference reference) {
-        this.reference = reference;
-    }
-
-
-    //Meal to Json
-    public JSONObject toJson(){
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("recommended amount", recommendedAmount);
-            jsonObject.put("received amount", receivedAmount);
-            jsonObject.put("when eaten", whenEaten.getTime());
-            jsonObject.put("time to eat", timeToEat.getTime());
-            jsonObject.put("curr date", currDate.getTime());
-            jsonObject.put("eaten", eaten);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return jsonObject;
-    }
-
-    //Json to Meal
-    public static Meal fromJson(JSONObject jsonObject){
-        Meal meal = new Meal();
-        try {
-            meal.setRecommendedAmount(jsonObject.getInt("recommended amount"));
-            meal.setReceivedAmount(jsonObject.getInt("received amount"));
-            meal.setWhenEaten(new Time(jsonObject.getLong("when eaten")));
-            meal.setTimeToEat(new Time(jsonObject.getLong("time to eat")));
-            meal.setCurrDate(new Date(jsonObject.getLong("curr date")));
-            meal.setEaten(jsonObject.getInt("eaten"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return meal;
-    }
+//    //Meal to Json
+//    public JSONObject toJson(){
+//        JSONObject jsonObject = new JSONObject();
+//        try {
+//            jsonObject.put("recommended amount", recommendedAmount);
+//            jsonObject.put("received amount", receivedAmount);
+//            jsonObject.put("when eaten", whenEaten.getTime());
+//            jsonObject.put("time to eat", timeToEat.getTime());
+//            jsonObject.put("curr date", currDate.getTime());
+//            jsonObject.put("eaten", eaten);
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//        return jsonObject;
+//    }
+//
+//    //Json to Meal
+//    public static Meal fromJson(JSONObject jsonObject){
+//        Meal meal = new Meal();
+//        try {
+//            meal.setRecommendedAmount(jsonObject.getInt("recommended amount"));
+//            meal.setReceivedAmount(jsonObject.getInt("received amount"));
+//            meal.setWhenEaten(new Time(jsonObject.getLong("when eaten")));
+//            meal.setTimeToEat(new Time(jsonObject.getLong("time to eat")));
+//            meal.setCurrDate(new Date(jsonObject.getLong("curr date")));
+//            meal.setEaten(jsonObject.getInt("eaten"));
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//        return meal;
+//    }
 }
 

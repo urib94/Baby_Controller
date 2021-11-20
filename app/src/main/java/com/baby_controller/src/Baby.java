@@ -1,39 +1,22 @@
 package com.baby_controller.src;
 
 
-import android.util.Log;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.MutableData;
-import com.google.firebase.database.Transaction;
-import com.google.firebase.database.ValueEventListener;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.sql.Time;
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.LinkedList;
-import java.util.List;
 
 public  class Baby {
-    protected DatabaseReference reference;
     private String parentName;
     private String parentUid;
     private String name = "";
     private String institutionName;
     private int indexInInstitute = 0;
-    //MealList history;
-    List<Meal> history = new LinkedList<Meal>();
+    ArrayList<Meal> history = new ArrayList<>();
     private int ageInMonths = 0;
-    Meal meal = new Meal(60);
-//    private Parent[] parents = new Parent[2];
+
 
     private double weight = 0;
     private int recommendedAmountOfMeals = 0;
@@ -45,20 +28,20 @@ public  class Baby {
 
     public Baby(String name) {
         this.name = name;
-        //history = new MealList();
+
     }
 
     public Baby(String name, double weight){
         this.weight = weight;
         this.name = name;
         calcRecommendedAmountPerMeal(weight);
-       // history = new MealList(recommendedAmountPerMeal);
+        history.add(new Meal(recommendedAmountPerMeal));
+
     }
 
     public Baby(double weight){
         this.weight = weight;
         calcRecommendedAmountPerMeal(weight);
-        //history = new MealList(recommendedAmountPerMeal);
     }
 
     public void calcRecommendedAmountPerMeal(double weight) {
@@ -109,52 +92,6 @@ public  class Baby {
     }
 
 
-    public void uploadToDb(){
-        reference = FirebaseDatabase.getInstance().getReference().child("Institutions").child(institutionName)
-        .child("parents").child(parentName).child("children").child(String.valueOf(indexInParent));
-        Transaction.Handler tmp = new Transaction.Handler() {
-            @NonNull
-            @Override
-            public Transaction.Result doTransaction(@NonNull MutableData currentData) {
-                currentData.setValue(Baby.this);
-                return Transaction.success(currentData);
-            }
-
-            @Override
-            public void onComplete(@Nullable DatabaseError error, boolean committed, @Nullable DataSnapshot currentData) {
-                if (error != null) {
-                    Log.d("Firebase", "error: " + error.getMessage());
-                }
-
-            }
-        } ;
-        reference.runTransaction(tmp);
-        setListeners();
-
-    }
-
-    private void setListeners() {
-        reference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Baby tmp = dataSnapshot.child(name).getValue(Baby.class);
-                weight = tmp.weight;
-                ageInMonths = tmp.ageInMonths;
-                indexInInstitute = tmp.indexInInstitute;
-                name = tmp.name;
-                recommendedAmountOfMeals = tmp.recommendedAmountOfMeals;
-                parentName = tmp.parentName;
-                recommendedAmountPerMeal = tmp.recommendedAmountPerMeal;
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }
-
 
     @Override
     public String toString() {
@@ -166,15 +103,6 @@ public  class Baby {
                 ",recommendedAmountPerMeal=" + recommendedAmountPerMeal +
                 "\nhistory=" + history + "><" ;
     }
-
-    public DatabaseReference getReference() {
-        return reference;
-    }
-
-    public void setReference(DatabaseReference reference) {
-        this.reference = reference;
-    }
-
 
     public String getName() {
         return name;
@@ -251,29 +179,6 @@ public  class Baby {
         history.get(history.size() -1).setTimeToEat(new Time(System.currentTimeMillis() - 1000));
     }
 
-
-    //Baby to Json
-    public JSONObject toJson() {
-        JSONObject json = new JSONObject();
-        try {
-            json.put("name", name);
-            json.put("id", indexInInstitute);
-            json.put("ageInMonths", ageInMonths);
-            json.put("_weight", weight);
-            json.put("recommendedAmountOfMeals", recommendedAmountOfMeals);
-            json.put("recommendedAmountPerMeal", recommendedAmountPerMeal);
-            json.put("parentName", parentName);
-            for (Meal meal : history) {
-                json.put("history", meal.toJson());
-            }
-
-        }catch (JSONException e){
-            e.printStackTrace();
-        }
-        return json;
-    }
-
-
     //get a date and return how many months old it is
     public static int calculateAgeInMonth(int year, int month, int day){
         Calendar calendar = Calendar.getInstance();
@@ -284,11 +189,11 @@ public  class Baby {
     }
 
 
-    public List<Meal> getHistory() {
+    public ArrayList<Meal> getHistory() {
         return history;
     }
 
-    public void setHistory(List<Meal> history) {
+    public void setHistory(ArrayList<Meal> history) {
         this.history = history;
     }
 
@@ -305,11 +210,4 @@ public  class Baby {
         this.indexInParent = indexInParent;
     }
 
-    public Meal getMeal() {
-        return meal;
-    }
-
-    public void setMeal(Meal meal) {
-        this.meal = meal;
-    }
 }
