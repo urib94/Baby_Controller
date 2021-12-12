@@ -81,6 +81,7 @@
             android:id="@+id/off"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textAllCaps="false"
             android:layout_alignBottom="@+id/scan"
             android:layout_toEndOf="@+id/paired_btn"
             android:layout_toRightOf="@+id/paired_btn"
@@ -90,6 +91,7 @@
             android:id="@+id/paired_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textAllCaps="false"
             android:layout_below="@+id/scan"
             android:layout_toStartOf="@+id/discover"
             android:text="Show paired Devices" />
@@ -98,6 +100,7 @@
             android:id="@+id/discover"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textAllCaps="false"
             android:layout_below="@+id/off"
             android:layout_toEndOf="@+id/choose_defult"
             android:layout_toRightOf="@+id/choose_defult"

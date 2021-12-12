@@ -45,6 +45,12 @@
     <string name="back">Back</string>
     <string name="parent_name">Parent Name</string>
     <string name="feeding">Feeding</string>
+    <string name="login">Login</string>
+    <string name="logout">Logout</string>
+    <string name="add_baby">Add Baby</string>
+    <string name="default_notification_channel_id">default_notification_channel_id</string>
+    <string name="fcm_message">Yam!!</string>
+    <string name="date_of_birth">Date Of Birth</string>
 
 
 </resources>

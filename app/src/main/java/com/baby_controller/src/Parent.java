@@ -3,10 +3,10 @@ package com.baby_controller.src;
 import androidx.annotation.NonNull;
 
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.DatabaseReference;
 
 import java.sql.Time;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedList;
 
 public class Parent extends LocalUser {
@@ -61,14 +61,13 @@ public class Parent extends LocalUser {
 
     public void addNewChild(String babyName, int day, int month, int year, double wight){
         Baby newBaby = new Baby(babyName,wight);
-        Date dateOfBirth = new Date(year,month,day);
-        Date today = new Date(System.currentTimeMillis());
-        newBaby.setAgeInMonths((int)((today.getTime() - dateOfBirth.getTime()) / (1000 * 60 +24 * 30)));
+        newBaby.calculateAgeInMonth(year,month);
         newBaby.setParentName(name);
         newBaby.setParentUid(uid);
         newBaby.setIndexInInstitute(indexInInstitute);
         newBaby.setInstitutionName(institutionName);
         newBaby.setIndexInParent(children.size());
+        newBaby.setRegistrationToken(registrationToken);
         children.add(newBaby);
         updateInDb();
     }
@@ -85,11 +84,12 @@ public class Parent extends LocalUser {
         // TODO: 10/26/2021  writ this function
     }
 
+
     public Baby babyNeedToFeed(){
         for (Baby baby: children){
             Meal last = baby.history.get(baby.history.size() -1);
             Time now = new Time(System.currentTimeMillis());
-            if (now.after(last.getTimeToEat())){
+            if (now.after(new Time(last.getTimeToEat()))){
                 return baby;
             }
         }
@@ -100,19 +100,44 @@ public class Parent extends LocalUser {
         this.children = children;
     }
 
+
+
+    @Override
+    public void userToStringInDB(DatabaseReference ref) {
+        ref.child("email").setValue(email);
+        ref.child("institutionName").setValue(institutionName);
+        ref.child("password").setValue(password);
+        ref.child("name").setValue(name);
+        ref.child("userType").setValue(userType);
+        ref.child("indexInInstitute").setValue(indexInInstitute);
+        ref.child("defaultDevice").setValue((Object) defaultDeviceAddress);
+        ref.child("uid").setValue(uid);
+        ref.child("registrationToken").setValue(registrationToken);
+        if (userType == UserType.PARENT) {
+            if (this.getChildren().size() >= 1) {
+                ref.child("children").child("0").setValue(((Parent) this).children.get(0));
+                for (int i = 1; i < ((Parent) this).children.size(); i++) {
+                    ref.child("children").child(String.valueOf(i)).setValue(((Parent) this).children.get(i));
+                }
+                return;
+            }
+            ref.child("children").setValue(((Parent) this).children);
+        }
+    }
+
     //get all the Babies that need to be fed
     public LinkedList<Baby> getBabiesNeedToFeed() {
         LinkedList<Baby> babiesNeedToFeed = new LinkedList<>();
         for(Baby baby: children){
             if(baby.history.size() == 0){
                 Meal tmpMeal = new Meal(baby.getRecommendedAmountPerMeal());
-                tmpMeal.setTimeToEat(new Time(System.currentTimeMillis() -1000));
+                tmpMeal.setTimeToEat(System.currentTimeMillis() -1000);
                 baby.getHistory().add(tmpMeal);
 
             }
             Meal last = baby.history.get(baby.history.size() -1);
             Time now = new Time(System.currentTimeMillis());
-            if (last.getTimeToEat() == null || now.after(last.getTimeToEat())){
+            if (last.getTimeToEat() == 0 || now.after(new Time(last.getTimeToEat()))){
                 babiesNeedToFeed.add(baby);
             }
         }
@@ -124,7 +149,7 @@ public class Parent extends LocalUser {
         for(Baby baby: children){
             Meal last = baby.history.get(baby.history.size() -1);
             Time now = new Time(System.currentTimeMillis());
-            if (last.getTimeToEat() == null || now.before(last.getTimeToEat())){
+            if (last.getTimeToEat() != 0 && now.before(new Time(last.getTimeToEat()))){
                 babiesDontNeedToFeed.add(baby);
             }
         }

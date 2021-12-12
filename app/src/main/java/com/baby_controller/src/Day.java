@@ -2,7 +2,6 @@ package com.baby_controller.src;
 
 import androidx.annotation.NonNull;
 
-import java.sql.Time;
 import java.util.Date;
 
 
@@ -92,9 +91,6 @@ public class Day  {
 
 
 
-    public void setFirstMealTime(Time time){
-        _meals.get_head().setTimeToEat(time);
-    }
 
     /*
      * sets the timeToEat for each meal of the day, can be used to initialize a new Day or for update the next meal time
