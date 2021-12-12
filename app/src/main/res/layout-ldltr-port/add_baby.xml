@@ -20,7 +20,8 @@
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.151" />
+        app:layout_constraintVertical_bias="0.151"
+        android:autofillHints="name" />
 
     <EditText
         android:id="@+id/baby_wight"
@@ -37,7 +38,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/date_of_birth"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.0"
+        android:importantForAutofill="no" />
 
     <EditText
         android:id="@+id/date_of_birth"
@@ -68,7 +70,8 @@
         app:layout_constraintHorizontal_bias="0.522"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.279" />
+        app:layout_constraintVertical_bias="0.279"
+        android:autofillHints="name" />
 
     <Button
         android:id="@+id/add_new_baby"
@@ -79,6 +82,7 @@
         android:layout_marginEnd="208dp"
         android:layout_marginBottom="190dp"
         android:text="@string/add_new_baby"
+        android:textAllCaps="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
@@ -89,6 +93,7 @@
     <Button
         android:id="@+id/back"
         android:layout_width="wrap_content"
+        android:textAllCaps="false"
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
         android:layout_marginTop="78dp"
@@ -109,7 +114,7 @@
         android:clickable="false"
         android:fontFamily="sans-serif"
         android:includeFontPadding="true"
-        android:text="Date Of Birth"
+        android:text="@string/date_of_birth"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         android:textSize="18sp"
         android:textStyle="bold"

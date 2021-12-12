@@ -3,7 +3,6 @@ package com.baby_controller.src;
 
 import androidx.annotation.NonNull;
 
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -14,8 +13,8 @@ public class Meal {
 
     private int recommendedAmount;
     private int receivedAmount = 0;
-    private Time whenEaten;
-    private Time timeToEat;
+    private Long whenEaten = 0L;
+    private Long timeToEat = 0L;
     /*
      * -1 for uneaten meals, 1 for fully eaten meals, 0 for partially eaten
      */
@@ -26,6 +25,7 @@ public class Meal {
 
     public Meal(int recommendedAmount){
         this.recommendedAmount = recommendedAmount;
+        timeToEat = 0L;
         eaten = -1;
     }
 
@@ -49,10 +49,10 @@ public class Meal {
                         newMeal.setRecommendedAmount(Integer.parseInt(tmp[1]));
                         break;
                     case "whenEaten":
-                        newMeal.setWhenEaten(new Time(Long.parseLong(tmp[1])));
+                        newMeal.setWhenEaten(Long.parseLong(tmp[1]));
                         break;
                     case "timeToEat":
-                        newMeal.setTimeToEat(new Time(Long.parseLong(tmp[1])));
+                        newMeal.setTimeToEat(Long.parseLong(tmp[1]));
                         break;
                     case "eaten":
                         newMeal.setEaten(Integer.parseInt(tmp[1]));
@@ -64,25 +64,25 @@ public class Meal {
         return mealList;
     }
 
-    public void setTimeToEat(Time time){
-        timeToEat.setTime(time.getTime());
+    public void setTimeToEat(Long time){
+        timeToEat = time;
     }
 
     public void calcTimeToEat(Meal prevMealNode){
         if(prevMealNode == null) {
-            this.timeToEat = Config.DEAFULT_BREAKFAST_TIME;
+            this.timeToEat = Config.DEFAULT_BREAKFAST_TIME;
             return;
         }
         if(this.isEaten() != 1){
             if(prevMealNode.isEaten() == 1) {
-                this.timeToEat.setTime(prevMealNode.whenEaten.getTime() + Config.TIME_BETWEEN_MEALS);
+                this.timeToEat = (prevMealNode.whenEaten + Config.TIME_BETWEEN_MEALS);
             }
-            else this.timeToEat.setTime(prevMealNode.timeToEat.getTime() + Config.TIME_BETWEEN_MEALS);
+            else this.timeToEat = (prevMealNode.timeToEat + Config.TIME_BETWEEN_MEALS);
         }
     }
 
     public void calcTimeToEat(){
-        this.timeToEat = Config.DEAFULT_BREAKFAST_TIME;
+        this.timeToEat = Config.DEFAULT_BREAKFAST_TIME;
         }
 
     /*
@@ -144,7 +144,7 @@ public class Meal {
         this.receivedAmount = receivedAmount;
     }
 
-    public void setWhenEaten(Time whenEaten) {
+    public void setWhenEaten(long whenEaten) {
         this.whenEaten = whenEaten;
     }
 
@@ -152,11 +152,11 @@ public class Meal {
         this.eaten = eaten;
     }
 
-    public Time getWhenEaten() {
+    public long getWhenEaten() {
         return whenEaten;
     }
 
-    public Time getTimeToEat() {
+    public long getTimeToEat() {
         return timeToEat;
     }
 

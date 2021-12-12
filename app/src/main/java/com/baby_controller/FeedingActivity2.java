@@ -11,6 +11,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.baby_controller.src.Baby;
@@ -19,6 +20,7 @@ import com.baby_controller.src.Config;
 import com.baby_controller.src.Institution;
 import com.baby_controller.src.LocalUser;
 import com.baby_controller.src.Parent;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -50,7 +52,7 @@ public class FeedingActivity2 extends AppCompatActivity {
 
     ListView reallyHungryBabies;
 
-    ListView hungryBabies;
+    ListView notHungryBabies;
 
 
     //bt
@@ -60,7 +62,7 @@ public class FeedingActivity2 extends AppCompatActivity {
     public ArrayList<Baby> mHungryBabies = new ArrayList<>();
     public ArrayList<Baby> mReallyHungryBabies = new ArrayList<>();
     public BabyListAdapter mReallyHungryBabyListAdapter;
-    public BabyListAdapter mHungryBabyListAdapter;
+    public BabyListAdapter mNotHungryBabyListAdapter;
 
 
 
@@ -70,6 +72,7 @@ public class FeedingActivity2 extends AppCompatActivity {
         setContentView(R.layout.choos_baby_to_feed);
         configureBabyChooserButtons();
         babyListsMaker();
+        updateAfterFeeding();
     }
 
     public void what (DataSnapshot snapshot){
@@ -88,61 +91,97 @@ public class FeedingActivity2 extends AppCompatActivity {
         }
     }
 
-    public void babyListsMaker(){
-        System.out.println(Config.getCurrentUser().toString());
-        //get the institute of the user from the database
-        DatabaseReference mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("Institutions")
-                .child(Config.getCurrentUser().getInstitutionName());
+    public void babyListsMaker() {
+        if (Config.getCurrentUser().getUserType() == LocalUser.UserType.PARENT) {
+            //hungry babies
+            mHungryBabies.addAll(((Parent) Config.getCurrentUser()).getBabiesNeedToFeed());
+            mReallyHungryBabyListAdapter = new BabyListAdapter(FeedingActivity2.this, R.layout.baby_adapter_view, mReallyHungryBabies);
+            reallyHungryBabies.setAdapter(mReallyHungryBabyListAdapter);
+            //not hungry babies
+            mHungryBabies.addAll(((Parent) Config.getCurrentUser()).getBabiesNotNeedToFeed());
+            mNotHungryBabyListAdapter = new BabyListAdapter(FeedingActivity2.this, R.layout.baby_adapter_view, mHungryBabies);
+            notHungryBabies.setAdapter(mNotHungryBabyListAdapter);
+        } else {
+            //get the institute of the user from the database
+            DatabaseReference mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("Institutions")
+                    .child(Config.getCurrentUser().getInstitutionName());
 
-        mDatabaseReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                System.out.println(dataSnapshot.toString());
-                what(dataSnapshot);
-                Institution institution = dataSnapshot.getValue(Institution.class);
-                if(institution != null && institution.getParents() != null){
-                    for(Parent parent : institution.getParents()){
-                        mHungryBabies.addAll(parent.getBabiesNeedToFeed());
+            mDatabaseReference.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    System.out.println(dataSnapshot.toString());
+                    what(dataSnapshot);
+                    Institution institution = dataSnapshot.getValue(Institution.class);
+                    if (institution != null && institution.getParents() != null) {
+                        for (Parent parent : institution.getParents()) {
+                            mReallyHungryBabies.addAll(parent.getBabiesNeedToFeed());
+                        }
+                        mReallyHungryBabyListAdapter = new BabyListAdapter(FeedingActivity2.this, R.layout.baby_adapter_view, mReallyHungryBabies);
+                        reallyHungryBabies.setAdapter(mReallyHungryBabyListAdapter);
                     }
-                    mReallyHungryBabyListAdapter = new BabyListAdapter(FeedingActivity2.this,R.layout.baby_adapter_view, mHungryBabies);
-                    reallyHungryBabies.setAdapter(mReallyHungryBabyListAdapter);
                 }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            }
-        });
+                }
+            });
 
-        //the same for the babies that are not hungry
-        DatabaseReference mDatabaseReference2 = FirebaseDatabase.getInstance().getReference().child("Institutions")
-                .child(Config.getCurrentUser().getInstitutionName());
 
-        mDatabaseReference2.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Institution institution = dataSnapshot.getValue(Institution.class);
-                if(institution != null){
-                    for(LocalUser parent : institution.getParents()){
-                        mHungryBabies.addAll(((Parent)parent).getBabiesNotNeedToFeed());
+            //the same for the babies that are not hungry
+            DatabaseReference mDatabaseReference2 = FirebaseDatabase.getInstance().getReference().child("Institutions")
+                    .child(Config.getCurrentUser().getInstitutionName());
+
+            mDatabaseReference2.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    Institution institution = dataSnapshot.getValue(Institution.class);
+                    if (institution != null) {
+                        for (LocalUser parent : institution.getParents()) {
+                            mHungryBabies.addAll(((Parent) parent).getBabiesNotNeedToFeed());
+                        }
+                        mNotHungryBabyListAdapter = new BabyListAdapter(FeedingActivity2.this, R.layout.baby_adapter_view, mHungryBabies);
+                        notHungryBabies.setAdapter(mNotHungryBabyListAdapter);
                     }
-                    mHungryBabyListAdapter = new BabyListAdapter(FeedingActivity2.this,R.layout.baby_adapter_view, mHungryBabies);
-                    hungryBabies.setAdapter(mReallyHungryBabyListAdapter);
                 }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {}
+            });
 
-            }
-        });
+        }
     }
+
+    public void updateAfterFeeding(){
+        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference().child("Institutions").child(Config.getCurrentUser().getInstitutionName())
+                .child("parents");
+
+        for(Parent parent: Config.getCurrInst().getParents()){
+            for(Baby baby: parent.getChildren()){
+                myRef.child(String.valueOf(parent.getIndexInInstitute())).child(String.valueOf(baby.getIndexInParent()))
+                        .child("history").addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+                    @Override
+                    public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                        babyListsMaker();
+                    }
+                    @Override
+                    public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
+                    @Override
+                    public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {}
+                });
+            }
+        }
+    }
+
 
 
     private void configureBabyChooserButtons() {
         reallyHungryBabies = (ListView) findViewById(R.id.really_hungry_list);
-        hungryBabies = (ListView) findViewById(R.id.hungry_list);
+        notHungryBabies = (ListView) findViewById(R.id.hungry_list);
 
         reallyHungryBabies.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -153,7 +192,7 @@ public class FeedingActivity2 extends AppCompatActivity {
             }
         });
 
-        hungryBabies.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        notHungryBabies.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 babyToFeed = mHungryBabies.get(position);

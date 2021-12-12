@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.baby_controller.R;
 
+import java.sql.Time;
 import java.util.ArrayList;
 
 public class BabyListAdapter extends ArrayAdapter<Baby> {
@@ -39,10 +40,12 @@ public class BabyListAdapter extends ArrayAdapter<Baby> {
                 babyName.setText(baby.getName());
             }
             if (recommendedAmount != null) {
-                recommendedAmount.setText(String.valueOf(baby.getRecommendedAmountPerMeal()));
+                recommendedAmount.setText(String.valueOf(baby.getRecommendedAmountPerMeal()) + " mL");
             }
-            if(timeToEat != null && baby.getHistory().get(baby.getHistory().size() - 1).getTimeToEat() != null){
-                timeToEat.setText(baby.getHistory().get(baby.getHistory().size() - 1).getTimeToEat().toString());
+            if(timeToEat != null && baby.getHistory().get(baby.getHistory().size() - 1).getTimeToEat() != 0){
+                Time time = new Time(baby.getHistory().get(baby.getHistory().size() - 1).getTimeToEat());
+                timeToEat.setText(time.getHours() + ":" + time.getMinutes());
+
             }
         }
 

@@ -269,6 +269,8 @@ public class RegisterActivity extends AppCompatActivity {
                             Log.d("success", "createUserWithEmail:success");
                             toastMessage("Successfully registered");
                             newUser.setUid(Objects.requireNonNull(mAuth.getCurrentUser()).getUid());
+                            final String[] token = new String[1];
+
                             userToDb();
                             myRef.getRoot().child("Listener Trigger").setValue(" ");
                             myRef.getRoot().child("Listener Trigger").setValue(null);
@@ -282,6 +284,7 @@ public class RegisterActivity extends AppCompatActivity {
                                 //todo make diffrent cases to ech user types
                                 Intent intent = new Intent(RegisterActivity.this,MainActivity.class);
                             }
+
                             releaseInstance();
                             finish();
                         } else {

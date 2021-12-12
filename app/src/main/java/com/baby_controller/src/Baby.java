@@ -1,12 +1,10 @@
 package com.baby_controller.src;
 
 
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.sql.Time;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Date;
 
 public  class Baby {
     private String parentName;
@@ -16,6 +14,7 @@ public  class Baby {
     private int indexInInstitute = 0;
     ArrayList<Meal> history = new ArrayList<>();
     private int ageInMonths = 0;
+    private String registrationToken;
 
 
     private double weight = 0;
@@ -26,22 +25,15 @@ public  class Baby {
     public Baby(){}
 
 
-    public Baby(String name) {
-        this.name = name;
-
-    }
-
     public Baby(String name, double weight){
         this.weight = weight;
         this.name = name;
         calcRecommendedAmountPerMeal(weight);
+        history.clear();
         history.add(new Meal(recommendedAmountPerMeal));
-
-    }
-
-    public Baby(double weight){
-        this.weight = weight;
-        calcRecommendedAmountPerMeal(weight);
+        System.out.println(history.toString());
+        System.out.println("history size = " + history.size());
+        history.get(history.size() -1 ).setTimeToEat(System.currentTimeMillis());
     }
 
     public void calcRecommendedAmountPerMeal(double weight) {
@@ -61,18 +53,22 @@ public  class Baby {
     }
 
     public void eatingNextMeal(int amount) {
+        System.out.println("adding new meal for " + parentName+"'s baby " + name );
         if(history.size() == 0){
             history.add(new Meal(amount));
         }
         history.get(history.size() - 1).setEaten(1);
         history.get(history.size() - 1).setReceivedAmount(amount);
-        history.get(history.size() - 1).setWhenEaten(new Time(System.currentTimeMillis()));
+        history.get(history.size() - 1).setWhenEaten(System.currentTimeMillis());
         createNextMeal();
         int count = 0;
 
-        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference().child("Institutions")
-                .child(institutionName).child("parents").child(String.valueOf(indexInInstitute));
-        myRef.child("babies").child(name).setValue(this);
+        FirebaseDatabase.getInstance().getReference().child("Institutions")
+                .child(institutionName).child("parents").child(String.valueOf(indexInInstitute)).child("children").child(String.valueOf(indexInParent)).
+                child("history").setValue(history);
+        FirebaseDatabase.getInstance().getReference().child("Users").child(parentUid).child("children")
+                .child(String.valueOf(indexInParent)).child("history").setValue(history);
+
 
         //notify the parentName using firebase cloud messaging
 
@@ -176,16 +172,29 @@ public  class Baby {
         if (history.size() == 0){
             history.add(new Meal(60));
         }
-        history.get(history.size() -1).setTimeToEat(new Time(System.currentTimeMillis() - 1000));
+        history.get(history.size() -1).setTimeToEat (System.currentTimeMillis() - 1000);
     }
 
     //get a date and return how many months old it is
-    public static int calculateAgeInMonth(int year, int month, int day){
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR, year);
-        calendar.set(Calendar.MONTH, month);
-        calendar.set(Calendar.DAY_OF_MONTH, day);
-        return (int) ((System.currentTimeMillis() - calendar.getTimeInMillis()) / (1000L *60*60*24*30));
+    public void  calculateAgeInMonth(int year, int month){
+        if(year < 2000){
+            year += 2000;
+        }
+        System.out.println("year = " + year + " month = " + month);
+        Date tmp = new Date(System.currentTimeMillis());
+        int thisMonth = tmp.getMonth() + 1;
+        int thisYear = tmp.getYear() + 1900;
+        System.out.println("this - year = " + thisYear + "this - month = " + thisMonth);
+        int months = 0;
+        if (year == thisYear) {
+            months = thisMonth - month;
+            System.out.println("months = " + months);
+        } else {
+            months = (thisYear - year) * 12;
+            months = months + thisMonth - month;
+        }
+        System.out.println("months = " + months);
+        ageInMonths =  months;
     }
 
 
@@ -210,4 +219,11 @@ public  class Baby {
         this.indexInParent = indexInParent;
     }
 
+    public String getRegistrationToken() {
+        return registrationToken;
+    }
+
+    public void setRegistrationToken(String registrationToken) {
+        this.registrationToken = registrationToken;
+    }
 }

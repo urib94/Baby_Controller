@@ -13,11 +13,15 @@ public class Config {
 
     private static LocalUser CUUR_USER;
 
+    private static Institution CURR_INST;
+
+    private static Parent CURR_PARENT;
+
     public static double FOOD = 0;
 
-    public static final long TIME_BETWEEN_MEALS = 90000;
+    public static final long TIME_BETWEEN_MEALS = 90000 * 60;
 
-    public static final Time DEAFULT_BREAKFAST_TIME = new Time(8,0,0);
+    public static final long DEFAULT_BREAKFAST_TIME = new Time(8,0,0).getTime();
 
     public static final long TEN_MIN = 600000;
 
@@ -41,15 +45,21 @@ public class Config {
 
 
     public static synchronized LocalUser getCurrentUser() {
-        if(CUUR_USER != null){
-            System.out.println("CurrentUser = " + CUUR_USER.toString());
+
+        if(CURR_PARENT != null){
+            return CURR_PARENT;
         }
-        else System.out.println("CurrentUser = null");
         return CUUR_USER;
     }
 
     public static synchronized void setCurrentUser(LocalUser user) {
-        CUUR_USER = new LocalUser(user);
+        // TODO: 12/2/2021 delate next lines
+        if(user == null){
+            System.out.println("attempt to assigned null user");
+        }
+        if(user instanceof Parent ){
+            CURR_PARENT = (Parent) user;
+        }else CUUR_USER = new LocalUser(user);
     }
 
 
@@ -70,12 +80,28 @@ public class Config {
     }
 
     public static BluetoothDevice getDefaultDevice(){
+        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+        if(CURR_PARENT != null){
+            if(CURR_PARENT.getDefaultDeviceAddress() == null){
+                return null;
+            }
+            return adapter.getRemoteDevice(CURR_PARENT.getDefaultDeviceAddress());
+        }
         if(CUUR_USER.getDefaultDeviceAddress() == null){
             return null;
         }
-        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+
         return adapter.getRemoteDevice(CUUR_USER.getDefaultDeviceAddress());
     }
+
+    public static synchronized Institution getCurrInst() {
+        return CURR_INST;
+    }
+
+    public static synchronized void setCurrInst(Institution currInst) {
+        CURR_INST = currInst;
+    }
+
 
     //    public static void updateCurrUserData() {
 //        FirebaseDatabase.getInstance().getReference().child("Users").child(getCurrentUser().getUid())

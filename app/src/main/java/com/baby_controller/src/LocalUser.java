@@ -12,13 +12,13 @@ import java.util.Arrays;
 import java.util.LinkedList;
 
 
-public class LocalUser {
+public class LocalUser  {
     protected int indexInInstitute = 0;
     protected UserType userType;
     protected String institutionName;
     protected String name;
 
-
+    protected String registrationToken;
 
     protected String email;
     protected String password;
@@ -302,6 +302,7 @@ public class LocalUser {
         ref.child("indexInInstitute").setValue(indexInInstitute);
         ref.child("defaultDevice").setValue((Object) defaultDeviceAddress);
         ref.child("uid").setValue(uid);
+        ref.child("registrationToken").setValue(registrationToken);
         if(userType == UserType.PARENT){
             if(((Parent)this).getChildren().size() >= 1){
                 ref.child("children").child("0").setValue(((Parent) this).children.get(0));
@@ -340,4 +341,13 @@ public class LocalUser {
     public void setIndexInInstitute(int indexInInstitute) {
         this.indexInInstitute = indexInInstitute;
     }
+
+    public String getRegistrationToken() {
+        return registrationToken;
+    }
+
+    public void setRegistrationToken(String registrationToken) {
+        this.registrationToken = registrationToken;
+    }
+
 }
