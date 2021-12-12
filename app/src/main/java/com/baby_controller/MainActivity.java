@@ -1,11 +1,7 @@
 package com.baby_controller;
 
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -17,7 +13,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.baby_controller.src.Config;
 import com.baby_controller.src.LocalUser;
-import com.baby_controller.src.util.cloudMessgaging.MyFirebaseMessagingService1;
 import com.baby_controller.src.util.cloudMessgaging.SharedPreferencesManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -27,23 +22,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.pubnub.api.PNConfiguration;
-import com.pubnub.api.PubNub;
-import com.pubnub.api.callbacks.PNCallback;
-import com.pubnub.api.endpoints.pubsub.Publish;
-import com.pubnub.api.enums.PNPushType;
-import com.pubnub.api.models.consumer.PNPublishResult;
-import com.pubnub.api.models.consumer.PNStatus;
-import com.pubnub.api.models.consumer.push.PNPushAddChannelResult;
-import com.pubnub.api.models.consumer.push.PNPushListProvisionsResult;
-import com.pubnub.api.models.consumer.push.PNPushRemoveAllChannelsResult;
-import com.pubnub.api.models.consumer.push.PNPushRemoveChannelResult;
-import com.pubnub.api.models.consumer.push.payload.PushPayloadHelper;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
@@ -59,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
     private final static String TAG = "MainActivity";
     boolean connectedToDefaultDevice = false;
 
-    public static MyFirebaseMessagingService1 messagingService = new MyFirebaseMessagingService1();
 
 
     @Override
@@ -77,7 +56,7 @@ protected void onStart() {
     configureButtons();
     mAuth = FirebaseAuth.getInstance();
     uid = mAuth.getUid();
-//    ConnectToDefaultDevice();
+    ConnectToDefaultDevice();
 
 }
 
@@ -86,9 +65,7 @@ protected void onStart() {
         super.onRestart();
         setContentView(R.layout.activity_main);
         configureButtons();
-//        ConnectToDefaultDevice();
-        createChannel();
-
+        ConnectToDefaultDevice();
     }
 
     public void fbRegistration(){
@@ -104,167 +81,10 @@ protected void onStart() {
         });
     }
 
-    public void updatePushNotificationsOnChannels(String[] channels, String deviceToken, String oldToken) {
-        if (oldToken != null) {
-            LoginActivity.pubnub.removeAllPushNotificationsFromDeviceWithPushToken()
-                    .pushType(PNPushType.FCM)
-                    .deviceId(oldToken)
-                    .async(new PNCallback<PNPushRemoveAllChannelsResult>() {
-                        @Override public void onResponse(PNPushRemoveAllChannelsResult result, PNStatus status) {
-                            // Handle Response
-                        }
-                    });
-        }
-
-        LoginActivity.pubnub.addPushNotificationsOnChannels()
-                .pushType(PNPushType.FCM)
-                .deviceId(deviceToken)
-                .channels(Arrays.asList(channels))
-                .async(new PNCallback<PNPushAddChannelResult>() {
-                    @Override public void onResponse(PNPushAddChannelResult result, PNStatus status) {
-                        // Handle Response
-                    }
-                });
-    }
-
-    public void registerNewChannels(String[] channels){
-        String cachedToken = SharedPreferencesManager.readDeviceToken();
-
-        LoginActivity.pubnub.addPushNotificationsOnChannels()
-                .pushType(PNPushType.FCM)
-                .deviceId(cachedToken)
-                .channels(Arrays.asList(channels))
-                .async(new PNCallback<PNPushAddChannelResult>() {
-                    @Override
-                    public void onResponse(PNPushAddChannelResult result, PNStatus status) {
-                        // Handle Response
-                    }
-                });
-    }
-
-    public void listRegisteredChannels(){
-        String cachedToken = SharedPreferencesManager.readDeviceToken();
-        LoginActivity.pubnub.auditPushChannelProvisions()
-                .pushType(PNPushType.FCM)
-                .deviceId(cachedToken)
-                .async(new PNCallback<PNPushListProvisionsResult>() {
-                    @Override
-                    public void onResponse(PNPushListProvisionsResult result, PNStatus status) {
-                        // handle response.
-                    }
-                });
-    }
-
-    public void removeExistingRegistrations(){
-        String cachedToken = SharedPreferencesManager.readDeviceToken();
-
-        LoginActivity.pubnub.removePushNotificationsFromChannels()
-                .pushType(PNPushType.FCM)
-                .deviceId(cachedToken)
-                .channels(Arrays.asList("ch1", "ch2", "ch3"))
-                .async(new PNCallback<PNPushRemoveChannelResult>() {
-                    @Override
-                    public void onResponse(PNPushRemoveChannelResult result, PNStatus status) {
-                        // handle response.
-                    }
-                });
-    }
-
-    public void publishPushNotification(String title, String body, String channel){
-        PushPayloadHelper pushPayloadHelper = new PushPayloadHelper();
-        PushPayloadHelper.FCMPayload fcmPayload = new PushPayloadHelper.FCMPayload();
-        PushPayloadHelper.FCMPayload.Notification fcmNotification =
-                new PushPayloadHelper.FCMPayload.Notification()
-                        .setTitle(title)
-                        .setBody(body);
-
-        fcmPayload.setNotification(fcmNotification);
-        pushPayloadHelper.setFcmPayload(fcmPayload);
-
-        Map<String, Object> commonPayload = new HashMap<>();
-        commonPayload.put("text", "John invited you to chat");
-        pushPayloadHelper.setCommonPayload(commonPayload);
-
-        Map<String, Object> pushPayload = pushPayloadHelper.build();
-
-        Publish publish = LoginActivity.pubnub.publish();
-                publish.channel(channel);
-                publish.message(pushPayload);
-
-                publish.async(new PNCallback<PNPublishResult>() {
-                    @Override
-                    public void onResponse(PNPublishResult result, PNStatus status) {
-                        // Handle Response
-                    }
-                });
-
-    }
-
-    public void publish(String channel, String title, String body){
-        PushPayloadHelper pushPayloadHelper = new PushPayloadHelper();
-        PushPayloadHelper.FCMPayload fcmPayload = new PushPayloadHelper.FCMPayload();
-        PushPayloadHelper.FCMPayload.Notification fcmNotification =
-                new PushPayloadHelper.FCMPayload.Notification()
-                        .setTitle(title)
-                        .setBody(body)
-                        .setImage(String.valueOf(R.drawable.ic_stat_ic_notification));
-
-        fcmPayload.setNotification(fcmNotification);
-        pushPayloadHelper.setFcmPayload(fcmPayload);
-
-        Map<String, Object> commonPayload = new HashMap<>();
-        commonPayload.put("text", "John invited you to chat");
-        pushPayloadHelper.setCommonPayload(commonPayload);
-
-        Map<String, Object> pushPayload = pushPayloadHelper.build();
-
-        LoginActivity.pubnub.publish()
-                .message(fcmPayload)
-                .channel(channel)
-                .async(new PNCallback<PNPublishResult>() {
-                    @Override
-                    public void onResponse(PNPublishResult result, PNStatus status) {
-                        //todo: check if ther is a need to handle the response
-                    }
-                });
-    }
 
 
-    public void createChannel() {
-        //  Notification channel should only be created for devices running Android API level 26+.
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        NotificationChannel chan1 = new NotificationChannel(
-                "Notifications",
-                "Notifications",
-                NotificationManager.IMPORTANCE_DEFAULT);
 
-        chan1.setLightColor(Color.TRANSPARENT);
-        chan1.setLockscreenVisibility(Notification.VISIBILITY_SECRET);
-        notificationManager.createNotificationChannel(chan1);
-    }
 
-    public void initPubnub() {
-        PNConfiguration pnConfiguration = new PNConfiguration();
-        pnConfiguration.setPublishKey("pub-c-8ab55658-b7b2-4ac8-b099-cda6fdacf791");
-        pnConfiguration.setSubscribeKey("sub-c-35c44032-5a46-11ec-a2d9-0639f9732331");
-        pnConfiguration.setSecure(true);
-
-        LoginActivity.pubnub = new PubNub(pnConfiguration);
-    }
-    private void sendRegistrationToPubNub(String token/*, LocalUser user*/) {
-        System.out.println("new token received");
-
-        LoginActivity.pubnub.addPushNotificationsOnChannels()
-                .pushType(PNPushType.FCM)
-                .channels(Arrays.asList("Notifications"))
-                .deviceId(token)
-                .async(new PNCallback<PNPushAddChannelResult>() {
-                    @Override
-                    public void onResponse(PNPushAddChannelResult result, PNStatus status) {
-                        Log.d("PUBNUB", "-->PNStatus.getStatusCode = " + status.getStatusCode());
-                    }
-                });
-    }
 
     public void ConnectToDefaultDevice(){
 
@@ -284,7 +104,6 @@ protected void onStart() {
     @Override
     public void onStop() {
         super.onStop();
-        //mAuth.signOut();
     }
 
     private void configureButtons() {
