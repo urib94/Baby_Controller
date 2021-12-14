@@ -33,7 +33,9 @@ public class AdministerFoodActivity extends AppCompatActivity {
         .addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                AdministerFoodActivity.this.feedingThred.feedingComplete = true;
+                if (AdministerFoodActivity.this.feedingThred != null) {
+                    AdministerFoodActivity.this.feedingThred.feedingComplete = true;
+                }
 
             }
 
@@ -58,9 +60,8 @@ public class AdministerFoodActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(FeedingActivity2.babyToFeed != null) {
-                    // TODO: 12/10/2021 set not equal to 0 insted of -1
-                    if(!measuredWight.getText().toString().equals("-1")){
-                        FeedingActivity2.babyToFeed.eatingNextMeal((int) 50);
+                    if(!measuredWight.getText().toString().equals("0")){
+                        FeedingActivity2.babyToFeed.eatingNextMeal(Integer.parseInt(measuredWight.getText().toString()));
                         toastMessage(FeedingActivity2.babyToFeed.getName() + "ate " + String.valueOf(Config.getFoodAmount()) + " mL");
 //                        String[] msg = new String[4];
 //                        msg[0] = "Yamm!!";

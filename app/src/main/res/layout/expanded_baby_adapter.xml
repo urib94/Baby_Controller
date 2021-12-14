@@ -1,33 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-
-    android:gravity="center"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
     <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:id="@+id/tv_baby_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="15sp" />
+        android:textSize="25sp" />
+
 
     <TextView
-        android:id="@+id/tv_baby_parent_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="15sp" />
+        android:id="@+id/baby_recommended_amount"
+        android:textSize="17sp"/>
 
     <TextView
-        android:id="@+id/tv_recommended_amount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="15sp" />
-
+        android:id="@+id/age_in_months"
+        android:textSize="17sp"/>
     <TextView
-        android:id="@+id/tv_time_to_eat"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="15sp" />
-
+        android:id="@+id/tv_wight"
+        android:textSize="17sp"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/time_between_meals"
+        android:textSize="17sp"/>
 </LinearLayout>

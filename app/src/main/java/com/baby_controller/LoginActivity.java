@@ -12,10 +12,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.baby_controller.src.Baby;
 import com.baby_controller.src.Config;
+import com.baby_controller.src.Institution;
 import com.baby_controller.src.LocalUser;
 import com.baby_controller.src.Manager1;
+import com.baby_controller.src.Meal;
 import com.baby_controller.src.Parent;
+import com.baby_controller.src.util.cloudMessgaging.Notify;
+import com.baby_controller.src.util.cloudMessgaging.SharedPreferencesManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
@@ -28,14 +33,16 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.pubnub.api.PubNub;
 
+import java.sql.Time;
 import java.util.Objects;
 
 public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private static final String TAG = "LoginActivity";
-
+    public static PubNub pubnub; // PubNub instance
 
     //add Firebase Database stuff
     private FirebaseDatabase mFirebaseDatabase;
@@ -56,6 +63,7 @@ public class LoginActivity extends AppCompatActivity {
         FirebaseApp.initializeApp(getApplicationContext());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_activity);
+        SharedPreferencesManager.init(this);
         mAuth = FirebaseAuth.getInstance();
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         myRef = mFirebaseDatabase.getReference().child("Users");
@@ -110,11 +118,58 @@ public class LoginActivity extends AppCompatActivity {
 
 
 
+
     private void updateUI() {
+
         Intent intent = new Intent(this,MainActivity.class);
         startActivity(intent);
         finish();
 
+    }
+
+    private void setChildrenListeners() {
+        if(Config.getCurrentUser().getUserType() == LocalUser.UserType.PARENT){
+            DatabaseReference myRef = FirebaseDatabase.getInstance().getReference();
+            for(Baby baby:((Parent)Config.getCurrentUser()).getChildren()) {
+
+                myRef.child("Users").child(userUID).child("children").child(String.valueOf(baby.getIndexInParent()))
+                        .child("history").addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+
+                    @Override
+                    public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                        Meal meal;
+                        try {
+                            meal = snapshot.getValue(Meal.class);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            return;
+                        }
+                        assert meal != null;
+                        Time time = new Time(meal.getWhenEaten());
+                        Notify.build(getApplicationContext())
+                                .setTitle("Yamm!")
+                                .setContent(baby.getName() + " just eat " + meal.getReceivedAmount() +
+                                        "at " + time.getHours() + ":" + time.getMinutes())
+                                .setSmallIcon(R.drawable.ic_stat_ic_notification)
+                                .setLargeIcon(R.drawable.ic_stat_ic_notification)
+                                .largeCircularIcon()
+                                .setColor(R.color.browser_actions_divider_color)
+                                .show();
+                    }
+
+                    @Override
+                    public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
+
+                    @Override
+                    public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {}
+                });
+            }
+        }
     }
 
     public void setUpButtons() {
@@ -154,61 +209,86 @@ public class LoginActivity extends AppCompatActivity {
         if (!mail.equals("") && !pass.equals("")){
             mAuth.signInWithEmailAndPassword(mail, pass)
                     .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
-                    if (task.isSuccessful()) {
-                        // Sign in success, update UI with the signed-in user's information
-                        Log.d("login success", "signInWithEmail:success");
-                        userUID = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                // Sign in success, update UI with the signed-in user's information
+                                Log.d("login success", "signInWithEmail:success");
+                                userUID = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
 
-                        myRef.getRoot().addChildEventListener(new ChildEventListener() {
-                           @Override
-                           public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                               for (DataSnapshot snap : snapshot.getChildren()) {
-                                   if (Objects.equals(snap.getKey(), userUID)) {
-                                       try {
-                                           LocalUser localUser = snap.getValue(LocalUser.class);
-                                           if (snap.getValue(LocalUser.class).getUserType() == LocalUser.UserType.MANAGER) {
-                                               Config.setCurrentUser(snap.getValue(Manager1.class));
-                                               Log.i(TAG, "update local user to a manger");
-                                               updateUI();
-                                               return;
-                                           } else {
-                                               Config.setCurrentUser(snap.getValue(Parent.class));
-                                               Log.i(TAG, "update local user to a parent");
-                                               updateUI();
-                                               return;
-                                           }
-                                       } catch (Exception e) {
-                                           e.printStackTrace();
-                                       }
-                                   }
-                               }
-                           }
+                                myRef.getRoot().child("Users").addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                           @Override
-                           public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) { }
-                           @Override
-                           public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
-                           @Override
-                           public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+                                        System.out.println(snapshot.toString());
+                                        for (DataSnapshot snap : snapshot.getChildren()) {
+                                            System.out.println("key in login loop = " + snap.getKey());
+                                            if (Objects.equals(snap.getKey(), userUID)) {
+                                                try {
+                                                    LocalUser localUser = snap.getValue(LocalUser.class);
+                                                    if (snap.getValue(LocalUser.class).getUserType() == LocalUser.UserType.MANAGER) {
+                                                        Config.setCurrentUser(snap.getValue(Manager1.class));
+                                                        Log.i(TAG, "update local user to a manger");
 
-                           @Override
-                           public void onCancelled(@NonNull DatabaseError error) { }
+                                                    } else {
+                                                        Parent parent = snap.getValue(Parent.class);
+                                                        Config.setCurrentUser(parent);
+
+                                                        Log.i(TAG, "update local user to a parent");
+                                                    }
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError error) { }
 
 
-                   });
-                } else {
-                    // If sign in fails, display a message to the user.
-                    Log.w(TAG, "signInWithEmail:failure", task.getException());
-                    Toast.makeText(LoginActivity.this, "error, try different email or password",
-                            Toast.LENGTH_SHORT).show();
-                }
-                    myRef.getRoot().child("Users").child("trigger").setValue(" ");
-                    myRef.getRoot().child("Users").child("trigger").setValue(null);
-            }
+                                });
+                                myRef.getRoot().child("Institutions").addListenerForSingleValueEvent(new ValueEventListener() {
 
-        });
+
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                        for(DataSnapshot snap : snapshot.getChildren()){
+                                            if(Objects.equals(snap.getKey(), Config.getCurrentUser().getInstitutionName())){
+                                                Institution tmp = null;
+                                                try {
+                                                    tmp = snap.getValue(Institution.class);
+                                                }catch (Exception e){
+                                                    e.printStackTrace();
+                                                }
+                                                if(tmp != null) {
+                                                    Config.setCurrInst(snap.getValue(Institution.class));
+                                                }
+                                                System.out.println("curr institute = " + tmp.toString());
+                                            }
+                                        }
+                                        setChildrenListeners();
+                                        myRef = FirebaseDatabase.getInstance().getReference();
+                                        updateUI();
+                                    }
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError error) {
+
+                                    }
+                                });
+
+
+
+                            } else {
+                                // If sign in fails, display a message to the user.
+                                Log.w(TAG, "signInWithEmail:failure", task.getException());
+                                Toast.makeText(LoginActivity.this, "error, try different email or password",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+
+                        }
+
+                    });
 
         }else {
             toastMessage("You didn't fill in all the fields");
@@ -254,14 +334,7 @@ public class LoginActivity extends AppCompatActivity {
         return Config.getCurrentUser();
     }
 
-    public void getit(DataSnapshot dataSnapshot){
-        LocalUser localUser = new LocalUser("s","s","s", LocalUser.UserType.MANAGER);
-        for (DataSnapshot ds : dataSnapshot.getChildren()) {
-            if (ds.getKey().equals(mAuth.getCurrentUser().getUid())) {
-                Config.setCurrentUser(ds.getValue(LocalUser.class));
-                break;
-            }
-        }
 
-    }
+
+
 }

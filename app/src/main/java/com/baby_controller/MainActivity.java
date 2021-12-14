@@ -114,6 +114,10 @@ protected void onStart() {
         }
 
         Button addBaby = (Button) findViewById(R.id.goto_add_baby);
+        Button allTheBabies = findViewById(R.id.main_all_babies);
+        if(Config.getCurrentUser().getUserType() == LocalUser.UserType.MANAGER){
+            allTheBabies.setText(R.string.Kindergarten_all_babies_title);
+        }
 
         addBaby.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -164,6 +168,13 @@ protected void onStart() {
             }
         });
 
+        allTheBabies.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, AllBabyActivity.class);
+                startActivity(intent);
+            }
+        });
 
     }
 

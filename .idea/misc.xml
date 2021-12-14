@@ -8,20 +8,24 @@
         <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout-ldltr-port/add_baby.xml" value="0.2421875" />
         <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout-port/add_baby.xml" value="0.16666666666666666" />
         <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/activity_feeding.xml" value="0.19365079365079366" />
-        <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/activity_main.xml" value="0.22" />
+        <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/activity_main.xml" value="0.14666666666666667" />
         <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/activity_main2.xml" value="0.4466666666666667" />
         <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/activity_manger_main.xml" value="0.1" />
         <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/activity_register.xml" value="0.26197916666666665" />
         <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/add_baby.xml" value="0.2421875" />
         <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/administer_food_activity.xml" value="0.4466666666666667" />
+        <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/all_baby_actitivity.xml" value="0.2953125" />
         <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/app_bar_main.xml" value="0.18697916666666667" />
         <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/baby_adapter_view.xml" value="0.19791666666666666" />
+        <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/baby_card_layout.xml" value="0.22" />
         <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/bluetooth_activity.xml" value="0.1" />
         <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/choos_baby_to_feed.xml" value="0.21197916666666666" />
         <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/content_main.xml" value="0.18697916666666667" />
         <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/content_manger_main.xml" value="0.18125" />
         <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/device_adapter_view.xml" value="0.19791666666666666" />
+        <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/expanded_baby_adapter.xml" value="0.2911458333333333" />
         <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/feeding_activity.xml" value="0.29010416666666666" />
+        <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/feeding_history_layout.xml" value="0.2911458333333333" />
         <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/fragment_dashboard.xml" value="0.22146739130434784" />
         <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/fragment_emailpassword.xml" value="0.26197916666666665" />
         <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/fragment_first.xml" value="0.18125" />
@@ -30,8 +34,9 @@
         <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/fragment_notifications.xml" value="0.22146739130434784" />
         <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/fragment_second.xml" value="0.18125" />
         <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/fragment_slideshow.xml" value="0.18697916666666667" />
-        <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/login_activity.xml" value="0.1" />
+        <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/login_activity.xml" value="0.4466666666666667" />
         <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/manager_mange_institute.xml" value="0.19791666666666666" />
+        <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/meal_adapter_view.xml" value="0.4466666666666667" />
         <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/nav_header_main.xml" value="0.18697916666666667" />
         <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/noti_reciver.xml" value="0.1" />
         <entry key="..\:/Users/Uri/AndroidStudioProjects/Baby_Controller2/app/src/main/res/layout/notification.xml" value="0.190625" />

@@ -149,7 +149,8 @@ public class Parent extends LocalUser {
         for(Baby baby: children){
             Meal last = baby.history.get(baby.history.size() -1);
             Time now = new Time(System.currentTimeMillis());
-            if (last.getTimeToEat() != 0 && now.before(new Time(last.getTimeToEat()))){
+            System.out.println(baby.getName() + " last meal Time to eat " + new Time(last.getTimeToEat()).getHours() + ":" + new Time(last.getTimeToEat()).getMinutes());
+            if (now.before(new Time(last.getTimeToEat()))){
                 babiesDontNeedToFeed.add(baby);
             }
         }

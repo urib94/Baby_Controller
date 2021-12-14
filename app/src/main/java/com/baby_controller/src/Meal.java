@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -68,16 +69,16 @@ public class Meal {
         timeToEat = time;
     }
 
-    public void calcTimeToEat(Meal prevMealNode){
+    public void calcTimeToEat(Meal prevMealNode, long timeBetween){
         if(prevMealNode == null) {
             this.timeToEat = Config.DEFAULT_BREAKFAST_TIME;
             return;
         }
         if(this.isEaten() != 1){
             if(prevMealNode.isEaten() == 1) {
-                this.timeToEat = (prevMealNode.whenEaten + Config.TIME_BETWEEN_MEALS);
+                this.timeToEat = (prevMealNode.whenEaten + timeBetween);
             }
-            else this.timeToEat = (prevMealNode.timeToEat + Config.TIME_BETWEEN_MEALS);
+            else this.timeToEat = (prevMealNode.timeToEat + timeBetween);
         }
     }
 
@@ -129,15 +130,18 @@ public class Meal {
     @NonNull
     @Override
     public String toString() {
-        return  "\nrecommendedAmount=" + recommendedAmount +
+        return  "recommendedAmount=" + recommendedAmount +
                 ",receivedAmount=" + receivedAmount +
                 ",whenEaten=" + whenEaten +
                 ",timeToEat=" + timeToEat +
-                ",eaten=" + eaten+ "/n" ;
+                ",eaten=" + eaten + "\n" ;
 
     }
 
 
+    public static ArrayList<Meal> hashMapToArrayList(HashMap<String,Meal> hashMap){
+        return new ArrayList<Meal>(hashMap.values());
+    }
 
 
     public void setReceivedAmount(int receivedAmount) {

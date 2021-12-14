@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+
+
+    android:layout_height="match_parent"
+    tools:context=".AllBabyActivity">
+
+
+    <TextView
+        android:id="@+id/all_the_babies"
+        android:layout_width="match_parent"
+        android:layout_height="61dp"
+        android:fontFamily="sans-serif-black"
+        android:gravity="center"
+        android:text="@string/my_family"
+        android:textAllCaps="false"
+        android:textSize="40sp"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/all_babies_list_of_babies"
+        />
+
+    <ListView
+        android:id="@+id/all_babies_list_of_babies"
+        android:layout_width="match_parent"
+        android:layout_height="665dp"
+        android:foregroundGravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.955" />
+
+</LinearLayout>

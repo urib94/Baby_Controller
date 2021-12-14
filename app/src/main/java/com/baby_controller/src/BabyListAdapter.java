@@ -35,6 +35,7 @@ public class BabyListAdapter extends ArrayAdapter<Baby> {
             TextView babyName = (TextView) convertView.findViewById(R.id.tv_baby_name);
             TextView recommendedAmount = (TextView) convertView.findViewById(R.id.tv_recommended_amount);
             TextView timeToEat = (TextView) convertView.findViewById(R.id.tv_time_to_eat);
+            TextView parentName = (TextView)  convertView.findViewById(R.id.tv_baby_parent_name);
 
             if (babyName != null) {
                 babyName.setText(baby.getName());
@@ -47,6 +48,7 @@ public class BabyListAdapter extends ArrayAdapter<Baby> {
                 timeToEat.setText(time.getHours() + ":" + time.getMinutes());
 
             }
+            parentName.setText(baby.getParentName());
         }
 
         return convertView;

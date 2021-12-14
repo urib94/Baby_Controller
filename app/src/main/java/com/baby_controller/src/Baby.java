@@ -21,6 +21,7 @@ public  class Baby {
     private int recommendedAmountOfMeals = 0;
     private int recommendedAmountPerMeal = 0;
     private int indexInParent;
+    private long timeBetweenMeals = Config.TIME_BETWEEN_MEALS;
 
     public Baby(){}
 
@@ -40,16 +41,14 @@ public  class Baby {
         this.recommendedAmountPerMeal =  (int) ((double)(weight * 150 / 8));;
     }
 
-    public void set_recommendedAmountOfMeals(int ageInMonths) {
+    public void set_recommendedAmountOfMeals() {
         if (ageInMonths <= 1) {
             recommendedAmountOfMeals = 12;
         } else if (ageInMonths <= 6) {
             recommendedAmountOfMeals = 15;
         } else if (ageInMonths <= 9) {
             recommendedAmountOfMeals = 5;
-        }
-        recommendedAmountOfMeals = 4;
-        // TODO: 10/21/2021 dasdasdasda
+        }else recommendedAmountOfMeals = 4;
     }
 
     public void eatingNextMeal(int amount) {
@@ -84,7 +83,10 @@ public  class Baby {
     private void createNextMeal() {
         history.add(new Meal(recommendedAmountPerMeal));
         history.get(history.size() - 1).setEaten(-1);
-        history.get(history.size() - 1).calcTimeToEat(history.get(history.size() - 2));
+        if(history.get(history.size() - 2).getWhenEaten() < history.get(history.size() - 2).getTimeToEat()) {
+            history.get(history.size() - 1).calcTimeToEat(history.get(history.size() - 2), timeBetweenMeals);
+        }
+        else history.get(history.size() - 1).setTimeToEat(System.currentTimeMillis() + timeBetweenMeals);
     }
 
 
@@ -195,6 +197,14 @@ public  class Baby {
         }
         System.out.println("months = " + months);
         ageInMonths =  months;
+
+        set_recommendedAmountOfMeals();
+        calculateTimeBetweenMeals();
+    }
+
+    private void calculateTimeBetweenMeals() {
+        long day = (1000 * 60 * 60 * 24);
+        timeBetweenMeals = day / (long)recommendedAmountOfMeals;
     }
 
 
@@ -225,5 +235,13 @@ public  class Baby {
 
     public void setRegistrationToken(String registrationToken) {
         this.registrationToken = registrationToken;
+    }
+
+    public long getTimeBetweenMeals() {
+        return timeBetweenMeals;
+    }
+
+    public void setTimeBetweenMeals(long timeBetweenMeals) {
+        this.timeBetweenMeals = timeBetweenMeals;
     }
 }

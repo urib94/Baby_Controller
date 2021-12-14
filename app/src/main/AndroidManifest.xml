@@ -44,7 +44,7 @@
         <activity
             android:name=".RegisterActivity"
             android:exported="true"
-            android:parentActivityName=".MainActivity"/>
+            android:parentActivityName=".LoginActivity"/>
         <activity
             android:name=".FeedingActivity2"
             android:exported="true"
@@ -56,7 +56,16 @@
             android:exported="true"
             android:parentActivityName=".MainActivity"/>
         <activity android:name=".AdministerFoodActivity"
+            android:parentActivityName=".FeedingActivity2"
             android:exported="true"/>
+
+        <activity android:name=".AllBabyActivity"
+            android:parentActivityName=".MainActivity"
+            android:exported="true"/>
+        <activity android:name=".BabyInfoCardActivity"
+            android:parentActivityName=".AllBabyActivity"
+            android:exported="true"/>
+
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
@@ -69,13 +78,7 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/white" />
-        <service
-            android:name=".src.util.cloudMessgaging.MyFirebaseMessagingService1"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
+
 
     </application>
 
