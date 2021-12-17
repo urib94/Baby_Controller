@@ -21,15 +21,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
+    <EditText
         android:id="@+id/measured_wight"
         android:layout_width="222dp"
         android:layout_height="90dp"
         android:layout_marginStart="96dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="93dp"
+        android:editable="true"
         android:fontFamily="sans-serif-medium"
         android:gravity="center"
+        android:importantForAutofill="no"
+        android:inputType="number"
         android:text="TextView"
         android:textSize="40sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -44,7 +47,29 @@
         android:textAllCaps="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.846"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.857" />
+
+    <Switch
+        android:id="@+id/manually"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enter manually"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.22"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/measured_wight"
+        app:layout_constraintVertical_bias="0.794" />
+
+    <ImageView
+        android:id="@+id/imageView5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/eating_baby"
+        tools:layout_editor_absoluteX="104dp"
+        tools:layout_editor_absoluteY="276dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

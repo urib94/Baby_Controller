@@ -3,6 +3,7 @@ package com.baby_controller;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +21,7 @@ public class AdministerFoodActivity extends AppCompatActivity {
     private static final String TAG = "Administer Food";
     protected TextView measuredWight;
     FeedingThred feedingThred;
+    private Switch enterManually;
 
 
     @Override
@@ -60,7 +62,10 @@ public class AdministerFoodActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(FeedingActivity2.babyToFeed != null) {
-                    if(!measuredWight.getText().toString().equals("0")){
+                    if(enterManually.isChecked()){
+                        FeedingActivity2.babyToFeed.eatingNextMeal(Integer.parseInt(measuredWight.getText().toString()));
+                    }
+                    else if(!measuredWight.getText().toString().equals("0")){
                         FeedingActivity2.babyToFeed.eatingNextMeal(Integer.parseInt(measuredWight.getText().toString()));
                         toastMessage(FeedingActivity2.babyToFeed.getName() + "ate " + String.valueOf(Config.getFoodAmount()) + " mL");
 //                        String[] msg = new String[4];
@@ -81,6 +86,8 @@ public class AdministerFoodActivity extends AppCompatActivity {
         });
         feedingThred = new FeedingThred();
         measuredWight.setText(String.valueOf(Config.getFoodAmount()));
+
+        enterManually = findViewById(R.id.manually);
 
 
     }

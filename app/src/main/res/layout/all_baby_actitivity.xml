@@ -1,40 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout6"
+
+
     android:layout_width="match_parent"
-    android:orientation="vertical"
-
-
     android:layout_height="match_parent"
     tools:context=".AllBabyActivity">
 
 
-    <TextView
-        android:id="@+id/all_the_babies"
-        android:layout_width="match_parent"
-        android:layout_height="61dp"
-        android:fontFamily="sans-serif-black"
-        android:gravity="center"
-        android:text="@string/my_family"
-        android:textAllCaps="false"
-        android:textSize="40sp"
-
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/all_babies_list_of_babies"
-        />
-
-    <ListView
-        android:id="@+id/all_babies_list_of_babies"
-        android:layout_width="match_parent"
-        android:layout_height="665dp"
-        android:foregroundGravity="center"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/second_lay"
+        android:layout_width="394dp"
+        android:layout_height="786dp"
+        android:background="@drawable/baby_fram1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.955" />
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent">
 
-</LinearLayout>
+        <ListView
+            android:id="@+id/all_babies_list_of_babies"
+            android:layout_width="267dp"
+            android:layout_height="498dp"
+            android:background="@drawable/babies_fram_res"
+            android:foregroundGravity="center|fill"
+            android:foregroundTint="#00FFFFFF"
+            android:foregroundTintMode="add"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.503"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+        </ListView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

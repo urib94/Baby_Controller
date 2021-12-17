@@ -114,6 +114,7 @@
             android:layout_below="@+id/paired_btn"
             android:layout_alignEnd="@+id/off"
             android:layout_alignRight="@+id/off"
+            android:background="@drawable/baby_wight"
             android:choiceMode="singleChoice" />
 
 
