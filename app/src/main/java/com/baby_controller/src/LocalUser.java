@@ -24,6 +24,8 @@ public class LocalUser  {
     protected String password;
     protected String uid;
     protected String defaultDeviceAddress = null;
+    private String deviceName = "";
+
 
 
     public LocalUser(){}
@@ -256,6 +258,14 @@ public class LocalUser  {
         this.uid = uid;
     }
 
+    public void setBaseAddress(String deviceAddress) {
+        this.defaultDeviceAddress = deviceAddress;
+    }
+
+    public void setBaseName(String deviceName) {
+        this.deviceName = deviceName;
+        updateInDb();
+    }
 
 
     public enum UserType{
@@ -303,6 +313,7 @@ public class LocalUser  {
         ref.child("defaultDevice").setValue((Object) defaultDeviceAddress);
         ref.child("uid").setValue(uid);
         ref.child("registrationToken").setValue(registrationToken);
+        ref.child("deviceName").setValue(deviceName);
         if(userType == UserType.PARENT){
             if(((Parent)this).getChildren().size() >= 1){
                 ref.child("children").child("0").setValue(((Parent) this).children.get(0));

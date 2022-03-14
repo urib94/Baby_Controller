@@ -50,7 +50,7 @@ public class BluetoothConnectionManager extends AppCompatActivity {
     private CheckBox chooseDefault;
 
 
-    private Handler mHandler; // Our main handler that will receive callback notifications
+    public Handler mHandler; // Our main handler that will receive callback notifications
     private ConnectedThread mConnectedThread; // bluetooth background worker thread to send and receive data
     private static BluetoothSocket mBTSocket = null; // bi-directional client-to-client data path
 
@@ -83,6 +83,7 @@ public class BluetoothConnectionManager extends AppCompatActivity {
         mDevicesListView = (ListView)findViewById(R.id.devicesListView);
         mDevicesListView.setAdapter(mBTArrayAdapter); // assign model to view
         mDevicesListView.setOnItemClickListener(mDeviceClickListener);
+        TextView amount = findViewById(R.id.measured_wight);
         //start feedingActivity
 
 
@@ -106,6 +107,8 @@ public class BluetoothConnectionManager extends AppCompatActivity {
                     String readMessage = null;
                     readMessage = new String((byte[]) msg.obj, StandardCharsets.UTF_8);
                     mReadBuffer.setText(readMessage);
+//                    String tmp = readMessage;
+//                    Config.setFoodAmount(parseMessage(readMessage));
                 }
 
                 if(msg.what == CONNECTING_STATUS){
@@ -116,6 +119,9 @@ public class BluetoothConnectionManager extends AppCompatActivity {
                 }
             }
         };
+
+
+
 
         if (mBTArrayAdapter == null) {
             // Device does not support Bluetooth
@@ -152,6 +158,30 @@ public class BluetoothConnectionManager extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    private double parseMessage(String readMessage) {
+        char c = 0;
+        double val = 0.1;
+        boolean frac = false;
+        for (int i = 0; i < readMessage.length(); i++) {
+            c = readMessage.charAt(i);
+            if (c >= 48 && c <= 57 ) {
+                double aDouble = Double.parseDouble(String.valueOf(readMessage.charAt(i)));
+                if(!frac) {
+                    double tmp = aDouble;
+                    val *= 10;
+                    val += tmp;
+                }else{
+                    val += aDouble / 10;
+                }
+            }
+            if(c == '.'){
+                frac = true;
+            }
+
+        }
+        return val;
     }
 
     private void bluetoothOn(View view){
@@ -237,75 +267,85 @@ public class BluetoothConnectionManager extends AppCompatActivity {
     private final AdapterView.OnItemClickListener mDeviceClickListener = new AdapterView.OnItemClickListener() {
         public void onItemClick(AdapterView<?> av, View v, int arg2, long arg3) {
 
-            if(!mBTAdapter.isEnabled()) {
+            if (!mBTAdapter.isEnabled()) {
+                Toast.makeText(getBaseContext(), "Bluetooth is off, turn it on", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (!mBTAdapter.isEnabled()) {
                 Toast.makeText(getBaseContext(), "Bluetooth not on", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            if(!mBTAdapter.isEnabled()) {
-                Toast.makeText(getBaseContext(), "Bluetooth not on", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            mBluetoothStatus.setText("Connecting...");
+            mBluetoothStatus.setText(R.string.connecting);
             // Get the device MAC address, which is the last 17 chars in the View
             String info = ((TextView) v).getText().toString();
             final String address = info.substring(info.length() - 17);
-            final String name = info.substring(0,info.length() - 17);
-
-            // Spawn a new thread to avoid blocking the GUI one
-            new Thread()
-            {
-                @Override
-                public void run() {
-                    boolean fail = false;
-
-                    BluetoothDevice device;
-
-
-                    if(Config.getCurrentUser().getDefaultDeviceAddress() == null) {
-                        device = mBTAdapter.getRemoteDevice(address);
-                    }else {
-                        device = Config.getDefaultDevice();
-                    }
-
-                    try {
-
-                        mBTSocket = createBluetoothSocket(device);
-                    } catch (IOException e) {
-                        fail = true;
-                        Toast.makeText(getBaseContext(), "Socket creation failed", Toast.LENGTH_SHORT).show();
-                    }
-                    // Establish the Bluetooth socket connection.
-                    try {
-                        mBTSocket.connect();
-                    } catch (IOException e) {
-                        try {
-                            fail = true;
-                            mBTSocket.close();
-                            mHandler.obtainMessage(CONNECTING_STATUS, -1, -1)
-                                    .sendToTarget();
-                        } catch (IOException e2) {
-                            //insert code to deal with this
-                            Toast.makeText(getBaseContext(), "Socket creation failed", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                    if(fail == false) {
-                        mConnectedThread = new ConnectedThread(mBTSocket);
-                        mConnectedThread.start();
-
-                        mHandler.obtainMessage(CONNECTING_STATUS, 1, -1, name)
-                                .sendToTarget();
-                    }
-
-                    if(chooseDefault.isChecked()) {
-                        Config.getCurrentUser().setDefaultDeviceAddress(mBTSocket.getRemoteDevice().getAddress());
-                    }
-                }
-            }.start();
+            final String name = info.substring(0, info.length() - 17);
+            Config.getCurrentUser().setDefaultDeviceAddress(address);
+            Config.setBaseName(name);
+            startConnection(address, name);
 
         }
+
     };
+
+    public void startConnection(String address, String name) {
+        // Spawn a new thread to avoid blocking the GUI one
+        new Thread() {
+            @Override
+            public void run() {
+                boolean fail = false;
+
+                BluetoothDevice device;
+
+
+                if (Config.getCurrentUser().getDefaultDeviceAddress() == null) {
+                    device = mBTAdapter.getRemoteDevice(address);
+                    Config.setBaseAddress(address);
+                    Config.setBaseName(name);
+                } else {
+                    device = Config.getDefaultDevice();
+                }
+
+                try {
+
+                    assert device != null;
+                    mBTSocket = createBluetoothSocket(device);
+                    Config.setBtSocket(mBTSocket);
+                } catch (IOException e) {
+                    fail = true;
+                    Toast.makeText(getBaseContext(), "Socket creation failed", Toast.LENGTH_SHORT).show();
+                }
+                // Establish the Bluetooth socket connection.
+                try {
+                    mBTSocket.connect();
+                } catch (IOException e) {
+                    try {
+                        fail = true;
+                        mBTSocket.close();
+                        mHandler.obtainMessage(CONNECTING_STATUS, -1, -1)
+                                .sendToTarget();
+                    } catch (IOException e2) {
+                        //insert code to deal with this
+                        Toast.makeText(getBaseContext(), "Socket creation failed", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                if (fail == false) {
+                    mConnectedThread = new ConnectedThread(mBTSocket);
+                    mConnectedThread.start();
+
+                    mHandler.obtainMessage(CONNECTING_STATUS, 1, -1, name)
+                            .sendToTarget();
+                }
+
+                if (chooseDefault.isChecked()) {
+                    Config.getCurrentUser().setDefaultDeviceAddress(mBTSocket.getRemoteDevice().getAddress());
+                    Config.getCurrentUser().setBaseName(name);
+                }
+            }
+        }.start();
+    }
 
     // Spawn a new thread to avoid blocking the GUI one
     public void establishConnection(String address, String name){
@@ -357,7 +397,7 @@ public class BluetoothConnectionManager extends AppCompatActivity {
         //creates secure outgoing connection with BT device using UUID
     }
 
-    private class ConnectedThread extends Thread {
+    public class ConnectedThread extends Thread {
         private final BluetoothSocket mmSocket;
         private final InputStream mmInStream;
 
@@ -412,7 +452,7 @@ public class BluetoothConnectionManager extends AppCompatActivity {
     public void start_feeding_activity() {
         // if connected to a bluetooth device named "baby-controller"
         if(mConnectedThread != null) {
-            if(mConnectedThread.getName().equals(Config.getDefaultDevice().getName())){
+            if(mConnectedThread.getName().equals(Config.getDefaultDevice().getName()) ){
                 Intent intent = new Intent(this, FeedingActivity2.class);
                 startActivity(intent);
             }

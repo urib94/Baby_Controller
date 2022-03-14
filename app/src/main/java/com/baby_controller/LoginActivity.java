@@ -62,14 +62,14 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         FirebaseApp.initializeApp(getApplicationContext());
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.login_activity);
-        SharedPreferencesManager.init(this);
         mAuth = FirebaseAuth.getInstance();
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         myRef = mFirebaseDatabase.getReference().child("Users");
         FirebaseUser user = mAuth.getCurrentUser();
-//        userID = user.getUid();
+        userLoggedIn();
 
+        SharedPreferencesManager.init(this);
+//        userID = user.getUid();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -113,10 +113,80 @@ public class LoginActivity extends AppCompatActivity {
     public void onStart() {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
+    }
+
+    @Override
+    public void onRestart() {
+        super.onRestart();
+        mAuth.addAuthStateListener(mAuthListener);
         setUpButtons();
     }
 
+    public void userLoggedIn(){
+        if(mAuth.getCurrentUser() != null){
+            userUID = mAuth.getUid();
+            System.out.println("user is logged in");
+            myRef.getRoot().child("Users").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    LocalUser tmp = snapshot.child(Objects.requireNonNull(mAuth.getUid())).getValue(LocalUser.class);
+                    if(tmp.getUserType() == LocalUser.UserType.PARENT){
+                        Parent parent = snapshot.child(Objects.requireNonNull(mAuth.getUid())).getValue(Parent.class);
+                        Config.setCurrentUser(parent);
+                    }else {
+                        Manager1 man = snapshot.child(Objects.requireNonNull(mAuth.getUid())).getValue(Manager1.class);
+                        Config.setCurrentUser(man);
+                    }
+                    getInstitute();
+                    Config.setCurrUserRef(snapshot.child(Objects.requireNonNull(mAuth.getUid())).getRef());
+                    System.out.println("logged in user = " + Config.getCurrentUser());
+                }
 
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+            myRef.getRoot().child("Users").child("trigger").setValue("trigger");
+            myRef.getRoot().child("Users").child("trigger").setValue(null);
+
+        }else{
+            setContentView(R.layout.login_activity);
+            setUpButtons();
+        }
+    }
+
+
+    private void getInstitute(){
+        myRef.getRoot().child("Institutions").addListenerForSingleValueEvent(new ValueEventListener() {
+
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot snap : snapshot.getChildren()){
+                    if(Objects.equals(snap.getKey(), Config.getCurrentUser().getInstitutionName())){
+                        Institution tmp = null;
+                        try {
+                            tmp = snap.getValue(Institution.class);
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+                        if(tmp != null) {
+                            Config.setCurrInst(snap.getValue(Institution.class));
+                        }
+                        System.out.println("curr institute = " + tmp.toString());
+                    }
+                }
+                setChildrenListeners();
+                myRef = FirebaseDatabase.getInstance().getReference();
+                updateUI();
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
 
 
     private void updateUI() {
@@ -215,7 +285,6 @@ public class LoginActivity extends AppCompatActivity {
                                 // Sign in success, update UI with the signed-in user's information
                                 Log.d("login success", "signInWithEmail:success");
                                 userUID = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
-
                                 myRef.getRoot().child("Users").addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -248,34 +317,8 @@ public class LoginActivity extends AppCompatActivity {
 
 
                                 });
-                                myRef.getRoot().child("Institutions").addListenerForSingleValueEvent(new ValueEventListener() {
+                                getInstitute();
 
-
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                        for(DataSnapshot snap : snapshot.getChildren()){
-                                            if(Objects.equals(snap.getKey(), Config.getCurrentUser().getInstitutionName())){
-                                                Institution tmp = null;
-                                                try {
-                                                    tmp = snap.getValue(Institution.class);
-                                                }catch (Exception e){
-                                                    e.printStackTrace();
-                                                }
-                                                if(tmp != null) {
-                                                    Config.setCurrInst(snap.getValue(Institution.class));
-                                                }
-                                                System.out.println("curr institute = " + tmp.toString());
-                                            }
-                                        }
-                                        setChildrenListeners();
-                                        myRef = FirebaseDatabase.getInstance().getReference();
-                                        updateUI();
-                                    }
-                                    @Override
-                                    public void onCancelled(@NonNull DatabaseError error) {
-
-                                    }
-                                });
 
 
 

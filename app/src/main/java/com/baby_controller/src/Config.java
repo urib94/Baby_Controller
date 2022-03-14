@@ -5,17 +5,23 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 
 import com.baby_controller.src.util.BluetoothConnectionService;
+import com.google.firebase.database.DatabaseReference;
 
 import java.sql.Time;
 
 public class Config {
     public static final int NUM_OF_BYTES = 4;
+    public static final String BT_NAME = "baby-controller";
 
-    private static LocalUser CUUR_USER;
+    private static LocalUser CUUR_USER = null;
 
     private static Institution CURR_INST;
 
+    private static String DEV_ADD = null;
+
     private static Parent CURR_PARENT;
+
+    public static DatabaseReference CurrUserRef = null;
 
     public static double FOOD = 0;
 
@@ -53,7 +59,7 @@ public class Config {
     }
 
     public static synchronized void setCurrentUser(LocalUser user) {
-        // TODO: 12/2/2021 delate next lines
+
         if(user == null){
             System.out.println("attempt to assigned null user");
         }
@@ -61,6 +67,7 @@ public class Config {
             CURR_PARENT = (Parent) user;
         }else CUUR_USER = new LocalUser(user);
     }
+
 
 
     public static synchronized double getFoodAmount(){
@@ -102,8 +109,40 @@ public class Config {
         CURR_INST = currInst;
     }
 
+    public static void setBaseAddress(String deviceAddress) {
+        if(CUUR_USER != null) {
+            CUUR_USER.setDefaultDeviceAddress(deviceAddress);
+        }else if(CURR_PARENT != null){
+            CURR_PARENT.setDefaultDeviceAddress(deviceAddress);
+        }
+    }
 
-    //    public static void updateCurrUserData() {
+    public static String getDevAdd() {
+        return DEV_ADD;
+    }
+
+    public static void setDevAdd(String devAdd) {
+        DEV_ADD = devAdd;
+    }
+
+    public static void setBaseName(String deviceName) {
+        if(CUUR_USER != null) {
+            CUUR_USER.setBaseName(deviceName);
+        }else if(CURR_PARENT != null){
+            CURR_PARENT.setBaseName(deviceName);
+        }
+    }
+
+    public static DatabaseReference getCurrUserRef() {
+        return CurrUserRef;
+    }
+
+    public static void setCurrUserRef(DatabaseReference currUserRef) {
+        CurrUserRef = currUserRef;
+    }
+
+
+//    public static void updateCurrUserData() {
 //        FirebaseDatabase.getInstance().getReference().child("Users").child(getCurrentUser().getUid())
 //                .setValue(getCurrentUser());
 //    }

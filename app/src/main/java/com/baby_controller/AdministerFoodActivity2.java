@@ -31,7 +31,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
-public class AdministerFoodActivity extends AppCompatActivity {
+public class AdministerFoodActivity2 extends AppCompatActivity {
     private BluetoothConnectionManager btManager = new BluetoothConnectionManager();
     private static final String TAG = "Administer Food";
     protected TextView measuredWight;
@@ -130,9 +130,9 @@ public class AdministerFoodActivity extends AppCompatActivity {
         ValueEventListener listener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                address = snapshot.child("defaultDevice").getValue(String.class);
-//                Config.getCurrentUser().setBaseAddress(address);
-//                System.out.println("address1 = " + address);
+                address = snapshot.child("defaultDevice").getValue(String.class);
+                Config.getCurrentUser().setBaseAddress(address);
+                System.out.println("address1 = " + address);
             }
 
             @Override
@@ -143,17 +143,17 @@ public class AdministerFoodActivity extends AppCompatActivity {
         Config.getCurrUserRef().addListenerForSingleValueEvent(listener);
         Config.getCurrUserRef().removeEventListener(listener);
         System.out.println("address = " + Config.getCurrentUser().getDefaultDeviceAddress());
-        if(Config.getDevAdd() != null){
+        if(Config.getCurrentUser().getDefaultDeviceAddress() != null){
             startConnection(Config.getCurrentUser().getDefaultDeviceAddress(),"baby-controller");
             BluetoothAdapter mBTAdapter = BluetoothAdapter.getDefaultAdapter();
-            BluetoothDevice device = mBTAdapter.getRemoteDevice(Config.getDevAdd());
+            BluetoothDevice device = mBTAdapter.getRemoteDevice(Config.getCurrentUser().getDefaultDeviceAddress());
             try {
                 socket = createBluetoothSocket(device);
             } catch (IOException e) {
                 e.printStackTrace();
             }
             assert socket != null;
-            mConnectedThread = new AdministerFoodActivity.ConnectedThread(socket);
+            mConnectedThread = new ConnectedThread(socket);
             mConnectedThread.start();
 
         }
@@ -240,7 +240,7 @@ public class AdministerFoodActivity extends AppCompatActivity {
                     }
                 }
                 if (fail == false) {
-                    mConnectedThread = new AdministerFoodActivity.ConnectedThread(socket);
+                    mConnectedThread = new ConnectedThread(socket);
                     mConnectedThread.start();
 
                     mHandler.obtainMessage(CONNECTING_STATUS, 1, -1, name)
@@ -355,6 +355,6 @@ public class AdministerFoodActivity extends AppCompatActivity {
     }
 
     private void toastMessage(String s) {
-        Toast.makeText(AdministerFoodActivity.this ,s,Toast.LENGTH_SHORT).show();
+        Toast.makeText(this ,s,Toast.LENGTH_SHORT).show();
     }
 }
