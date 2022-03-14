@@ -82,16 +82,18 @@ public class AdministerFoodActivity extends AppCompatActivity {
         mHandler = new Handler(Looper.getMainLooper()){
             @Override
             public void handleMessage(android.os.Message msg){
+                System.out.println("readed msg = " );
                 if(msg.what == MESSAGE_READ){
                     String readMessage = null;
                     readMessage = new String((byte[]) msg.obj, StandardCharsets.UTF_8);
+                    System.out.println("readed msg = " + readMessage);
                     measuredWight.setText(readMessage);
 //                    String tmp = readMessage;
 //                    Config.setFoodAmount(parseMessage(readMessage));
                 }
             }
         };
-
+        mBTAdapter = BluetoothAdapter.getDefaultAdapter(); // get a handle on the bluetooth radio
     }
 
     // Enter here after user selects "yes" or "no" to enabling radio
@@ -142,8 +144,9 @@ public class AdministerFoodActivity extends AppCompatActivity {
         };
         Config.getCurrUserRef().addListenerForSingleValueEvent(listener);
         Config.getCurrUserRef().removeEventListener(listener);
-        System.out.println("address = " + Config.getCurrentUser().getDefaultDeviceAddress());
+        System.out.println("address = " + Config.getDevAdd());
         if(Config.getDevAdd() != null){
+            System.out.println("add not null");
             startConnection(Config.getCurrentUser().getDefaultDeviceAddress(),"baby-controller");
             BluetoothAdapter mBTAdapter = BluetoothAdapter.getDefaultAdapter();
             BluetoothDevice device = mBTAdapter.getRemoteDevice(Config.getDevAdd());
@@ -153,9 +156,6 @@ public class AdministerFoodActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             assert socket != null;
-            mConnectedThread = new AdministerFoodActivity.ConnectedThread(socket);
-            mConnectedThread.start();
-
         }
 
 
@@ -186,9 +186,11 @@ public class AdministerFoodActivity extends AppCompatActivity {
                     mHandler = new Handler(Looper.getMainLooper()){
                         @Override
                         public void handleMessage(android.os.Message msg){
+                            System.out.println("readed msg = " );
                             if(msg.what == MESSAGE_READ){
                                 String readMessage = null;
                                 readMessage = new String((byte[]) msg.obj, StandardCharsets.UTF_8);
+                                System.out.println("readed msg = " + readMessage);
                                 measuredWight.setText(readMessage);
                             }
 
@@ -205,6 +207,18 @@ public class AdministerFoodActivity extends AppCompatActivity {
     }
 
     public void startConnection(String address, String name) {
+        System.out.println("start connection");
+        if (!mBTAdapter.isEnabled()) {
+            Toast.makeText(getBaseContext(), "Bluetooth is off, turn it on", Toast.LENGTH_SHORT).show();
+            System.out.println("Bluetooth is off, turn it on");
+            return;
+        }
+
+        if (!mBTAdapter.isEnabled()) {
+            System.out.println("Bluetooth not on");
+            Toast.makeText(getBaseContext(), "Bluetooth not on", Toast.LENGTH_SHORT).show();
+            return;
+        }
         // Spawn a new thread to avoid blocking the GUI one
         new Thread() {
 
@@ -212,13 +226,13 @@ public class AdministerFoodActivity extends AppCompatActivity {
             @Override
             public void run() {
                 boolean fail = false;
-
+                System.out.println("connecting!!1");
                 BluetoothDevice device;
 
                 device = Config.getDefaultDevice();
 
                 try {
-
+                    System.out.println("creat socket");
                     assert device != null;
                     socket = createBluetoothSocket(device);
                 } catch (IOException e) {
@@ -227,6 +241,7 @@ public class AdministerFoodActivity extends AppCompatActivity {
                 }
                 // Establish the Bluetooth socket connection.
                 try {
+                    System.out.println("connecting!!2");
                     socket.connect();
                 } catch (IOException e) {
                     try {
@@ -239,12 +254,16 @@ public class AdministerFoodActivity extends AppCompatActivity {
                         Toast.makeText(getBaseContext(), "Socket creation failed", Toast.LENGTH_SHORT).show();
                     }
                 }
-                if (fail == false) {
+                if (!fail) {
+                    System.out.println("new ConnectedThread3");
                     mConnectedThread = new AdministerFoodActivity.ConnectedThread(socket);
-                    mConnectedThread.start();
-
+                    synchronized (mConnectedThread){
+                        mConnectedThread.start();
+                    }
+                    System.out.println("connection failed");
                     mHandler.obtainMessage(CONNECTING_STATUS, 1, -1, name)
                             .sendToTarget();
+                    //startConnection(address, name);
                 }
 
             }
@@ -282,14 +301,17 @@ public class AdministerFoodActivity extends AppCompatActivity {
                         mBTSocket.close();
                         mHandler.obtainMessage(CONNECTING_STATUS, -1, -1)
                                 .sendToTarget();
+
                     } catch (IOException e2) {
-                        //insert code to deal with this
                         Toast.makeText(getBaseContext(), "Socket creation failed", Toast.LENGTH_SHORT).show();
                     }
                 }
-                if(fail == false) {
+                if(!fail) {
+                    System.out.println("new ConnectedThread1");
                     mConnectedThread = new ConnectedThread(mBTSocket);
-                    mConnectedThread.start();
+                    synchronized (mConnectedThread){
+                        mConnectedThread.start();
+                    }
 
                     mHandler.obtainMessage(CONNECTING_STATUS, 1, -1, name)
                             .sendToTarget();
@@ -305,10 +327,11 @@ public class AdministerFoodActivity extends AppCompatActivity {
 
     public class ConnectedThread extends Thread {
         private final BluetoothSocket mmSocket;
-        private final InputStream mmInStream;
+        private InputStream mmInStream;
 
 
         public ConnectedThread(BluetoothSocket socket){
+            System.out.println("creat new thred");
             mmSocket = socket;
             InputStream tmpIn = null;
 
@@ -317,20 +340,25 @@ public class AdministerFoodActivity extends AppCompatActivity {
             // member streams are final
             try {
                 tmpIn = socket.getInputStream();
-            } catch (IOException e) { }
-
-            mmInStream = tmpIn;
+            } catch (IOException e) {
+                System.out.println("exeption in connected thred");
+            }
+            if(tmpIn != null) {
+                mmInStream = tmpIn;
+            }
         }
 
         public void run() {
             byte[] buffer = new byte[1024];  // buffer store for the stream
-            int bytes; // bytes returned from read()
+            int bytes = 0; // bytes returned from read()
             // Keep listening to the InputStream until an exception occurs
             while (true) {
 
                 try {
                     // Read from the InputStream
-                    bytes = mmInStream.available();
+                    if(mmInStream != null) {
+                        bytes = mmInStream.available();
+                    }
                     if(bytes != 0) {
                         SystemClock.sleep(100); //pause and wait for rest of data.
                         bytes = mmInStream.available(); // how many bytes are ready to be read?

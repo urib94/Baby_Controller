@@ -2,7 +2,6 @@ package com.baby_controller.src;
 
 import androidx.annotation.NonNull;
 
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DatabaseReference;
 
 import java.sql.Time;
@@ -70,18 +69,6 @@ public class Parent extends LocalUser {
         newBaby.setRegistrationToken(registrationToken);
         children.add(newBaby);
         updateInDb();
-    }
-
-
-
-
-    //notify the parent that the child is hungry with firebase cloud messaging
-    public void notifyParent(){
-        //get app instance id from firebase
-        FirebaseApp.getInstance().getOptions().getApplicationId()
-        ;
-
-        // TODO: 10/26/2021  writ this function
     }
 
 

@@ -331,12 +331,14 @@ public class BluetoothConnectionManager extends AppCompatActivity {
                         Toast.makeText(getBaseContext(), "Socket creation failed", Toast.LENGTH_SHORT).show();
                     }
                 }
-                if (fail == false) {
+                if (!fail) {
+
                     mConnectedThread = new ConnectedThread(mBTSocket);
                     mConnectedThread.start();
 
                     mHandler.obtainMessage(CONNECTING_STATUS, 1, -1, name)
                             .sendToTarget();
+
                 }
 
                 if (chooseDefault.isChecked()) {

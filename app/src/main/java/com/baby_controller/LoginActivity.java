@@ -124,36 +124,43 @@ public class LoginActivity extends AppCompatActivity {
 
     public void userLoggedIn(){
         if(mAuth.getCurrentUser() != null){
-            userUID = mAuth.getUid();
-            System.out.println("user is logged in");
-            myRef.getRoot().child("Users").addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    LocalUser tmp = snapshot.child(Objects.requireNonNull(mAuth.getUid())).getValue(LocalUser.class);
-                    if(tmp.getUserType() == LocalUser.UserType.PARENT){
-                        Parent parent = snapshot.child(Objects.requireNonNull(mAuth.getUid())).getValue(Parent.class);
-                        Config.setCurrentUser(parent);
-                    }else {
-                        Manager1 man = snapshot.child(Objects.requireNonNull(mAuth.getUid())).getValue(Manager1.class);
-                        Config.setCurrentUser(man);
-                    }
-                    getInstitute();
-                    Config.setCurrUserRef(snapshot.child(Objects.requireNonNull(mAuth.getUid())).getRef());
-                    System.out.println("logged in user = " + Config.getCurrentUser());
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
-            myRef.getRoot().child("Users").child("trigger").setValue("trigger");
-            myRef.getRoot().child("Users").child("trigger").setValue(null);
-
+            getUserFromDb();
         }else{
             setContentView(R.layout.login_activity);
             setUpButtons();
         }
+    }
+
+
+    private void getUserFromDb(){
+        userUID = mAuth.getUid();
+        System.out.println("user is logged in");
+        myRef.getRoot().child("Users").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                LocalUser tmp = snapshot.child(Objects.requireNonNull(mAuth.getUid())).getValue(LocalUser.class);
+                if(tmp.getUserType() == LocalUser.UserType.PARENT){
+                    Parent parent = snapshot.child(Objects.requireNonNull(mAuth.getUid())).getValue(Parent.class);
+                    Config.setCurrentUser(parent);
+                }else {
+                    Manager1 man = snapshot.child(Objects.requireNonNull(mAuth.getUid())).getValue(Manager1.class);
+                    Config.setCurrentUser(man);
+                }
+                getInstitute();
+                Config.setCurrUserRef(snapshot.child(Objects.requireNonNull(mAuth.getUid())).getRef());
+
+                Config.setBaseAddress(snapshot.child(Objects.requireNonNull(mAuth.getUid())).child("defaultDevice")
+                        .getValue(String.class));
+                System.out.println("logged in user = " + Config.getCurrentUser());
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+        myRef.getRoot().child("Users").child("trigger").setValue("trigger");
+        myRef.getRoot().child("Users").child("trigger").setValue(null);
     }
 
 
@@ -285,38 +292,39 @@ public class LoginActivity extends AppCompatActivity {
                                 // Sign in success, update UI with the signed-in user's information
                                 Log.d("login success", "signInWithEmail:success");
                                 userUID = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
-                                myRef.getRoot().child("Users").addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                                        System.out.println(snapshot.toString());
-                                        for (DataSnapshot snap : snapshot.getChildren()) {
-                                            System.out.println("key in login loop = " + snap.getKey());
-                                            if (Objects.equals(snap.getKey(), userUID)) {
-                                                try {
-                                                    LocalUser localUser = snap.getValue(LocalUser.class);
-                                                    if (snap.getValue(LocalUser.class).getUserType() == LocalUser.UserType.MANAGER) {
-                                                        Config.setCurrentUser(snap.getValue(Manager1.class));
-                                                        Log.i(TAG, "update local user to a manger");
-
-                                                    } else {
-                                                        Parent parent = snap.getValue(Parent.class);
-                                                        Config.setCurrentUser(parent);
-
-                                                        Log.i(TAG, "update local user to a parent");
-                                                    }
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onCancelled(@NonNull DatabaseError error) { }
-
-
-                                });
+                                getUserFromDb();
+//                                myRef.getRoot().child("Users").addListenerForSingleValueEvent(new ValueEventListener() {
+//                                    @Override
+//                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+//
+//                                        System.out.println(snapshot.toString());
+//                                        for (DataSnapshot snap : snapshot.getChildren()) {
+//                                            System.out.println("key in login loop = " + snap.getKey());
+//                                            if (Objects.equals(snap.getKey(), userUID)) {
+//                                                try {
+//                                                    LocalUser localUser = snap.getValue(LocalUser.class);
+//                                                    if (snap.getValue(LocalUser.class).getUserType() == LocalUser.UserType.MANAGER) {
+//                                                        Config.setCurrentUser(snap.getValue(Manager1.class));
+//                                                        Log.i(TAG, "update local user to a manger");
+//
+//                                                    } else {
+//                                                        Parent parent = snap.getValue(Parent.class);
+//                                                        Config.setCurrentUser(parent);
+//
+//                                                        Log.i(TAG, "update local user to a parent");
+//                                                    }
+//                                                } catch (Exception e) {
+//                                                    e.printStackTrace();
+//                                                }
+//                                            }
+//                                        }
+//                                    }
+//
+//                                    @Override
+//                                    public void onCancelled(@NonNull DatabaseError error) { }
+//
+//
+//                                });
                                 getInstitute();
 
 

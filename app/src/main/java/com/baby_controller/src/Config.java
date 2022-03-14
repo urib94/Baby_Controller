@@ -110,6 +110,8 @@ public class Config {
     }
 
     public static void setBaseAddress(String deviceAddress) {
+        DEV_ADD = deviceAddress;
+        System.out.println("add is " + deviceAddress);
         if(CUUR_USER != null) {
             CUUR_USER.setDefaultDeviceAddress(deviceAddress);
         }else if(CURR_PARENT != null){
@@ -146,4 +148,8 @@ public class Config {
 //        FirebaseDatabase.getInstance().getReference().child("Users").child(getCurrentUser().getUid())
 //                .setValue(getCurrentUser());
 //    }
+
+    public static Parent getCurrParent() {
+        return CURR_PARENT;
+    }
 }

@@ -41,14 +41,16 @@ public class BabyListAdapter extends ArrayAdapter<Baby> {
                 babyName.setText(baby.getName());
             }
             if (recommendedAmount != null) {
-                recommendedAmount.setText(String.valueOf(baby.getRecommendedAmountPerMeal()) + " mL");
+                recommendedAmount.setText("Recommended Amount: " + String.valueOf(baby.getRecommendedAmountPerMeal()) + " mL");
             }
             if(timeToEat != null && baby.getHistory().get(baby.getHistory().size() - 1).getTimeToEat() != 0){
                 Time time = new Time(baby.getHistory().get(baby.getHistory().size() - 1).getTimeToEat());
-                timeToEat.setText(time.getHours() + ":" + time.getMinutes());
+                timeToEat.setText("Time To Eat Next Meal: " + time.getHours() + ":" + time.getMinutes());
 
             }
-            parentName.setText(baby.getParentName());
+            if(Config.getCurrentUser().getUserType() == LocalUser.UserType.MANAGER) {
+                parentName.setText(baby.getParentName());
+            }
         }
 
         return convertView;

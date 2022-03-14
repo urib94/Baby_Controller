@@ -64,7 +64,7 @@ public class Manager1 extends LocalUser {
                     }
                     if(tmp != null){
                         tmp.eatingNextMeal(amount);
-                        ((Parent)parent).notifyParent();
+//                        ((Parent)parent).notifyParent();
                         break;
                     }
                 }

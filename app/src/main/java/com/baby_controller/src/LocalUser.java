@@ -361,4 +361,11 @@ public class LocalUser  {
         this.registrationToken = registrationToken;
     }
 
+    public String getDeviceName() {
+        return deviceName;
+    }
+
+    public void setDeviceName(String deviceName) {
+        this.deviceName = deviceName;
+    }
 }
