@@ -97,15 +97,16 @@ public class BabyInfoCardActivity extends AppCompatActivity {
                     if(Config.getCurrentUser().getUserType() == LocalUser.UserType.PARENT){
                         ((Parent)Config.getCurrentUser()).getChildren().set(tmpBaby.getIndexInParent(),tmpBaby);
                     }
-                    Config.getCurrInst().getParents().get(tmpBaby.getIndexInInstitute()).getChildren().set(tmpBaby.getIndexInParent(),tmpBaby);
                     DatabaseReference myRef = FirebaseDatabase.getInstance().getReference();
                     myRef.child("Institutions").child(Config.getCurrentUser().getInstitutionName()).child("parents")
                             .child(String.valueOf(tmpBaby.getIndexInInstitute())).child("children")
                             .child(String.valueOf(tmpBaby.getIndexInParent())).setValue(tmpBaby);
                     myRef.child("Users").child(tmpBaby.getParentUid()).child("children").child(String.valueOf(tmpBaby.getIndexInParent())).setValue(tmpBaby);
+
                 }
             }
         });
+
 
         bBack.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -38,10 +38,10 @@ public class AllBabyActivity extends AppCompatActivity {
     protected void onStart(){
         super.onStart();
         setContentView(R.layout.all_baby_actitivity);
-        if(Config.getCurrentUser().getUserType() == LocalUser.UserType.MANAGER){
-            TextView title = findViewById(R.id.all_the_babies);
-            title.setText(R.string.Kindergarten_all_babies_title);
-        }
+//        if(Config.getCurrentUser().getUserType() == LocalUser.UserType.MANAGER){
+//            TextView title = findViewById(R.id.all_the_babies);
+//            title.setText(R.string.Kindergarten_all_babies_title);
+//        }
         babies = (ListView) findViewById(R.id.all_babies_list_of_babies);
         listMaker();
     }

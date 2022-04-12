@@ -85,7 +85,7 @@ public class AddBabyActivity extends AppCompatActivity {
                             dateOfBirth.setText("");
                             wight.setText("");
                         } else {
-                            toastMessage(babyName + "was not ");
+                            toastMessage(babyName + "was not added");
                         }
                     }
                 }

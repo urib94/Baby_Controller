@@ -42,7 +42,7 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private static final String TAG = "LoginActivity";
-    public static PubNub pubnub; // PubNub instance
+
 
     //add Firebase Database stuff
     private FirebaseDatabase mFirebaseDatabase;
@@ -170,6 +170,7 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+
                 for(DataSnapshot snap : snapshot.getChildren()){
                     if(Objects.equals(snap.getKey(), Config.getCurrentUser().getInstitutionName())){
                         Institution tmp = null;
@@ -177,6 +178,8 @@ public class LoginActivity extends AppCompatActivity {
                             tmp = snap.getValue(Institution.class);
                         }catch (Exception e){
                             e.printStackTrace();
+                            mAuth.signOut();
+                            return;
                         }
                         if(tmp != null) {
                             Config.setCurrInst(snap.getValue(Institution.class));
@@ -225,15 +228,15 @@ public class LoginActivity extends AppCompatActivity {
                         }
                         assert meal != null;
                         Time time = new Time(meal.getWhenEaten());
-                        Notify.build(getApplicationContext())
-                                .setTitle("Yamm!")
-                                .setContent(baby.getName() + " just eat " + meal.getReceivedAmount() +
-                                        "at " + time.getHours() + ":" + time.getMinutes())
-                                .setSmallIcon(R.drawable.ic_stat_ic_notification)
-                                .setLargeIcon(R.drawable.ic_stat_ic_notification)
-                                .largeCircularIcon()
-                                .setColor(R.color.browser_actions_divider_color)
-                                .show();
+//                        Notify.build(getApplicationContext())
+//                                .setTitle("Yamm!")
+//                                .setContent(baby.getName() + " just eat " + meal.getReceivedAmount() +
+//                                        "at " + time.getHours() + ":" + time.getMinutes())
+//                                .setSmallIcon(R.drawable.ic_stat_ic_notification)
+//                                .setLargeIcon(R.drawable.ic_stat_ic_notification)
+//                                .largeCircularIcon()
+//                                .setColor(R.color.browser_actions_divider_color)
+//                                .show();
                     }
 
                     @Override
@@ -250,6 +253,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void setUpButtons() {
+        setContentView(R.layout.login_activity);
         email = (TextView) findViewById(R.id.email_adresse);
         password = (TextView) findViewById(R.id.password);
         login = (Button) findViewById(R.id.login);

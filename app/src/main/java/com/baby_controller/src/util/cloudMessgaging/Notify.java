@@ -17,14 +17,19 @@ import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
+import androidx.lifecycle.LiveData;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
 
-
+import java.util.List;
 
 
 public class Notify {
     public NotificationCompat.Builder getNotificationBuilder() {
         return builder;
     }
+    private WorkManager mWorkManager;
+    private LiveData<List<WorkInfo>> mSavedWorkInfo;
 
     public enum NotifyImportance { MIN, LOW, HIGH, MAX }
 

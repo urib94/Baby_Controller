@@ -29,6 +29,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.LinkedList;
 import java.util.Objects;
@@ -88,76 +89,78 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     public void userToDb(){
-
         String instName = institutionName.getText().toString();
         if(mAuth.getCurrentUser() == null) {
             return;
         }
-        myRef.getRoot().addChildEventListener(new ChildEventListener() {
+        myRef.getRoot().child("Institutions").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(completed){
                     return;
                 }
                 userUID = mAuth.getCurrentUser().getUid();
 
-                boolean notNew = false;
+                boolean newInst = true;
                 LinkedList<Institution> institutionLinkedList = new LinkedList<>();
                 System.out.println("snap before loop"+snapshot.toString());
                 System.out.println("completed = " + completed);
-                    for (DataSnapshot snap : snapshot.getChildren()) {
-                        int i = 0;
-                        System.out.println("snap in loop" + snap.toString());
-                        System.out.println("i = " + i++);
-                        try {
-                            DatabaseReference reference = snap.getRef();
-                            Institution tmp = snap.getValue(Institution.class);
-                            if (tmp != null && tmp.getName() != null) {
-                                institutionLinkedList.add(snap.getValue(Institution.class));
-                            }
-                        } catch (Exception e) {
-                            Log.d(TAG, "onChildAdded: " + e.getMessage());
-                            continue;
+                for (DataSnapshot snap : snapshot.getChildren()) {
+                    int i = 0;
+                    System.out.println("snap in loop" + snap.toString());
+                    System.out.println("i = " + i++);
+                    try {
+                        DatabaseReference reference = snap.getRef();
+                        Institution tmp = snap.getValue(Institution.class);
+                        if (tmp != null && tmp.getName() != null) {
+                            institutionLinkedList.add(tmp);
                         }
-                        if (institutionLinkedList.size() >= 1) {
-                            if (newUser.getUserType() == LocalUser.UserType.MANAGER) {
-                                if (institutionLinkedList.get(institutionLinkedList.size() - 1).getName().equals(instName)) {
-                                    Institution institution = institutionLinkedList.getLast();
-                                    setNewUserIndexInInstitue(institution);
-                                    System.out.println(institution.getManagement().toString());
-                                    newUser.setInstitutionName(institution.getName());
-                                    institution.getManagement().add(newUser);
+                    } catch (Exception e) {
+                        Log.d(TAG, "onChildAdded: " + e.getMessage());
+                        continue;
+                    }
+                    if (!institutionLinkedList.isEmpty()) {
+                        System.out.println("curr inst" + institutionLinkedList.get(institutionLinkedList.size() - 1).getName());
+                        System.out.println("user inst" + newUser.getInstitutionName());
+                        System.out.println(newUser.toString());
+                        if (newUser.getUserType() == LocalUser.UserType.MANAGER) {
+                            if (institutionLinkedList.get(institutionLinkedList.size() - 1).getName().equals(instName)) {
+                                Institution institution = institutionLinkedList.getLast();
+                                setNewUserIndexInInstitue(institution);
+                                System.out.println(institution.getManagement().toString());
+                                newUser.setInstitutionName(institution.getName());
+                                institution.getManagement().add(newUser);
 //                                    institutionLinkedList.getLast().getManagement().add(newUser);
 //                                    snap.getRef().setValue(institutionLinkedList.getLast());
-                                    snap.getRef().setValue(institution);
-                                    snap.getRef().getRoot().child("Users").child(userUID).setValue(newUser);
-                                    System.out.println("FIANALY MADE IT");
-                                    completed = true;
-                                    notNew = true;
-                                    break;
+                                snap.getRef().setValue(institution);
+                                snap.getRef().getRoot().child("Users").child(userUID).setValue(newUser);
+                                System.out.println("FIANALY MADE IT");
+                                completed = true;
+                                newInst = false;
+                                break;
 
-                                }
-                            } else {
-                                if (institutionLinkedList.size() >= 1 && institutionLinkedList.
-                                        get(institutionLinkedList.size() - 1).getName().equals(instName)) {
-                                    Institution institution = institutionLinkedList.getLast();
-                                    setNewUserIndexInInstitue(institution);
-                                    Parent newParent = (Parent) newUser;
-                                    System.out.println("parents list in the institute = " + institution.getParents().toString());
-                                    institution.getParents().add(newParent);
-                                    newParent.setInstitutionName(institution.getName());
-                                    snap.getRef().setValue(institution);
-                                    snap.getRef().getRoot().child("Users").child(userUID).setValue(newUser);
-                                    System.out.println("FIANALY MADE IT");
-                                    notNew = true;
-                                    completed = true;
-                                    break;
-                                }
+                            }
+                        } else {
+                            if (institutionLinkedList.size() >= 1 && institutionLinkedList.
+                                    get(institutionLinkedList.size() - 1).getName().equals(instName)) {
+                                Institution institution = institutionLinkedList.getLast();
+                                setNewUserIndexInInstitue(institution);
+                                Parent newParent = (Parent) newUser;
+                                System.out.println("parents list in the institute = " + institution.getParents().toString());
+                                institution.getParents().add(newParent);
+                                newParent.setInstitutionName(institution.getName());
+                                snap.getRef().setValue(institution);
+                                snap.getRef().getRoot().child("Users").child(userUID).setValue(newUser);
+                                System.out.println("FIANALY MADE IT");
+                                newInst = false;
+                                completed = true;
+                                break;
                             }
                         }
+                    }
 
                 }
-                if(!notNew){
+                if(newInst){
                     System.out.println("jobs don =" + completed);
                     if(newUser.getUserType() == LocalUser.UserType.MANAGER) {
                         Institution institution = new Institution((Manager1) newUser, instName);
@@ -177,16 +180,6 @@ public class RegisterActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-            }
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-            }
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
 
             }
         });

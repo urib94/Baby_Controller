@@ -203,16 +203,17 @@ public class LocalUser  {
 
 
     public Institution getInstitute() {
-        final Institution[] retVal = {null};
+        Institution[] retVal = {new Institution()};
         if (institutionName != null){
             //get the Institution from the db by its name
             DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("Institutions").child(institutionName);
-            ValueEventListener valueEventListener = new ValueEventListener() {
+            reference.addListenerForSingleValueEvent(new ValueEventListener(){
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     // Get Post object and use the values to update the UI
                     Institution tmp = dataSnapshot.getValue(Institution.class);
                     retVal[0] = tmp;
+                    System.out.println("getttt");
 
                 }
 
@@ -221,8 +222,14 @@ public class LocalUser  {
 
                 }
 
-            };
+            });
+
+
+            reference.child("trigger").setValue("tmp");
+            reference.child("trigger").setValue(null);
+
         }
+        System.out.println("retval" + retVal[0].toString());
         return retVal[0];
     }
 
@@ -280,7 +287,6 @@ public class LocalUser  {
 
     public void setDefaultDeviceAddress(String defaultDeviceAddress) {
         this.defaultDeviceAddress = defaultDeviceAddress;
-        System.out.println("defaultDevice = " + defaultDeviceAddress.toString());
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
         updateInDb();
     }

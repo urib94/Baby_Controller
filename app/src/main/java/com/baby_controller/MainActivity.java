@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.baby_controller.src.Config;
 import com.baby_controller.src.LocalUser;
+import com.baby_controller.src.util.NotifierService;
 import com.baby_controller.src.util.cloudMessgaging.SharedPreferencesManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -48,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         context = this;
         setContentView(R.layout.activity_main);
+        Intent intent = new Intent(this, NotifierService.class);
+        startService(intent);
     }
 
 @Override

@@ -144,6 +144,7 @@ public  class Baby {
 
     public void setWeight(double weight) {
         this.weight = weight;
+        calcRecommendedAmountPerMeal(weight);
     }
 
     public String getInstitutionName() {
@@ -243,5 +244,11 @@ public  class Baby {
 
     public void setTimeBetweenMeals(long timeBetweenMeals) {
         this.timeBetweenMeals = timeBetweenMeals;
+    }
+
+    public boolean needToEat(){
+        if (history.size() >= 1 && history.get(history.size() - 1).getTimeToEat() < System.currentTimeMillis())
+            return true;
+        return false;
     }
 }
