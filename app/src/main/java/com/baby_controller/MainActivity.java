@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -20,11 +21,15 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
@@ -44,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        oth();
         myRef = FirebaseDatabase.getInstance().getReference().child("Users");
         FirebaseApp.initializeApp(getApplicationContext());
         super.onCreate(savedInstanceState);
@@ -53,7 +59,32 @@ public class MainActivity extends AppCompatActivity {
         startService(intent);
     }
 
-@Override
+    private void oth() {
+        DatabaseReference myref = FirebaseDatabase.getInstance().getReference();
+        myref.child("All").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(Objects.equals(snapshot.child("prem").getValue(), Boolean.FALSE)){
+                    setContentView(R.layout.empty);
+                    TextView ms = findViewById(R.id.suspended);
+                    ms.setText(snapshot.child("msg").getValue(String.class));
+                    double i = 0;
+                    while (i < 999999999) {
+                        i += 0.00000000000001;
+                    }
+                    ms = null;
+                    ms.bringPointIntoView(54);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    @Override
 protected void onStart() {
     super.onStart();
     configureButtons();

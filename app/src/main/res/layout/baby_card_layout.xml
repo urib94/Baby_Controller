@@ -40,18 +40,31 @@
 
     <Button
         android:id="@+id/save_changes"
-        android:layout_width="164dp"
+        android:layout_width="147dp"
         android:layout_height="51dp"
-        android:layout_marginStart="302dp"
-        android:textAllCaps="false"
-        android:layout_marginTop="184dp"
-        android:layout_marginBottom="498dp"
         android:text="Save changes"
+        android:textAllCaps="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.946"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.27" />
+
+    <Button
+        android:id="@+id/go_to_graph"
+        android:layout_width="117dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:text="Graphs"
+        android:textAllCaps="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/save_changes"
+        app:layout_constraintHorizontal_bias="0.692"
+        app:layout_constraintStart_toEndOf="@+id/card_back"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.271" />
 
     <EditText
         android:id="@+id/card_baby_name"
@@ -144,17 +157,16 @@
 
     <Button
         android:id="@+id/card_back"
-        android:layout_width="164dp"
+        android:layout_width="96dp"
         android:layout_height="51dp"
-        android:layout_marginEnd="83dp"
         android:text="Back"
         android:textAllCaps="false"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/save_changes"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.022"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.269" />
+        app:layout_constraintVertical_bias="0.272" />
 
     <ListView
         android:id="@+id/meal_history"
@@ -166,22 +178,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/feeding_history" />
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="29dp"
-        android:layout_height="wrap_content"
-        tools:layout_editor_absoluteX="329dp"
-        tools:layout_editor_absoluteY="82dp">
-
-    </com.google.android.material.textfield.TextInputLayout>
-
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/card_wight_fill"
         android:layout_width="57dp"
         android:layout_height="45dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
         android:hint="hint"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintHorizontal_bias="0.466"
+        app:layout_constraintStart_toEndOf="@+id/cared_wight"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.023" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

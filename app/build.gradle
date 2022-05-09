@@ -81,6 +81,8 @@ dependencies {
     //pobnub
     implementation group: 'com.pubnub', name: 'pubnub-gson', version: '5.2.3'
 
+    //graphss
+    implementation 'com.jjoe64:graphview:4.2.2'
 
     //WorkManager
     def work_version = "2.7.1"

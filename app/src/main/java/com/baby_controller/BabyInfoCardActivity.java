@@ -19,6 +19,7 @@ import com.baby_controller.src.Parent;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.jjoe64.graphview.GraphView;
 
 import java.sql.Time;
 import java.text.MessageFormat;
@@ -34,7 +35,9 @@ public class BabyInfoCardActivity extends AppCompatActivity {
     private TextView nameFill;
     private TextView timeBetweenFill;
     private TextView amountFill;
-
+    private GraphView mealG;
+    private GraphView wightG;
+    private int hourInMil = 3600000;
     private ArrayList<Meal> mealArrayList = new ArrayList<>();
 
     @Override
@@ -42,6 +45,7 @@ public class BabyInfoCardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.baby_card_layout);
         configureButtons();
+
 
     }
 
@@ -66,7 +70,7 @@ public class BabyInfoCardActivity extends AppCompatActivity {
         wightFill.setText(String.valueOf(AllBabyActivity.theChosenOne.getWeight()));
         nameFill.setText(AllBabyActivity.theChosenOne.getName());
         Time tmpT = new Time(AllBabyActivity.theChosenOne.getTimeBetweenMeals());
-        timeBetweenFill.setText(MessageFormat.format("{0}:{1}", String.valueOf(tmpT.getHours()), String.valueOf(tmpT.getMinutes())));
+        timeBetweenFill.setText(MessageFormat.format("{0}:{1}", String.valueOf((AllBabyActivity.theChosenOne.getTimeBetweenMeals() / hourInMil)), String.valueOf((AllBabyActivity.theChosenOne.getTimeBetweenMeals() % hourInMil) / 100000) ));
         amountFill.setText(String.valueOf(AllBabyActivity.theChosenOne.getRecommendedAmountPerMeal()));
         System.out.println("configureButtons1");
 
