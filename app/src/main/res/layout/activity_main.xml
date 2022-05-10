@@ -74,6 +74,7 @@
         android:layout_height="71dp"
         android:soundEffectsEnabled="true"
         android:text="@string/my_family"
+        android:textAlignment="center"
         android:textAllCaps="false"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"

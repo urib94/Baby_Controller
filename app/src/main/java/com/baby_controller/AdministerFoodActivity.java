@@ -1,11 +1,14 @@
 package com.baby_controller;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -19,6 +22,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.baby_controller.src.Config;
 import com.google.firebase.database.DataSnapshot;
@@ -79,11 +83,11 @@ public class AdministerFoodActivity extends AppCompatActivity {
 
         TextView amount = findViewById(R.id.measured_wight);
 
-        mHandler = new Handler(Looper.getMainLooper()){
+        mHandler = new Handler(Looper.getMainLooper()) {
             @Override
-            public void handleMessage(android.os.Message msg){
-                System.out.println("readed msg = " );
-                if(msg.what == MESSAGE_READ){
+            public void handleMessage(android.os.Message msg) {
+                System.out.println("readed msg = ");
+                if (msg.what == MESSAGE_READ) {
                     String readMessage = null;
                     readMessage = new String((byte[]) msg.obj, StandardCharsets.UTF_8);
                     System.out.println("readed msg = " + readMessage);
@@ -113,10 +117,11 @@ public class AdministerFoodActivity extends AppCompatActivity {
     }
 
     final BroadcastReceiver blReceiver = new BroadcastReceiver() {
+        @SuppressLint("MissingPermission")
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if(BluetoothDevice.ACTION_FOUND.equals(action)){
+            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 // add the name to the list
                 mBTArrayAdapter.add(device.getName() + "\n" + device.getAddress());
@@ -145,9 +150,9 @@ public class AdministerFoodActivity extends AppCompatActivity {
         Config.getCurrUserRef().addListenerForSingleValueEvent(listener);
         Config.getCurrUserRef().removeEventListener(listener);
         System.out.println("address = " + Config.getDevAdd());
-        if(Config.getDevAdd() != null){
+        if (Config.getDevAdd() != null) {
             System.out.println("add not null");
-            startConnection(Config.getCurrentUser().getDefaultDeviceAddress(),"baby-controller");
+            startConnection(Config.getCurrentUser().getDefaultDeviceAddress(), "baby-controller");
             BluetoothAdapter mBTAdapter = BluetoothAdapter.getDefaultAdapter();
             BluetoothDevice device = mBTAdapter.getRemoteDevice(Config.getDevAdd());
             try {
@@ -167,13 +172,13 @@ public class AdministerFoodActivity extends AppCompatActivity {
         feed.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(FeedingActivity2.babyToFeed != null) {
-                    if(enterManually.isChecked()){
+                if (FeedingActivity2.babyToFeed != null) {
+                    if (enterManually.isChecked()) {
                         FeedingActivity2.babyToFeed.eatingNextMeal(Integer.parseInt(measuredWight.getText().toString()));
-                    }
-                    else if(!measuredWight.getText().toString().equals("0")){
-                        FeedingActivity2.babyToFeed.eatingNextMeal(Integer.parseInt(measuredWight.getText().toString()));
+                    } else if (!measuredWight.getText().toString().equals("0")) {
+                        FeedingActivity2.babyToFeed.eatingNextMeal(convertToDouble(measuredWight.getText().toString()));
                         toastMessage(FeedingActivity2.babyToFeed.getName() + "ate " + String.valueOf(Config.getFoodAmount()) + " mL");
+
 //                        String[] msg = new String[4];
 //                        msg[0] = "Yamm!!";
 //                        msg[2] = FeedingActivity2.babyToFeed.getName() + "is about to eat " + String.valueOf(Config.getFoodAmount()) + " mL";
@@ -181,13 +186,12 @@ public class AdministerFoodActivity extends AppCompatActivity {
 //                        NotificationManegerActivity.sendWithOtherThread("token", FeedingActivity2.babyToFeed.getRegistrationToken(),msg,FeedingActivity2.babyToFeed.getRegistrationToken(), AdministerFoodActivity.this);
 
 
-
                     }
-                    mHandler = new Handler(Looper.getMainLooper()){
+                    mHandler = new Handler(Looper.getMainLooper()) {
                         @Override
-                        public void handleMessage(android.os.Message msg){
-                            System.out.println("readed msg = " );
-                            if(msg.what == MESSAGE_READ){
+                        public void handleMessage(android.os.Message msg) {
+                            System.out.println("readed msg = ");
+                            if (msg.what == MESSAGE_READ) {
                                 String readMessage = null;
                                 readMessage = new String((byte[]) msg.obj, StandardCharsets.UTF_8);
                                 System.out.println("readed msg = " + readMessage);
@@ -204,6 +208,63 @@ public class AdministerFoodActivity extends AppCompatActivity {
         enterManually = findViewById(R.id.manually);
 
 
+    }
+
+    private int convertToDouble(String str) {
+        int length = str.length();
+        int amount = 0;
+        for (int i = 0; i < str.length(); i++) {
+            switch (str.charAt(i)) {
+                case '0':
+                    amount += 0 * Math.pow(10, length);
+                    length--;
+                    break;
+                case '1':
+                    amount += 1 * Math.pow(10, length);
+                    length--;
+                    break;
+                case '2':
+                    amount += 2 * Math.pow(10, length);
+                    length--;
+                    break;
+                case '3':
+                    amount += 3 * Math.pow(10, length);
+                    ;
+                    length--;
+                    break;
+                case '4':
+                    amount += 4 * Math.pow(10, length);
+                    ;
+                    length--;
+                    break;
+                case '5':
+                    amount += 5 * Math.pow(10, length);
+                    ;
+                    length--;
+                    break;
+                case '6':
+                    amount += 6 * Math.pow(10, length);
+                    ;
+                    length--;
+                    break;
+                case '7':
+                    amount += 7 * Math.pow(10, length);
+                    ;
+                    length--;
+                    break;
+                case '8':
+                    amount += 8 * Math.pow(10, length);
+                    length--;
+                    break;
+                case '9':
+                    amount += 9 * Math.pow(10, length);
+                    length--;
+                    break;
+                case '.':
+                    return amount;
+            }
+        }
+        return amount;
     }
 
     public void startConnection(String address, String name) {
@@ -223,6 +284,8 @@ public class AdministerFoodActivity extends AppCompatActivity {
         new Thread() {
 
             private final static int CONNECTING_STATUS = 3;
+
+            @SuppressLint("MissingPermission")
             @Override
             public void run() {
                 boolean fail = false;
@@ -257,7 +320,7 @@ public class AdministerFoodActivity extends AppCompatActivity {
                 if (!fail) {
                     System.out.println("new ConnectedThread3");
                     mConnectedThread = new AdministerFoodActivity.ConnectedThread(socket);
-                    synchronized (mConnectedThread){
+                    synchronized (mConnectedThread) {
                         mConnectedThread.start();
                     }
                     System.out.println("connection failed");
@@ -273,16 +336,16 @@ public class AdministerFoodActivity extends AppCompatActivity {
     }
 
     // Spawn a new thread to avoid blocking the GUI one
-    public void establishConnection(String address, String name){
-        new Thread()
-        {
+    public void establishConnection(String address, String name) {
+        new Thread() {
+            @SuppressLint("MissingPermission")
             public void run() {
                 boolean fail = false;
 
                 BluetoothDevice device;
-                if(Config.getCurrentUser().getDefaultDeviceAddress() == null) {
+                if (Config.getCurrentUser().getDefaultDeviceAddress() == null) {
                     device = mBTAdapter.getRemoteDevice(address);
-                }else {
+                } else {
                     device = Config.getDefaultDevice();
                 }
 
@@ -306,10 +369,10 @@ public class AdministerFoodActivity extends AppCompatActivity {
                         Toast.makeText(getBaseContext(), "Socket creation failed", Toast.LENGTH_SHORT).show();
                     }
                 }
-                if(!fail) {
+                if (!fail) {
                     System.out.println("new ConnectedThread1");
                     mConnectedThread = new ConnectedThread(mBTSocket);
-                    synchronized (mConnectedThread){
+                    synchronized (mConnectedThread) {
                         mConnectedThread.start();
                     }
 
@@ -321,7 +384,17 @@ public class AdministerFoodActivity extends AppCompatActivity {
     }
 
     private BluetoothSocket createBluetoothSocket(BluetoothDevice device) throws IOException {
-        return  device.createRfcommSocketToServiceRecord(BTMODULEUUID);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return device.createRfcommSocketToServiceRecord(BTMODULEUUID);
+        }
+        return device.createRfcommSocketToServiceRecord(BTMODULEUUID);
         //creates secure outgoing connection with BT device using UUID
     }
 

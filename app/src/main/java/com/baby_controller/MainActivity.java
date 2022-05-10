@@ -151,6 +151,7 @@ protected void onStart() {
         Button allTheBabies = findViewById(R.id.main_all_babies);
         if(Config.getCurrentUser().getUserType() == LocalUser.UserType.MANAGER){
             allTheBabies.setText(R.string.Kindergarten_all_babies_title);
+            allTheBabies.setTextSize(15);
         }
 
         addBaby.setOnClickListener(new View.OnClickListener() {

@@ -112,6 +112,9 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
+        if(mAuth == null){
+            mAuth = FirebaseAuth.getInstance();
+        }
         mAuth.addAuthStateListener(mAuthListener);
     }
 
