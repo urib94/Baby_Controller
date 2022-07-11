@@ -48,8 +48,11 @@ public class Config {
 
 
     public static synchronized  BluetoothConnectionService getBluetoothConnectionService(){
+
         return  mBluetoothConnectionService;
     }
+
+
 
     public static synchronized void setBluetoothConnectionService(BluetoothConnectionService newBluetoothConnectionService){
         mBluetoothConnectionService = newBluetoothConnectionService;

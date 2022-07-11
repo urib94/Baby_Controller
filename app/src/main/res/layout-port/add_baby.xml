@@ -8,8 +8,8 @@
 
     <EditText
         android:id="@+id/parent_name"
-        android:layout_width="352dp"
-        android:layout_height="61dp"
+        android:layout_width="306dp"
+        android:layout_height="71dp"
         android:layout_marginStart="55dp"
         android:layout_marginEnd="55dp"
         android:autofillHints=""
@@ -44,18 +44,15 @@
         android:id="@+id/date_of_birth"
         android:layout_width="300dp"
         android:layout_height="50dp"
-        android:layout_marginStart="55dp"
-        android:layout_marginEnd="55dp"
-        android:layout_marginBottom="40dp"
         android:ems="10"
         android:hint="day/month/year"
         android:inputType="date"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.464"
+        app:layout_constraintVertical_bias="0.466"
         tools:text="@tools:sample/date/ddmmyy" />
 
     <EditText
@@ -76,32 +73,26 @@
         android:id="@+id/add_new_baby"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="56dp"
-        android:layout_marginTop="78dp"
-        android:layout_marginEnd="208dp"
-        android:layout_marginBottom="190dp"
-        android:textAllCaps="false"
         android:text="@string/add_new_baby"
+        android:textAllCaps="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.185"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/baby_wight"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.343" />
 
     <Button
         android:id="@+id/back"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="78dp"
-        android:layout_marginEnd="56dp"
         android:text="@string/back"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.644"
+        app:layout_constraintHorizontal_bias="0.536"
         app:layout_constraintStart_toEndOf="@+id/add_new_baby"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.72" />
+        app:layout_constraintVertical_bias="0.781" />
 
     <TextView
         android:id="@+id/textView"

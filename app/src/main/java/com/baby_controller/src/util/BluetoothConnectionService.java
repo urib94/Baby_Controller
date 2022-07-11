@@ -1,14 +1,20 @@
 package com.baby_controller.src.util;
 
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.util.Log;
 
+import androidx.core.app.ActivityCompat;
+
+import com.baby_controller.MainActivity;
 import com.baby_controller.src.Config;
 
 import java.io.IOException;
@@ -18,10 +24,9 @@ import java.nio.charset.Charset;
 import java.util.UUID;
 
 
-
 public class BluetoothConnectionService {
     private static final String TAG = "BluetoothConnectionServ";
-
+    public BluetoothServerSocket bluetoothServerSocket;
     private static final String appName = "BabyController";
 
     private static final UUID MY_UUID_INSECURE =
@@ -47,6 +52,8 @@ public class BluetoothConnectionService {
 
     public BluetoothConnectionService() {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+//        bluetoothServerSocket = mBluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord(appName, MY_UUID_INSECURE);
         start();
     }
 
@@ -55,16 +62,20 @@ public class BluetoothConnectionService {
      * like a server-side client. It runs until a connection is accepted
      * (or until cancelled).
      */
+
+
     private class AcceptThread extends Thread {
 
         // The local server socket
         private final BluetoothServerSocket mmServerSocket;
+
 
         public AcceptThread() {
             BluetoothServerSocket tmp = null;
 
             // Create a new listening server socket
             try {
+
                 tmp = mBluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord(appName, MY_UUID_INSECURE);
 
                 Log.d(TAG, "AcceptThread: Setting up Server using: " + MY_UUID_INSECURE);

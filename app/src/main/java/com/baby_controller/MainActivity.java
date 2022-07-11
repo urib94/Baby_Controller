@@ -121,7 +121,9 @@ protected void onStart() {
 
 
     public void ConnectToDefaultDevice(){
-
+//        if(Config.getBluetoothConnectionService() == null){
+//            Config.setBluetoothConnectionService();
+//        }
         if(Config.getCurrentUser() != null) {
             System.out.println("cur user in main activity" + Config.getCurrentUser().toString());
             if (Config.getDefaultDevice() != null) {
@@ -212,6 +214,8 @@ protected void onStart() {
         });
 
     }
+
+
 
 
 

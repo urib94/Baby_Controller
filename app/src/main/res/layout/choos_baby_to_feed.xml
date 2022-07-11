@@ -11,10 +11,10 @@
         android:layout_width="match_parent"
         android:layout_height="61dp"
         android:fontFamily="sans-serif-black"
-        android:textAllCaps="false"
         android:gravity="center"
         android:text="@string/really_hungry_babies"
-        android:textSize="40sp" />
+        android:textAllCaps="false"
+        android:textSize="30dp" />
 
     <ListView
         android:id="@+id/all_the_babies_list"
@@ -23,13 +23,13 @@
 
     <TextView
         android:id="@+id/hungry_babies"
-        android:textAllCaps="false"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-black"
         android:gravity="center"
         android:text="@string/hungry_babies"
-        android:textSize="40sp" />
+        android:textAllCaps="false"
+        android:textSize="30sp" />
 
     <ListView
         android:id="@+id/hungry_list"
