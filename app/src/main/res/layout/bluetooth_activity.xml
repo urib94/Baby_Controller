@@ -116,6 +116,7 @@
             android:layout_alignEnd="@+id/off"
             android:layout_alignRight="@+id/off"
             android:background="@drawable/baby_wight"
+            android:cacheColorHint="#66FFFFFF"
             android:choiceMode="singleChoice" />
 
 

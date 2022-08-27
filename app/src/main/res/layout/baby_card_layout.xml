@@ -59,6 +59,7 @@
         android:layout_marginEnd="12dp"
         android:text="Graphs"
         android:textAllCaps="false"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/save_changes"
         app:layout_constraintHorizontal_bias="0.692"

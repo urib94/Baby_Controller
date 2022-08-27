@@ -39,11 +39,12 @@
     <string name="stop_discovering">Stop Discovering</string>
     <string name="user_need_to_connect_to_bt">You must connect to the device in order to start feeding</string>
 
-    <string name="wight">Wight</string>
+    <string name="wight">Weight</string>
     <string name="day_month_year">day/month/year</string>
     <string name="add_new_baby">Add New Baby</string>
     <string name="back">Back</string>
     <string name="parent_name">Parent Name</string>
+    <string name="im_a_parent">I\'m a parent</string>
     <string name="feeding">Feeding</string>
     <string name="login">Login</string>
     <string name="logout">Logout</string>

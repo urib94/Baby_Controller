@@ -100,6 +100,7 @@ protected void onStart() {
         setContentView(R.layout.activity_main);
         configureButtons();
         ConnectToDefaultDevice();
+
     }
 
     public void fbRegistration(){
@@ -199,7 +200,11 @@ protected void onStart() {
             @Override
             public void onClick(View v) {
                 mAuth.signOut();
+                System.gc();
                 FirebaseUser us = mAuth.getCurrentUser();
+                System.out.println("user after logout = " + us);
+               // Config.setCurrentUser(null);
+                System.exit(0);
                 Intent intent = new Intent(context, LoginActivity.class);
                 startActivity(intent);
             }

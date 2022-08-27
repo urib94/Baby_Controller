@@ -45,9 +45,7 @@ public class Institution{
     public Manager1 getManger(String userName){
         for(int i = 0; i < management.size(); i++){
             if(management.get(i).getName().equals(userName)){
-                if(management.get(i).getUserType() == LocalUser.UserType.PARENT) {
-                    return (Manager1) management.get(i);
-                }
+                return (Manager1) management.get(i);
             }
         }
         return null;

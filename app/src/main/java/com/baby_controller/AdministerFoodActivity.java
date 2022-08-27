@@ -25,14 +25,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.baby_controller.src.Config;
+import com.baby_controller.src.Institution;
+import com.baby_controller.src.LocalUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.UUID;
 
 public class AdministerFoodActivity extends AppCompatActivity {
@@ -70,7 +74,6 @@ public class AdministerFoodActivity extends AppCompatActivity {
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-
 
                     }
 
@@ -175,8 +178,12 @@ public class AdministerFoodActivity extends AppCompatActivity {
                 if (FeedingActivity2.babyToFeed != null) {
                     if (enterManually.isChecked()) {
                         FeedingActivity2.babyToFeed.eatingNextMeal(Integer.parseInt(measuredWight.getText().toString()));
+                        getInstitute();
+                        finish();
                     } else if (!measuredWight.getText().toString().equals("0")) {
                         FeedingActivity2.babyToFeed.eatingNextMeal(convertToDouble(measuredWight.getText().toString()));
+                        getInstitute();
+                        finish();
                         toastMessage(FeedingActivity2.babyToFeed.getName() + "ate " + String.valueOf(Config.getFoodAmount()) + " mL");
 
 //                        String[] msg = new String[4];
@@ -209,6 +216,38 @@ public class AdministerFoodActivity extends AppCompatActivity {
 
 
     }
+
+    private void getInstitute(){
+        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference();
+        myRef.getRoot().child("Institutions").addListenerForSingleValueEvent(new ValueEventListener() {
+
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                for(DataSnapshot snap : snapshot.getChildren()){
+                    if(Objects.equals(snap.getKey(), Config.getCurrentUser().getInstitutionName())){
+                        Institution tmp = null;
+                        try {
+                            tmp = snap.getValue(Institution.class);
+                        }catch (Exception e){
+                            e.printStackTrace();
+                            return;
+                        }
+                        if(tmp != null) {
+                            Config.setCurrInst(tmp);
+                        }
+                        System.out.println("curr institute = " + tmp.toString());
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
 
     private int convertToDouble(String str) {
         int length = str.length();
@@ -456,6 +495,6 @@ public class AdministerFoodActivity extends AppCompatActivity {
     }
 
     private void toastMessage(String s) {
-        Toast.makeText(AdministerFoodActivity.this ,s,Toast.LENGTH_SHORT).show();
+        Toast.makeText(AdministerFoodActivity.this ,s,Toast.LENGTH_LONG).show();
     }
 }

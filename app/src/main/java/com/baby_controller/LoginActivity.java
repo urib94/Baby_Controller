@@ -126,7 +126,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void userLoggedIn(){
-        if(mAuth.getCurrentUser() != null){
+        if(mAuth.getCurrentUser() != null ){
             getUserFromDb();
         }else{
             setContentView(R.layout.login_activity);
